@@ -184,81 +184,9 @@ class _DashboardPageState extends State<DashboardPage>
           ],
 
           // USER
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 8,
-            ),
-
-            decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(30),
-            ),
-
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 16,
-
-                  backgroundColor: primaryColor,
-
-                  child: Text(
-                    userName.isNotEmpty
-                        ? userName[0].toUpperCase()
-                        : 'U',
-
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 9),
-
-                if (MediaQuery.of(context).size.width > 600)
-                  Text(
-                    userName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: darkColor,
-                    ),
-                  ),
-
-                const SizedBox(width: 5),
-
-                PopupMenuButton<String>(
-                  tooltip: 'Account',
-
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 20,
-                  ),
-
-                  onSelected: (value) {
-                    if (value == 'logout') {
-                      _logout();
-                    }
-                  },
-
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'logout',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.logout,
-                            size: 20,
-                          ),
-                          SizedBox(width: 10),
-                          Text('Logout'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          _ProfileMenu(
+            userName: userName,
+            onLogout: _logout,
           ),
         ],
       ),
@@ -967,6 +895,451 @@ class _TopicCardState extends State<_TopicCard> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileMenu extends StatefulWidget {
+  final String userName;
+  final VoidCallback onLogout;
+
+  const _ProfileMenu({
+    required this.userName,
+    required this.onLogout,
+  });
+
+  @override
+  State<_ProfileMenu> createState() => _ProfileMenuState();
+}
+
+class _ProfileMenuState extends State<_ProfileMenu> {
+  static const Color primaryColor = Color(0xFF166534);
+  static const Color darkColor = Color(0xFF12372A);
+
+  bool _isOpen = false;
+  OverlayEntry? _overlayEntry;
+
+  final List<Map<String, dynamic>> menuItems = [
+    {
+      'title': 'Dashboard',
+      'icon': Icons.dashboard_outlined,
+    },
+    {
+      'title': 'My Learning',
+      'icon': Icons.menu_book_outlined,
+    },
+    {
+      'title': 'My Progress',
+      'icon': Icons.insights_outlined,
+    },
+    {
+      'title': 'Bookmarks',
+      'icon': Icons.bookmark_border,
+    },
+    {
+      'title': 'Certificates',
+      'icon': Icons.workspace_premium_outlined,
+    },
+    {
+      'title': 'Settings',
+      'icon': Icons.settings_outlined,
+    },
+  ];
+
+  // ==================================================
+  // BUKA DROPDOWN
+  // ==================================================
+
+  void _showMenu() {
+    final renderBox =
+        context.findRenderObject() as RenderBox;
+
+    final position =
+        renderBox.localToGlobal(Offset.zero);
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return Positioned(
+          top: position.dy + renderBox.size.height + 8,
+          left: position.dx + renderBox.size.width - 270,
+
+          child: Material(
+            color: Colors.transparent,
+
+            child: _buildDropdown(),
+          ),
+        );
+      },
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+
+    setState(() {
+      _isOpen = true;
+    });
+  }
+
+  // ==================================================
+  // TUTUP DROPDOWN
+  // ==================================================
+
+  void _hideMenu() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+
+    if (mounted) {
+      setState(() {
+        _isOpen = false;
+      });
+    }
+  }
+
+  // ==================================================
+  // DROPDOWN
+  // ==================================================
+
+  Widget _buildDropdown() {
+    return Container(
+      width: 500,
+
+      constraints: const BoxConstraints(
+        maxHeight: 430,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        borderRadius: BorderRadius.circular(16),
+
+        border: Border.all(
+          color: Colors.black.withValues(
+            alpha: 0.06,
+          ),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: 0.15,
+            ),
+
+            blurRadius: 25,
+
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+
+        children: [
+          // ==========================================
+          // PROFILE HEADER
+          // ==========================================
+
+          Padding(
+            padding: const EdgeInsets.all(18),
+
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 25,
+
+                  backgroundColor: primaryColor,
+
+                  child: Text(
+                    widget.userName.isNotEmpty
+                        ? widget.userName[0]
+                            .toUpperCase()
+                        : 'U',
+
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+
+                    children: [
+                      Text(
+                        widget.userName,
+
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: darkColor,
+                        ),
+                      ),
+
+                      const SizedBox(height: 3),
+
+                      const Text(
+                        'Biology Explorer',
+
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(height: 1),
+
+          // ==========================================
+          // LISTVIEW BUILDER
+          // ==========================================
+
+          SizedBox(
+            height: 270,
+
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+
+              itemCount: menuItems.length,
+
+              itemBuilder: (context, index) {
+                final item = menuItems[index];
+
+                return _ProfileMenuItem(
+                  title: item['title'],
+                  icon: item['icon'],
+
+                  onTap: () {
+                    _hideMenu();
+
+                    debugPrint(
+                      'Menu dipilih: ${item['title']}',
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+
+          const Divider(height: 1),
+
+          // ==========================================
+          // LOGOUT
+          // ==========================================
+
+          _ProfileMenuItem(
+            title: 'Logout',
+            icon: Icons.logout,
+            danger: true,
+
+            onTap: () {
+              _hideMenu();
+              widget.onLogout();
+            },
+          ),
+
+          const SizedBox(height: 6),
+        ],
+      ),
+    );
+  }
+
+  // ==================================================
+  // PROFILE BUTTON
+  // ==================================================
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(30),
+
+      onTap: () {
+        if (_isOpen) {
+          _hideMenu();
+        } else {
+          _showMenu();
+        }
+      },
+
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 8,
+        ),
+
+        decoration: BoxDecoration(
+          color: primaryColor.withValues(
+            alpha: 0.08,
+          ),
+
+          borderRadius: BorderRadius.circular(30),
+        ),
+
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+
+          children: [
+            CircleAvatar(
+              radius: 16,
+
+              backgroundColor: primaryColor,
+
+              child: Text(
+                widget.userName.isNotEmpty
+                    ? widget.userName[0]
+                        .toUpperCase()
+                    : 'U',
+
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 9),
+
+            Text(
+              widget.userName,
+
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: darkColor,
+              ),
+            ),
+
+            const SizedBox(width: 5),
+
+            AnimatedRotation(
+              turns: _isOpen ? 0.5 : 0,
+
+              duration: const Duration(
+                milliseconds: 200,
+              ),
+
+              child: const Icon(
+                Icons.keyboard_arrow_down,
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+
+    super.dispose();
+  }
+}
+
+// ======================================================
+// PROFILE MENU ITEM
+// ======================================================
+
+class _ProfileMenuItem extends StatefulWidget {
+  final String title;
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool danger;
+
+  const _ProfileMenuItem({
+    required this.title,
+    required this.icon,
+    required this.onTap,
+    this.danger = false,
+  });
+
+  @override
+  State<_ProfileMenuItem> createState() =>
+      _ProfileMenuItemState();
+}
+
+class _ProfileMenuItemState
+    extends State<_ProfileMenuItem> {
+  bool hovered = false;
+
+  static const Color primaryColor =
+      Color(0xFF166534);
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() {
+          hovered = true;
+        });
+      },
+
+      onExit: (_) {
+        setState(() {
+          hovered = false;
+        });
+      },
+
+      child: InkWell(
+        onTap: widget.onTap,
+
+        child: AnimatedContainer(
+          duration: const Duration(
+            milliseconds: 150,
+          ),
+
+          padding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 13,
+          ),
+
+          color: hovered
+              ? primaryColor.withValues(
+                  alpha: 0.07,
+                )
+              : Colors.transparent,
+
+          child: Row(
+            children: [
+              Icon(
+                widget.icon,
+
+                size: 20,
+
+                color: widget.danger
+                    ? Colors.red.shade600
+                    : primaryColor,
+              ),
+
+              const SizedBox(width: 13),
+
+              Text(
+                widget.title,
+
+                style: TextStyle(
+                  fontSize: 14,
+
+                  fontWeight: FontWeight.w500,
+
+                  color: widget.danger
+                      ? Colors.red.shade600
+                      : Colors.black87,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
   Widget _biologyCard({
     required IconData icon,
     required String title,
-    required String description,
+    required String description, 
   }) {
     return Container(
       padding: const EdgeInsets.all(24),
