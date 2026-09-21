@@ -1,10 +1,9 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
-
 import '../services/auth_service.dart';
 import '../widgets/cell_background.dart';
 import 'login_page.dart';
+import 'about_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -174,13 +173,21 @@ class _DashboardPageState extends State<DashboardPage>
 
             const SizedBox(width: 10),
 
-            _navButton('Explore'),
+            _navButton('Explore'),  
 
             const SizedBox(width: 10),
 
-            _navButton('About'),
-
-            const SizedBox(width: 25),
+          _navButton(
+  'About',
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AboutPage(),
+      ),
+    );
+  },
+),
           ],
 
           // USER
@@ -193,9 +200,9 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  Widget _navButton(String title) {
+  Widget _navButton(String title, {VoidCallback? onTap}) {
     return TextButton(
-      onPressed: () {},
+      onPressed: onTap ?? () {},
 
       child: Text(
         title,
