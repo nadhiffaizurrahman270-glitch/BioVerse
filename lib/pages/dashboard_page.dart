@@ -152,7 +152,7 @@ class _DashboardPageState extends State<DashboardPage>
       height: 76,
 
       padding: const EdgeInsets.symmetric(
-        horizontal: 60,
+        horizontal: 20,
       ),
 
       decoration: BoxDecoration(
@@ -212,21 +212,23 @@ class _DashboardPageState extends State<DashboardPage>
 
             const SizedBox(width: 10),
 
-            _navButton('Explore'),  
+            _navButton('Explore'),
 
             const SizedBox(width: 10),
 
-          _navButton(
-  'About',
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AboutPage(),
-      ),
-    );
-  },
-),
+            _navButton(
+              'About',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AboutPage(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(width: 10),
           ],
 
           // USER
@@ -715,18 +717,18 @@ class _DashboardPageState extends State<DashboardPage>
               const Text(
                 'Explore Biology',
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 32,
                   fontWeight: FontWeight.w800,
-                  color: darkColor,
+                  color: Colors.white,
                 ),
               ),
 
               const SizedBox(height: 8),
 
-              const Text(
+              Text(
                 'Choose a topic and start exploring.',
                 style: TextStyle(
-                  color: Colors.black54,
+                  color: Colors.white.withValues(alpha: 0.75),
                   fontSize: 15,
                 ),
               ),
