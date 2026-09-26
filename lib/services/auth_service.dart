@@ -38,7 +38,7 @@ class AuthService {
   // ==========================================
 
   static String? login({
-    required String email,
+    required String name,
     required String password,
   }) {
     Map<String, String>? user;
@@ -46,7 +46,7 @@ class AuthService {
     try {
       user = _users.firstWhere(
         (user) =>
-            user['email'] == email &&
+            user['name'] == name &&
             user['password'] == password,
       );
     } catch (_) {
@@ -55,7 +55,7 @@ class AuthService {
 
     // Akun tidak ditemukan
     if (user == null) {
-      return 'Email atau password salah.';
+      return 'Username atau password salah.';
     }
 
     // Simpan user yang sedang login

@@ -4,6 +4,7 @@ import '../services/auth_service.dart';
 import '../widgets/cell_background.dart';
 import 'login_page.dart';
 import 'about_page.dart';
+import 'package:flutter_projek_1/models/biology_topic.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -16,6 +17,17 @@ class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
   _DashboardPageState();
 
+  IconData _getTopicIcon(int index) {
+    const icons = [
+      Icons.biotech,
+      Icons.coronavirus_outlined,
+      Icons.bubble_chart_outlined,
+      Icons.eco_outlined,
+    ];
+
+    return icons[index % icons.length];
+  }
+
   static const Color primaryColor = Color(0xFF166534);
   static const Color darkColor = Color(0xFF12372A);
   static const Color lightGreen = Color(0xFFF0FDF4);
@@ -24,6 +36,33 @@ class _DashboardPageState extends State<DashboardPage>
   late AnimationController _floatingController;
 
   bool _virusHovered = false;
+
+        final List<BiologyTopic> topics = [
+      BiologyTopic(
+        title: 'DNA & Genetics',
+        description: 'Explore DNA and Genetic information', 
+        category: 'Genetics', 
+        level: 'Beginner'
+      ),
+      BiologyTopic(
+        title: 'Cell Biology',
+        description: 'Learn about cells and their organelles', 
+        category: 'Cells', 
+        level: 'Beginner'
+      ),
+      BiologyTopic(
+        title: 'Viruses',
+        description: 'Explore virus structure and replication', 
+        category: 'Microbiology', 
+        level: 'Intermediate'
+      ),
+      BiologyTopic(
+        title: 'Life & Ecosystems',
+        description: 'Understand organisms and their environment', 
+        category: 'Ecology', 
+        level: 'Intermediate'
+      ),
+    ];
 
   @override
   void initState() {
@@ -706,41 +745,30 @@ class _DashboardPageState extends State<DashboardPage>
                     count = 2;
                   }
 
-                  return GridView.count(
-                    crossAxisCount: count,
+                  return GridView.builder(
 
                     shrinkWrap: true,
 
                     physics:
                         const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: count,
+                      mainAxisSpacing: 18,
+                      crossAxisSpacing: 18,
+                      childAspectRatio: 1.6,
+                    ),
 
-                    mainAxisSpacing: 18,
-                    crossAxisSpacing: 18,
+                    itemCount: topics.length,
 
-                    childAspectRatio: 1.6,
+                    itemBuilder: (context, index) {
+                      final topic = topics[index];
 
-                    children: const [
-                      _TopicCard(
-                        icon: Icons.biotech,
-                        title: 'DNA & Genetics',
-                        description:
-                            'Explore genes, DNA, and heredity.',
-                      ),
-
-                      _TopicCard(
-                        icon: Icons.coronavirus_outlined,
-                        title: 'Viruses',
-                        description:
-                            'Understand viruses and how they work.',
-                      ),
-
-                      _TopicCard(
-                        icon: Icons.bubble_chart_outlined,
-                        title: 'Cell Biology',
-                        description:
-                            'Discover the fascinating world of cells.',
-                      ),
-                    ],
+                      return _TopicCard(
+                        icon: _getTopicIcon(index), 
+                        title: topic.title, 
+                        description: topic.description,
+                      );
+                    },
                   );
                 },
               ),

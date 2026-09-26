@@ -16,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
   bool _isLoading = false;
 
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   static const Color primaryColor = Color(0xFF166534);
@@ -24,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   
   @override 
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -33,18 +33,12 @@ class _LoginPageState extends State<LoginPage> {
   // LOGIN VALIDATION
   // =========================
   void _handleLogin() {
-    final email = _emailController.text.trim();
+    final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    // Cek email kosong
-    if (email.isEmpty) {
-      _showError('Email harus diisi.');
-      return;
-    }
-
-    // Cek format email
-    if (!email.contains('@') || !email.contains('.')) {
-      _showError('Masukkan alamat email yang valid.');
+    // Cek username kosong
+    if (username.isEmpty) {
+      _showError('username harus diisi.');
       return;
     }
 
@@ -70,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
 
       final error = AuthService.login(
-        email: email,
+        name: username,
         password: password,
       );
 
@@ -181,11 +175,11 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 30),
 
-                  //Email Input
+                  //username Input
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Email',
+                      'Username',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                       ),
@@ -195,11 +189,11 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 8),
 
                   TextField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
+                    controller: _usernameController,
+                    keyboardType: TextInputType.text,
                     decoration: InputDecoration(
-                      hintText: 'Enter your email',
-                      prefixIcon: const Icon(Icons.email_outlined,),
+                      hintText: 'Enter your username',
+                      prefixIcon: const Icon(Icons.person_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
