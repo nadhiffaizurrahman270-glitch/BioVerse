@@ -40,25 +40,25 @@ class _DashboardPageState extends State<DashboardPage>
         final List<BiologyTopic> topics = [
       BiologyTopic(
         title: 'DNA & Genetics',
-        description: 'Explore DNA and Genetic information', 
+        description: 'Jelajah DNA dan informasi genetik', 
         category: 'Genetics', 
         level: 'Beginner'
       ),
       BiologyTopic(
         title: 'Cell Biology',
-        description: 'Learn about cells and their organelles', 
+        description: 'Pelajari tentang sel dan organ-organnya.', 
         category: 'Cells', 
         level: 'Beginner'
       ),
       BiologyTopic(
         title: 'Viruses',
-        description: 'Explore virus structure and replication', 
+        description: 'Pelajari struktur dan replikasi virus.', 
         category: 'Microbiology', 
         level: 'Intermediate'
       ),
       BiologyTopic(
         title: 'Life & Ecosystems',
-        description: 'Understand organisms and their environment', 
+        description: 'Memahami organisme dan lingkungannya', 
         category: 'Ecology', 
         level: 'Intermediate'
       ),
@@ -389,7 +389,7 @@ class _DashboardPageState extends State<DashboardPage>
           const SizedBox(height: 25),
 
           Text(
-            'Welcome back,\n$userName 👋',
+            'Hi, $userName',
             style: const TextStyle(
               fontSize: 42,
               height: 1.1,
@@ -401,9 +401,9 @@ class _DashboardPageState extends State<DashboardPage>
           const SizedBox(height: 20),
 
           const Text(
-            'Explore the fascinating world of biology '
-            'through interactive learning, visual exploration, '
-            'and engaging experiences.',
+            'Jelajahi dunia biologi yang memukau  '
+            'melalui pembelajaran interaktif, eksplorasi visual,  '
+            'dan experimen yang menarik.',
             style: TextStyle(
               fontSize: 16,
               height: 1.7,

@@ -206,14 +206,14 @@ class _SignUpPageState extends State<SignUpPage> {
                     const SizedBox(height: 30),
 
                     // NAME
-                    _buildLabel('Full Name'),
+                    _buildLabel('Username'),
 
                     const SizedBox(height: 8),
 
                     TextField(
                       controller: _nameController,
                       decoration: _inputDecoration(
-                        hint: 'Enter your full name',
+                        hint: 'Enter your username',
                         icon: Icons.person_outline,
                       ),
                     ),
@@ -222,7 +222,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                     // EMAIL
                     _buildLabel('Email'),
-
+  
                     const SizedBox(height: 8),
 
                     TextField(
