@@ -841,8 +841,6 @@ class _CreatorInfoGrid extends StatelessWidget {
             crossAxisCount: count,
             crossAxisSpacing: 14,
             mainAxisSpacing: 14,
-
-            // Tinggi card dibuat lebih lega
             mainAxisExtent: 135,
           ),
 

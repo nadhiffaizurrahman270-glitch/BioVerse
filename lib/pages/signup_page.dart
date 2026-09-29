@@ -386,7 +386,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
 
                       label: const Text(
-                        'Back to Login',
+                        'Back to Sign in',
                       ),
                     ),
                   ],

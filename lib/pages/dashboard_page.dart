@@ -5,6 +5,7 @@ import '../widgets/cell_background.dart';
 import 'login_page.dart';
 import 'about_page.dart';
 import 'package:flutter_projek_1/models/biology_topic.dart';
+import 'topic_detail_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -42,25 +43,99 @@ class _DashboardPageState extends State<DashboardPage>
         title: 'DNA & Genetics',
         description: 'Jelajah DNA dan informasi genetik', 
         category: 'Genetics', 
-        level: 'Beginner'
+        level: 'Beginner',
+        content: '''
+DNA atau Deoxyribonucleic Acid merupakan molekul
+yang menyimpan informasi genetik pada makhluk hidup.
+
+DNA memiliki peran penting dalam menentukan dan
+mewariskan karakteristik suatu organisme.
+
+STRUKTUR DNA
+
+DNA memiliki bentuk double helix atau heliks ganda.
+Struktur ini tersusun dari unit-unit yang disebut
+nukleotida.
+
+Setiap nukleotida terdiri dari:
+• Gula deoksiribosa
+• Gugus fosfat
+• Basa nitrogen
+
+BASA NITROGEN
+
+DNA memiliki empat jenis basa nitrogen, yaitu:
+
+• Adenine (A)
+• Thymine (T)
+• Guanine (G)
+• Cytosine (C)
+
+Basa nitrogen tersebut memiliki pasangan tertentu:
+
+A ↔ T
+G ↔ C
+
+FUNGSI DNA
+
+DNA berfungsi sebagai penyimpan informasi genetik
+yang diperlukan oleh organisme. Informasi tersebut
+juga dapat diwariskan dari satu generasi ke generasi
+berikutnya.
+
+DNA menjadi salah satu komponen penting dalam
+pewarisan sifat dan berbagai proses biologis.
+''',
       ),
       BiologyTopic(
         title: 'Cell Biology',
-        description: 'Pelajari tentang sel dan organ-organnya.', 
-        category: 'Cells', 
-        level: 'Beginner'
+        description: 'Pelajari tentang sel dan organ-organnya.',
+        category: 'Cells',
+        level: 'Beginner',
+        content: '''
+Sel adalah unit dasar kehidupan.
+Semua makhluk hidup tersusun atas sel.
+
+Setiap sel memiliki organel yang menjalankan fungsi tertentu.
+• Inti sel mengendalikan aktivitas sel.
+• Mitokondria menghasilkan energi.
+• Ribosom memproduksi protein.
+• Membran sel mengatur keluar masuk zat.
+
+Sel-sel dapat membentuk jaringan, organ, dan sistem organ.
+''',
       ),
       BiologyTopic(
         title: 'Viruses',
-        description: 'Pelajari struktur dan replikasi virus.', 
-        category: 'Microbiology', 
-        level: 'Intermediate'
+        description: 'Pelajari struktur dan replikasi virus.',
+        category: 'Microbiology',
+        level: 'Intermediate',
+        content: '''
+Virus adalah agen infeksius yang hanya dapat berkembang biak
+pada sel inang.
+
+Virus memiliki kapsid yang melindungi materi genetiknya.
+Beberapa virus memiliki membran lipid di luar kapsid.
+
+Replikasi virus biasanya terjadi setelah virus menempel
+pada sel inang dan memasukkan materi genetiknya.
+''',
       ),
       BiologyTopic(
         title: 'Life & Ecosystems',
-        description: 'Memahami organisme dan lingkungannya', 
-        category: 'Ecology', 
-        level: 'Intermediate'
+        description: 'Memahami organisme dan lingkungannya',
+        category: 'Ecology',
+        level: 'Intermediate',
+        content: '''
+Ekosistem adalah hubungan antara makhluk hidup
+dengan lingkungan sekitarnya.
+
+Di dalam ekosistem, terdapat produsen, konsumen,
+dan dekomposer yang saling berinteraksi.
+
+Ketidakseimbangan ekosistem dapat memengaruhi
+kehidupan berbagai organisme di dalamnya.
+''',
       ),
     ];
 
@@ -769,6 +844,17 @@ class _DashboardPageState extends State<DashboardPage>
                         icon: _getTopicIcon(index), 
                         title: topic.title, 
                         description: topic.description,
+
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TopicDetailPage(
+                                topic: topic,
+                              ),
+                            ),  
+                          );
+                        }
                       );
                     },
                   );
@@ -790,11 +876,13 @@ class _TopicCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final String description;
+  final VoidCallback? onTap;
 
   const _TopicCard({
     required this.icon,
     required this.title,
     required this.description,
+    this.onTap,
   });
 
   @override
@@ -815,123 +903,95 @@ class _TopicCardState extends State<_TopicCard> {
           hovered = true;
         });
       },
-
       onExit: (_) {
         setState(() {
           hovered = false;
         });
       },
-
-      child: AnimatedContainer(
-        duration: const Duration(
-          milliseconds: 250,
-        ),
-
-        transform: Matrix4.translationValues(
-          0,
-          hovered ? -6 : 0,
-          0,
-        ),
-
-        padding: const EdgeInsets.all(24),
-
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.95),
-
-          borderRadius: BorderRadius.circular(18),
-
-          border: Border.all(
-            color: hovered
-                ? primaryColor.withValues(alpha: 0.3)
-                : Colors.white,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          transform: Matrix4.translationValues(
+            0,
+            hovered ? -6 : 0,
+            0,
           ),
-
-          boxShadow: [
-            BoxShadow(
-              color: primaryColor.withValues(
-                alpha: hovered ? 0.15 : 0.06,
-              ),
-
-              blurRadius: hovered ? 25 : 15,
-
-              offset: Offset(
-                0,
-                hovered ? 10 : 5,
-              ),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.95),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: hovered
+                  ? primaryColor.withValues(alpha: 0.3)
+                  : Colors.white,
             ),
-          ],
-        ),
-
-        child: Row(
-          children: [
-            Container(
-              width: 58,
-              height: 58,
-
-              decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
                 color: primaryColor.withValues(
-                  alpha: 0.1,
+                  alpha: hovered ? 0.15 : 0.06,
                 ),
-
-                borderRadius:
-                    BorderRadius.circular(15),
+                blurRadius: hovered ? 25 : 15,
+                offset: Offset(
+                  0,
+                  hovered ? 10 : 5,
+                ),
               ),
-
-              child: Icon(
-                widget.icon,
-                color: primaryColor,
-                size: 28,
-              ),
-            ),
-
-            const SizedBox(width: 18),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
-
-                children: [
-                  Text(
-                    widget.title,
-
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: darkColor,
-                    ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  color: primaryColor.withValues(
+                    alpha: 0.1,
                   ),
-
-                  const SizedBox(height: 5),
-
-                  Text(
-                    widget.description,
-
-                    style: const TextStyle(
-                      fontSize: 13,
-                      height: 1.4,
-                      color: Colors.black54,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Icon(
+                  widget.icon,
+                  color: primaryColor,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: darkColor,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 5),
+                    Text(
+                      widget.description,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        height: 1.4,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-
-            AnimatedOpacity(
-              opacity: hovered ? 1 : 0,
-
-              duration:
-                  const Duration(milliseconds: 200),
-
-              child: const Icon(
-                Icons.arrow_forward,
-                color: primaryColor,
+              AnimatedOpacity(
+                opacity: hovered ? 1 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: const Icon(
+                  Icons.arrow_forward,
+                  color: primaryColor,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
