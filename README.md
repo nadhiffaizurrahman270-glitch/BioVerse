@@ -43,6 +43,15 @@ Topik dan materi akan terus dikembangkan seiring perkembangan project.
 | GitHub | Repository & collaboration |
 
 ---
+## 📌 Featured Project
+
+### 🧬 BIOVERSE
+
+Platform pembelajaran biologi interaktif berbasis Flutter Web.
+
+**[🌐 Live Demo](https://nadhiffaizurrahman270-glitch.github.io/BioVerse/)**
+&nbsp; • &nbsp;
+**[💻 Source Code](https://github.com/nadhiffaizurrahman270-glitch/BioVerse)**
 
 ## 📁 Struktur Project
 
@@ -86,12 +95,17 @@ flutter run -d chrome
 
 ---
 
-## 📸 Preview
+## 🌐 Live Demo
 
-Screenshot aplikasi akan ditambahkan setelah tampilan final BIOVERSE selesai dikembangkan.
+👉 **[Buka BIOVERSE](https://nadhiffaizurrahman270-glitch.github.io/BioVerse/)**
+
+BIOVERSE dapat diakses langsung melalui browser tanpa perlu melakukan instalasi.
 
 ---
 
+## 📸 Preview
+
+Screenshot aplikasi akan ditambahkan setelah tampilan final BIOVERSE selesai dikembangkan.
 ## 🌱 Pengembangan Selanjutnya
 
 Beberapa pengembangan yang direncanakan:
