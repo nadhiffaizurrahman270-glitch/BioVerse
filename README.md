@@ -10,13 +10,13 @@ Project ini dikembangkan sebagai bagian dari eksplorasi pengembangan aplikasi be
 
 ## ✨ Fitur
 
-- 🔐 Halaman Login
-- 🏠 Dashboard pembelajaran
+- 🔐 Login Page
+- 🏠 Learning Dashboard
 - 🧬 Materi biologi
-- 📚 Halaman detail topik
-- 👤 Halaman profil
+- 📚 detail topic page
+- 👤 profil page
 - 🖥️ Responsive web interface
-- 🎨 Antarmuka bertema biologi
+- 🎨 UI biologi
 
 ---
 
