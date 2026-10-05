@@ -1,17 +1,118 @@
-# flutter_projek_1
+# 🧬 BIOVERSE
 
-A new Flutter project.
+> Platform pembelajaran biologi interaktif berbasis Flutter Web.
 
-## Getting Started
+BIOVERSE adalah platform pembelajaran yang dirancang untuk membantu pengguna mempelajari berbagai konsep biologi melalui materi yang terstruktur dan tampilan interaktif.
 
-This project is a starting point for a Flutter application.
+Project ini dikembangkan sebagai bagian dari eksplorasi pengembangan aplikasi berbasis Flutter Web.
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## ✨ Fitur
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- 🔐 Halaman Login
+- 🏠 Dashboard pembelajaran
+- 🧬 Materi biologi
+- 📚 Halaman detail topik
+- 👤 Halaman profil
+- 🖥️ Responsive web interface
+- 🎨 Antarmuka bertema biologi
+
+---
+
+## 🧪 Topik Pembelajaran
+
+Saat ini BIOVERSE dikembangkan untuk menyediakan beberapa topik pembelajaran biologi, seperti:
+
+- 🧬 DNA & Genetics
+- 🦠 Viruses
+- 🔬 Cell Biology
+
+Topik dan materi akan terus dikembangkan seiring perkembangan project.
+
+---
+
+## 🛠️ Teknologi
+
+| Teknologi | Penggunaan |
+|---|---|
+| Flutter | Framework aplikasi |
+| Dart | Bahasa pemrograman |
+| Flutter Web | Platform aplikasi |
+| Git | Version control |
+| GitHub | Repository & collaboration |
+
+---
+
+## 📁 Struktur Project
+
+```text
+lib/
+├── models/
+├── pages/
+├── widgets/
+└── main.dart
+```
+
+Struktur project dapat berkembang sesuai kebutuhan pengembangan BIOVERSE.
+
+---
+
+## 🚀 Menjalankan Project
+
+Clone repository:
+
+```bash
+git clone https://github.com/nadhiffaizurrahman270-glitch/bioverse.git
+```
+
+Masuk ke folder:
+
+```bash
+cd bioverse
+```
+
+Install dependencies:
+
+```bash
+flutter pub get
+```
+
+Jalankan aplikasi:
+
+```bash
+flutter run -d chrome
+```
+
+---
+
+## 📸 Preview
+
+Screenshot aplikasi akan ditambahkan setelah tampilan final BIOVERSE selesai dikembangkan.
+
+---
+
+## 🌱 Pengembangan Selanjutnya
+
+Beberapa pengembangan yang direncanakan:
+
+- [ ] Menambahkan lebih banyak materi biologi
+- [ ] Sistem autentikasi pengguna
+- [ ] Quiz interaktif
+- [ ] Progress pembelajaran
+- [ ] Penyempurnaan responsive design
+- [ ] Integrasi backend
+
+---
+
+## 👨‍💻 Developer
+
+**M. Nadhif Faizurrahman**
+
+Informatics Student • Developer • Builder
+
+[GitHub](https://github.com/nadhiffaizurrahman270-glitch)
+
+---
+
+> *Building, learning, and improving one project at a time.*
