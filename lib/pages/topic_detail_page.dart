@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/biology_topic.dart';
 import '../models/quiz_data.dart';
 import '../models/quiz_question.dart';
+import '../models/progress_manager.dart';
 
 class TopicDetailPage extends StatefulWidget {
   final BiologyTopic topic;
@@ -26,7 +27,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
   bool answered = false;
   bool quizFinished = false;
 
-  list<QuizQuestion> get questions {
+  List<QuizQuestion> get questions {
     return quizData[widget.topic.title] ?? [];
   }
 
@@ -58,6 +59,11 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
         answered = false;
       });
     } else {
+      ProgressManager.saveProgress(
+        widget.topic.title,
+        score,
+        questions.length,
+      );
       setState(() {
         quizFinished = true;
       });
@@ -335,7 +341,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
             ),
 
           if (answered) ...[
-            _buildAnswerFeedback(question['correct']),
+            _buildAnswerFeedback(question.correctAnswer),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
