@@ -37,6 +37,10 @@ class _DashboardPageState extends State<DashboardPage>
   static const Color darkColor = Color(0xFF12372A);
   static const Color lightGreen = Color(0xFFF0FDF4);
 
+  final GlobalKey _dashboardKey = GlobalKey();
+  final GlobalKey _exploreKey = GlobalKey();
+  final GlobalKey _learnKey = GlobalKey();
+
   late AnimationController _virusController;
   late AnimationController _floatingController;
 
@@ -180,6 +184,18 @@ kehidupan berbagai organisme di dalamnya.
     );
   }
 
+  Future<void> _scrollTo(GlobalKey key) async {
+    final targetContext = key.currentContext;
+    if (targetContext == null) return;
+
+    await Scrollable.ensureVisible(
+      targetContext,
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeInOutCubic,
+      alignment: 0,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = AuthService.currentUser;
@@ -204,16 +220,20 @@ kehidupan berbagai organisme di dalamnya.
           // MAIN CONTENT
           // ==========================================
 
-          SingleChildScrollView(
+          Positioned.fill(
             child: Column(
               children: [
                 _buildNavbar(userName),
-
-                _buildHero(userName),
-
-                _buildExploreSection(),
-
-                const SizedBox(height: 60),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        _buildHero(userName),
+                        _buildExploreSection(),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -283,15 +303,11 @@ kehidupan berbagai organisme di dalamnya.
 
           // NAVIGATION
           if (MediaQuery.of(context).size.width > 700) ...[
-            _navButton('Dashboard'),
-
+            _navButton('Dashboard', onTap: () => _scrollTo(_dashboardKey)),
             const SizedBox(width: 10),
-
-            _navButton('Learn'),
-
+            _navButton('Learn', onTap: () => _scrollTo(_learnKey)),
             const SizedBox(width: 10),
-
-            _navButton('Explore'),
+            _navButton('Explore', onTap: () => _scrollTo(_exploreKey)),
 
             const SizedBox(width: 10),
 
@@ -320,9 +336,12 @@ kehidupan berbagai organisme di dalamnya.
     );
   }
 
-  Widget _navButton(String title, {VoidCallback? onTap}) {
+  Widget _navButton(
+    String title, {
+    required VoidCallback onTap
+    }) {
     return TextButton(
-      onPressed: onTap ?? () {},
+      onPressed: onTap,
 
       child: Text(
         title,
@@ -340,6 +359,7 @@ kehidupan berbagai organisme di dalamnya.
 
   Widget _buildHero(String userName) {
     return Padding(
+      key: _dashboardKey,
       padding: const EdgeInsets.fromLTRB(
         60,
         55,
@@ -495,7 +515,7 @@ kehidupan berbagai organisme di dalamnya.
           Row(
             children: [
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () => _scrollTo(_learnKey),
 
                 icon: const Icon(
                   Icons.play_arrow,
@@ -525,7 +545,7 @@ kehidupan berbagai organisme di dalamnya.
               const SizedBox(width: 12),
 
               OutlinedButton(
-                onPressed: () {},
+                onPressed: () => _scrollTo(_exploreKey),
 
                 style: OutlinedButton.styleFrom(
                   foregroundColor: primaryColor,
@@ -778,6 +798,7 @@ kehidupan berbagai organisme di dalamnya.
 
   Widget _buildExploreSection() {
     return Padding(
+      key: _exploreKey,
       padding: const EdgeInsets.symmetric(
         horizontal: 60,
         vertical: 35,
@@ -793,9 +814,10 @@ kehidupan berbagai organisme di dalamnya.
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              const Text(
+              Text(
                 'Explore Biology',
-                style: TextStyle(
+                key: _exploreKey,
+                style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -806,23 +828,31 @@ kehidupan berbagai organisme di dalamnya.
 
               _LearningProgressSummary(topics: topics),
 
-              const SizedBox(height: 30),
-
-              const _AchievementSection(),
-
-              const SizedBox(height: 30),
-
-              const SizedBox(height: 8),
+              const SizedBox(height: 36),
 
               Text(
-                'Choose a topic and start exploring.',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.75),
-                  fontSize: 15,
+                'Learning Center',
+                key: _learnKey,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 6),
+
+              Text(
+                'Explore the world of biology',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.75),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              const SizedBox(height: 20),
 
               LayoutBuilder(
                 builder: (context, constraints) {
@@ -844,9 +874,9 @@ kehidupan berbagai organisme di dalamnya.
                         const NeverScrollableScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: count,
-                      mainAxisSpacing: 18,
-                      crossAxisSpacing: 18,
-                      childAspectRatio: 1.6,
+                      mainAxisExtent: count ==1 ? 110 : 100,
+                      crossAxisSpacing: 14,
+                      mainAxisSpacing: 14,
                     ),
 
                     itemCount: topics.length,
@@ -876,6 +906,11 @@ kehidupan berbagai organisme di dalamnya.
                   );
                 },
               ),
+
+              const SizedBox(height: 30),
+
+              const _AchievementSection(),
+
             ],
           ),
         ),
@@ -889,8 +924,7 @@ class _AchievementSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final achievements =
-        AchievementManager.getAchievements();
+    final achievements = AchievementManager.getAchievements();
 
     final unlockedCount =
         achievements.where((item) => item.unlocked).length;
@@ -910,9 +944,10 @@ class _AchievementSection extends StatelessWidget {
               ),
             ),
             Text(
-              '$unlockedCount/${achievements.length} Unlocked',
+              '$unlockedCount/${achievements.length}',
               style: const TextStyle(
-                color: Colors.white,
+                color: Colors.white70,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -922,41 +957,33 @@ class _AchievementSection extends StatelessWidget {
         const SizedBox(height: 6),
 
         const Text(
-          'Keep learning and unlock new achievements!',
+          'Collect badges as you explore biology.',
           style: TextStyle(
             color: Colors.white70,
-            fontSize: 14,
+            fontSize: 13,
           ),
         ),
 
         const SizedBox(height: 18),
 
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: achievements.length,
-          gridDelegate:
-              const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 300,
-            mainAxisExtent: 145,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemBuilder: (context, index) {
-            return _AchievementCard(
-              achievement: achievements[index],
+        Wrap(
+          spacing: 14,
+          runSpacing: 14,
+          children: achievements.map((achievement) {
+            return _AchievementBadge(
+              achievement: achievement,
             );
-          },
+          }).toList(),
         ),
       ],
     );
   }
 }
 
-class _AchievementCard extends StatelessWidget {
+class _AchievementBadge extends StatelessWidget {
   final Achievement achievement;
 
-  const _AchievementCard({
+  const _AchievementBadge({
     required this.achievement,
   });
 
@@ -964,85 +991,67 @@ class _AchievementCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final unlocked = achievement.unlocked;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: unlocked
-            ? Colors.white
-            : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: unlocked
-              ? const Color(0xFF166534)
-              : Colors.grey.shade300,
+    return Tooltip(
+      message: '${achievement.title}\n${achievement.description}',
+      child: Container(
+        width: 76,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8,
+          vertical: 12,
         ),
-        boxShadow: unlocked
-            ? [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : null,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 58,
-            height: 58,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: unlocked
-                  ? const Color(0xFFF0FDF4)
-                  : Colors.grey.shade200,
-              shape: BoxShape.circle,
+        decoration: BoxDecoration(
+          color: unlocked
+              ? Colors.white.withValues(alpha: 0.13)
+              : Colors.white.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withValues(
+              alpha: unlocked ? 0.35 : 0.10,
             ),
-            child: Text(
-              unlocked ? achievement.icon : '🔒',
-              style: const TextStyle(
-                fontSize: 27,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Opacity(
+              opacity: unlocked ? 1.0 : 0.28,
+              child: Text(
+                achievement.icon,
+                style: const TextStyle(
+                  fontSize: 30,
+                ),
               ),
             ),
-          ),
 
-          const SizedBox(width: 14),
+            const SizedBox(height: 8),
 
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  achievement.title,
-                  style: TextStyle(
-                    color: unlocked
-                        ? const Color(0xFF12372A)
-                        : Colors.grey.shade600,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Text(
-                  achievement.description,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: unlocked
-                        ? Colors.black54
-                        : Colors.grey.shade500,
-                    fontSize: 12,
-                    height: 1.4,
-                  ),
-                ),
-              ],
+            Icon(
+              unlocked
+                  ? Icons.check_circle
+                  : Icons.lock_outline,
+              size: 13,
+              color: unlocked
+                  ? const Color(0xFF86EFAC)
+                  : Colors.white30,
             ),
-          ),
-        ],
+
+            const SizedBox(height: 5),
+
+            Text(
+              achievement.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withValues(
+                  alpha: unlocked ? 0.95 : 0.35,
+                ),
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1098,24 +1107,27 @@ class _TopicCardState extends State<_TopicCard> {
           duration: const Duration(milliseconds: 200),
           transform: Matrix4.translationValues(
             0,
-            hovered ? -6 : 0,
+            hovered ? -4 : 0,
             0,
           ),
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 16,
+          ),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: hovered
-                  ? primaryColor.withValues(alpha: 0.3)
+                  ? primaryColor.withValues(alpha: 0.35)
                   : Colors.white,
             ),
             boxShadow: [
               BoxShadow(
                 color: primaryColor.withValues(
-                  alpha: hovered ? 0.15 : 0.06,
+                  alpha: hovered ? 0.13 : 0.05,
                 ),
-                blurRadius: hovered ? 25 : 15,
+                blurRadius: hovered ? 18 : 10,
                 offset: Offset(
                   0,
                   hovered ? 10 : 5,
@@ -1126,21 +1138,21 @@ class _TopicCardState extends State<_TopicCard> {
           child: Row(
             children: [
               Container(
-                width: 58,
-                height: 58,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
                   color: primaryColor.withValues(
-                    alpha: 0.1,
+                    alpha: 0.10,
                   ),
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(
                   widget.icon,
                   color: primaryColor,
-                  size: 28,
+                  size: 24,
                 ),
               ),
-              const SizedBox(width: 18),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1148,30 +1160,32 @@ class _TopicCardState extends State<_TopicCard> {
                   children: [
                     Text(
                       widget.title,
+                      maxLines: 1,
                       style: const TextStyle(
-                        fontSize: 17,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: darkColor,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 4),
                     Text(
                       widget.description,
+                      maxLines: 2,
                       style: const TextStyle(
-                        fontSize: 13,
-                        height: 1.4,
+                        fontSize: 12,
+                        height: 1.35,
                         color: Colors.black54,
                       ),
                     ),
                     if (progress != null) ...[
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
                             'Progress',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                               color: Colors.black54,
                               fontWeight: FontWeight.w600,
                             ),
@@ -1179,26 +1193,26 @@ class _TopicCardState extends State<_TopicCard> {
                           Text(
                             '${progress.score}/${progress.totalQuestions}',
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                               color: Color(0xFF166534),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 5),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: LinearProgressIndicator(
                           value: progress.percentage,
-                          minHeight: 7,
+                          minHeight: 5,
                           backgroundColor: Colors.grey.shade200,
                           valueColor: const AlwaysStoppedAnimation<Color>(
                             Color(0xFF166534),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 8),
                       Text(
                         '${(progress.percentage * 100).toInt()}% selesai',
                         style: const TextStyle(
@@ -1208,11 +1222,12 @@ class _TopicCardState extends State<_TopicCard> {
                       ),
                     ],
                     AnimatedOpacity(
-                      opacity: hovered ? 1 : 0,
+                      opacity: hovered ? 1 : 0.7,
                       duration: const Duration(milliseconds: 200),
                       child: const Icon(
-                        Icons.arrow_forward,
+                        Icons.arrow_forward_rounded,
                         color: primaryColor,
+                        size: 19,
                       ),
                     ),
                   ],
