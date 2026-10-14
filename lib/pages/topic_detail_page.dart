@@ -4,6 +4,7 @@ import '../models/biology_topic.dart';
 import '../models/quiz_data.dart';
 import '../models/quiz_question.dart';
 import '../models/progress_manager.dart';
+import '../managers/learning_stats_manager.dart';
 
 class TopicDetailPage extends StatefulWidget {
   final BiologyTopic topic;
@@ -52,7 +53,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
     });
   }
 
-  void nextQuestion() {
+  Future<void> nextQuestion() async {
     if (currentQuestion < questions.length - 1) {
       setState(() {
         currentQuestion++;
@@ -65,9 +66,31 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
         score,
         questions.length,
       );
+
+      final xpEarned = await LearningStatsManager.recordQuizCompletion(
+        topicTitle: widget.topic.title,
+        score: score,
+        totalQuestions: questions.length,
+      );
+
+      if (!mounted) return;
       setState(() {
         quizFinished = true;
       });
+
+      if(xpEarned) {
+        final perfectScore = score == questions.length;
+        final earnedXp = perfectScore ? 75 : 50;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Keren! Kamu mendapatkan $earnedXp XP!'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.green.shade700,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 

@@ -544,51 +544,42 @@ class _HeroCarouselState extends State<_HeroCarousel> {
   final PageController _controller = PageController();
   int _currentPage = 0;
   bool _paused = false;
+
   late final List<_CarouselSlideData> _slides = [
-    _CarouselSlideData(
+    const _CarouselSlideData(
       eyebrow: 'YOUR LEARNING JOURNEY',
-      title: 'Build your\nlearning streak.',
-      description: 'Small steps every day lead to big discoveries.',
+      title: 'Every step counts.',
+      description: 'Learn consistently and earn XP as you explore biology.',
       icon: Icons.local_fire_department_rounded,
-      accent: const Color(0xFFFFC36A),
-      action: 'Start your journey',
-      type: _SlideType.progress,
+      accent: Color(0xFFFFC36A),
     ),
-    _CarouselSlideData(
-      eyebrow: 'FEATURED TOPIC',
-      title: 'Explore the\nworld of cells.',
-      description: 'Discover organelles and the tiny systems that make life work.',
+    const _CarouselSlideData(
+      eyebrow: 'EXPLORE & DISCOVER',
+      title: 'Discover the world of cells.',
+      description: 'Explore the tiny systems that make life work.',
       icon: Icons.bubble_chart_rounded,
-      accent: const Color(0xFF8BE0A7),
-      action: 'Discover biology',
-      type: _SlideType.topic,
+      accent: Color(0xFF8BE0A7),
     ),
-    _CarouselSlideData(
+    const _CarouselSlideData(
       eyebrow: 'LEARN BY PLAYING',
-      title: 'Ready for a\nbiology challenge?',
-      description: 'Test your knowledge with quick interactive quizzes.',
+      title: 'Challenge your knowledge.',
+      description: 'Practice what you learn with interactive biology quizzes.',
       icon: Icons.quiz_rounded,
-      accent: const Color(0xFF9EDCFF),
-      action: 'Try a quiz',
-      type: _SlideType.quiz,
+      accent: Color(0xFF9EDCFF),
     ),
-    _CarouselSlideData(
+    const _CarouselSlideData(
       eyebrow: 'YOUR ACHIEVEMENTS',
-      title: 'Every discovery\ndeserves a badge.',
-      description: 'Collect milestones as you explore more biology topics.',
+      title: 'Celebrate every discovery.',
+      description: 'Unlock badges as you make progress through biology topics.',
       icon: Icons.emoji_events_rounded,
-      accent: const Color(0xFFFFD779),
-      action: 'View achievements',
-      type: _SlideType.achievement,
+      accent: Color(0xFFFFD779),
     ),
-    _CarouselSlideData(
+    const _CarouselSlideData(
       eyebrow: 'MAKE IT YOURS',
-      title: 'Meet your\nBioVerse avatar.',
-      description: 'Choose an avatar and make your learning profile your own.',
+      title: 'Show your personality.',
+      description: 'Customize your avatar and make your learning profile your own.',
       icon: Icons.face_rounded,
-      accent: const Color(0xFFC9B5FF),
-      action: 'Customize avatar',
-      type: _SlideType.avatar,
+      accent: Color(0xFFC9B5FF),
     ),
   ];
 
@@ -631,7 +622,7 @@ class _HeroCarouselState extends State<_HeroCarousel> {
       onEnter: (_) => setState(() => _paused = true),
       onExit: (_) => setState(() => _paused = false),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 390, maxHeight: 440),
+        constraints: const BoxConstraints(minHeight: 280, maxHeight: 320),
         decoration: BoxDecoration(
           color: const Color(0xFF174936),
           borderRadius: BorderRadius.circular(25),
@@ -654,7 +645,7 @@ class _HeroCarouselState extends State<_HeroCarousel> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(_slides.length, (index) {
@@ -687,132 +678,64 @@ class _HeroCarouselState extends State<_HeroCarousel> {
 
   Widget _buildSlide(_CarouselSlideData slide) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(25, 25, 25, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Expanded(
-              child: Text(slide.eyebrow,
-                  style: const TextStyle(
-                      color: Color(0xFFB6E9C5),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.4)),
-            ),
-            Text('${_currentPage + 1}'.padLeft(2, '0') + ' / 05',
-                style: TextStyle(
-                    color: Colors.white.withValues(alpha: .45),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700)),
-          ]),
-          const SizedBox(height: 24),
-          Container(
-            width: 74,
-            height: 74,
-            decoration: BoxDecoration(
-              color: slide.accent.withValues(alpha: .13),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: slide.accent.withValues(alpha: .24)),
-            ),
-            child: Icon(slide.icon, color: slide.accent, size: 40),
-          ),
-          const SizedBox(height: 22),
-          Text(slide.title,
+      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              slide.eyebrow,
+              textAlign: TextAlign.center,
               style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 27,
-                  height: 1.12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -.5)),
-          const SizedBox(height: 12),
-          Text(slide.description,
+                color: Color(0xFFB6E9C5),
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.4,
+              ),
+            ),
+            const SizedBox(height: 15),
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: slide.accent.withValues(alpha: .13),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: slide.accent.withValues(alpha: .24)),
+              ),
+              child: Icon(slide.icon, color: slide.accent, size: 31),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              slide.title,
+              textAlign: TextAlign.center,
               style: const TextStyle(
-                  color: Color(0xFFC3D6CA), fontSize: 13, height: 1.6)),
-          const SizedBox(height: 18),
-          _slideExtra(slide),
-          const Spacer(),
-          Row(children: [
-            Text(slide.action,
-                style: TextStyle(
-                    color: slide.accent,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800)),
-            const SizedBox(width: 7),
-            Icon(Icons.arrow_forward_rounded, color: slide.accent, size: 16),
-          ]),
-        ],
+                color: Colors.white,
+                fontSize: 23,
+                height: 1.15,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -.4,
+              ),
+            ),
+            const SizedBox(height: 9),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 310),
+              child: Text(
+                slide.description,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFFC3D6CA),
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-
-  Widget _slideExtra(_CarouselSlideData slide) {
-    switch (slide.type) {
-      case _SlideType.progress:
-        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            const Text('LEVEL 04',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12)),
-            const Spacer(),
-            Text('750 / 1000 XP',
-                style: TextStyle(
-                    color: Colors.white.withValues(alpha: .7), fontSize: 10)),
-          ]),
-          const SizedBox(height: 9),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: const LinearProgressIndicator(
-              value: .75,
-              minHeight: 7,
-              backgroundColor: Color(0xFF315D49),
-              valueColor: AlwaysStoppedAnimation(Color(0xFF8BE0A7)),
-            ),
-          ),
-        ]);
-      case _SlideType.topic:
-        return const _MiniPill(icon: Icons.menu_book_rounded, label: 'BIOLOGY TOPICS');
-      case _SlideType.quiz:
-        return const _MiniPill(icon: Icons.bolt_rounded, label: 'EARN XP AS YOU LEARN');
-      case _SlideType.achievement:
-        return const Row(children: [
-          _MiniBadge(icon: Icons.eco_rounded),
-          SizedBox(width: 9),
-          _MiniBadge(icon: Icons.biotech_rounded),
-          SizedBox(width: 9),
-          _MiniBadge(icon: Icons.science_rounded),
-        ]);
-      case _SlideType.avatar:
-        return Row(children: [
-          Container(
-            width: 45,
-            height: 45,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: slide.accent.withValues(alpha: .16),
-              border: Border.all(color: slide.accent.withValues(alpha: .55)),
-            ),
-            child: Icon(Icons.face_rounded, color: slide.accent, size: 29),
-          ),
-          const SizedBox(width: 11),
-          const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Biology Explorer',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800)),
-            SizedBox(height: 3),
-            Text('Your profile, your style',
-                style: TextStyle(color: Color(0xFFB6E9C5), fontSize: 10)),
-          ]),
-        ]);
-    }
-  }
 }
-
-enum _SlideType { progress, topic, quiz, achievement, avatar }
 
 class _CarouselSlideData {
   final String eyebrow;
@@ -820,8 +743,6 @@ class _CarouselSlideData {
   final String description;
   final IconData icon;
   final Color accent;
-  final String action;
-  final _SlideType type;
 
   const _CarouselSlideData({
     required this.eyebrow,
@@ -829,52 +750,7 @@ class _CarouselSlideData {
     required this.description,
     required this.icon,
     required this.accent,
-    required this.action,
-    required this.type,
   });
-}
-
-class _MiniPill extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _MiniPill({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .07),
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: Colors.white.withValues(alpha: .1)),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, color: const Color(0xFF8BE0A7), size: 15),
-          const SizedBox(width: 7),
-          Text(label,
-              style: const TextStyle(
-                  color: Color(0xFFD1E2D6),
-                  fontSize: 9,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: .5)),
-        ]),
-      );
-}
-
-class _MiniBadge extends StatelessWidget {
-  final IconData icon;
-  const _MiniBadge({required this.icon});
-
-  @override
-  Widget build(BuildContext context) => Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFD779).withValues(alpha: .13),
-          borderRadius: BorderRadius.circular(11),
-          border: Border.all(color: const Color(0xFFFFD779).withValues(alpha: .3)),
-        ),
-        child: Icon(icon, color: const Color(0xFFFFD779), size: 20),
-      );
 }
 
 class _HeroFact extends StatelessWidget {
