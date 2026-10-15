@@ -38,7 +38,7 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  void _handleSignUp() {
+  Future<void> _handleSignUp() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -78,36 +78,30 @@ class _SignUpPageState extends State<SignUpPage> {
       _isLoading = true;
     });
 
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (!mounted) return;
+    final error = await AuthService.register(name: name, email: email, password: password);
 
-      final error = AuthService.register(
-        name: name,
-        email: email,
-        password: password,
-      );
+    if (!mounted) return;
 
-      if (error != null) {
-        setState(() {
-          _isLoading = false;
-        });
-
-        _showError(error);
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Account created successfully! Please sign in.',
-          ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-
-      Navigator.pop(context);
+    setState(() {
+      _isLoading = false;
     });
+
+    if (error != null) {
+      _showError(error);
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(
+        'Akun berhasil dibuat! silahkan login',
+      ),
+      behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    Navigator.pop(context);
   }
+
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();

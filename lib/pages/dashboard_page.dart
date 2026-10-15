@@ -201,8 +201,7 @@ kehidupan berbagai organisme di dalamnya.
   Widget build(BuildContext context) {
     final user = AuthService.currentUser;
 
-    final userName =
-        user?['name'] ?? 'Explorer';
+    final userName = user?.displayName ?? 'Explorer';
 
     return Scaffold(
       backgroundColor: lightGreen,
