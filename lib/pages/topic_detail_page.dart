@@ -61,7 +61,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
         answered = false;
       });
     } else {
-      ProgressManager.saveProgress(
+      await ProgressManager.saveProgress(
         widget.topic.title,
         score,
         questions.length,

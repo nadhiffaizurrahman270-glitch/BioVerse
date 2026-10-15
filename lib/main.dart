@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_projek_1/pages/home_page.dart';
 import 'package:flutter_projek_1/managers/learning_stats_manager.dart';
+import 'package:flutter_projek_1/models/progress_manager.dart'
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Muat data statistik yang tersimpan.
   await LearningStatsManager.init();
+  await ProgressManager.init();
 
   runApp(const BioVerseApp());
 }

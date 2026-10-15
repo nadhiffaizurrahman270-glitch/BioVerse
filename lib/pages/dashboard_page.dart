@@ -10,10 +10,11 @@ import '../models/progress_manager.dart';
 import '../models/quiz_progress.dart';
 import '../models/achievement.dart';
 import '../models/achievement_manager.dart';
+import '../managers/learning_stats_manager.dart';
+import 'explore_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
-
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
@@ -229,6 +230,7 @@ kehidupan berbagai organisme di dalamnya.
                     child: Column(
                       children: [
                         _buildHero(userName),
+                        _buildLearningStats(),
                         _buildExploreSection(),
                       ],
                     ),
@@ -307,7 +309,19 @@ kehidupan berbagai organisme di dalamnya.
             const SizedBox(width: 10),
             _navButton('Learn', onTap: () => _scrollTo(_learnKey)),
             const SizedBox(width: 10),
-            _navButton('Explore', onTap: () => _scrollTo(_exploreKey)),
+            _navButton(
+              'Explore',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ExplorePage(
+                      topics: topics,
+                    ),
+                  ),
+                );
+              },
+            ),
 
             const SizedBox(width: 10),
 
@@ -434,6 +448,94 @@ kehidupan berbagai organisme di dalamnya.
               },
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLearningStats() {
+    final stats = LearningStatsManager.stats;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 60,
+        vertical: 24,
+      ),
+
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 1200,
+          ),
+
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'YOUR LEARNING PROGRESS',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF12372A),
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isSmall = constraints.maxWidth < 650;
+
+                  final cards = [
+                    _LearningStatCard(
+                      icon: Icons.bolt_rounded,
+                      title: 'Total XP',
+                      value: '${stats.totalXp}',
+                      subtitle: 'Experience Points earned',
+                      color: const Color(0xFFFFC857),
+                    ),
+                    _LearningStatCard(
+                      icon: Icons.local_fire_department_rounded,
+                      title: 'Learning Streak',
+                      value: '${stats.streak} days',
+                      subtitle: 'Keep learning every day',
+                      color: const Color(0xFFFF8A65),
+                    ),
+                    _LearningStatCard(
+                      icon: Icons.workspace_premium_rounded,
+                      title: 'Level ${stats.level}',
+                      value: '${stats.xpInCurrentLevel}/${stats.xpForNextLevel} XP',
+                      subtitle: '${stats.completedQuizzes} quizzes completed',
+                      color: const Color(0xFF66BB6A),
+                      progress: stats.levelProgress,
+                    ),
+                  ];
+
+                  if (isSmall) {
+                    return Column(
+                      children: cards
+                          .map((card) => Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: card,
+                              ))
+                          .toList(),
+                    );
+                  }
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: cards
+                        .map((card) => Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 6),
+                                child: card,
+                              ),
+                            ))
+                        .toList(),
+                  );
+                },
+              ), 
+            ]
+          )
         ),
       ),
     );
@@ -797,54 +899,60 @@ kehidupan berbagai organisme di dalamnya.
   // ==================================================
 
   Widget _buildExploreSection() {
+    // Topik yang sudah memiliki progres tetapi skornya belum maksimal.
+    final continueTopics = topics.where((topic) {
+      final progress = ProgressManager.getProgress(topic.title);
+      final isCompleted =
+          LearningStatsManager.isTopicCompleted(topic.title);
+
+      return progress != null && !isCompleted;
+    }).toList();
+
+    final recommendedTopics = topics.where((topic) {
+      final progress = ProgressManager.getProgress(topic.title);
+      final isCompleted =
+          LearningStatsManager.isTopicCompleted(topic.title);
+
+      return progress == null && !isCompleted;
+    }).toList();
+
+    final completedTopics = topics.where((topic) {
+      return LearningStatsManager.isTopicCompleted(topic.title);
+    }).toList();
+
     return Padding(
       key: _exploreKey,
       padding: const EdgeInsets.symmetric(
         horizontal: 60,
         vertical: 35,
       ),
-
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(
             maxWidth: 1200,
           ),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-
             children: [
-              Text(
-                'Explore Biology',
-                key: _exploreKey,
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              _LearningProgressSummary(topics: topics),
-
-              const SizedBox(height: 36),
+              // ========================================
+              // 1. CONTINUE LEARNING
+              // ========================================
 
               Text(
-                'Learning Center',
+                'Continue Learning',
                 key: _learnKey,
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 32,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: -0.5,
                 ),
               ),
 
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
 
               Text(
-                'Explore the world of biology',
+                'Pick up where you left off and keep exploring.',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.75),
                   fontSize: 15,
@@ -852,73 +960,208 @@ kehidupan berbagai organisme di dalamnya.
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final width = constraints.maxWidth;
-
-                  int count = 3;
-
-                  if (width < 700) {
-                    count = 1;
-                  } else if (width < 1000) {
-                    count = 2;
-                  }
-
-                  return GridView.builder(
-
-                    shrinkWrap: true,
-
-                    physics:
-                        const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: count,
-                      mainAxisExtent: count ==1 ? 110 : 100,
-                      crossAxisSpacing: 14,
-                      mainAxisSpacing: 14,
-                    ),
-
-                    itemCount: topics.length,
-
-                    itemBuilder: (context, index) {
-                      final topic = topics[index];
-
-                      return _TopicCard(
-                        icon: _getTopicIcon(index),
-                        title: topic.title,
-                        description: topic.description,
-                        topic: topic,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TopicDetailPage(
-                                topic: topic,
-                              ),
-                            ),
-                          ).then((_) {
-                            setState(() {});
-                          });
-                        },
-                      );
-                    },
-                  );
-                },
+              _buildTopicGrid(
+                topicList: continueTopics,
+                emptyMessage: 'No topics to continue yet',
+                emptyDescription: 'Start exploring biology to see your learning progress here.',
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 48),
+
+              // ========================================
+              // 2. RECOMMENDED TOPICS
+              // ========================================
+
+              const Text(
+                'Recommended Topics',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Discover new topics and expand your biology knowledge.',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.75),
+                  fontSize: 15,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              _buildTopicGrid(
+                topicList: recommendedTopics,
+                emptyMessage: 'You have explored all topics!',
+                emptyDescription: 'Great job! You have started learning every available topic.',
+              ),
+
+              const SizedBox(height: 48),
+
+              const Text(
+                'Completed Learning',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Review the biology topics you have completed.',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.75),
+                  fontSize: 15,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              _buildTopicGrid(
+                topicList: completedTopics,
+                emptyMessage: 'No completed topics yet',
+                emptyDescription:
+                    'Complete a biology quiz to see your achievements here.',
+              ),
+
+              // ========================================
+              // 3. RECENT ACHIEVEMENTS
+              // ========================================
+
+              const SizedBox(height: 24),
+              const Text(
+                'Recent Achievements',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Celebrate your progress and milestones.',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.75),
+                  fontSize: 15,
+                ),
+              ),
+
+              const SizedBox(height: 24),
 
               const _AchievementSection(),
-
             ],
           ),
         ),
       ),
     );
   }
-}
+  
+Widget _buildTopicGrid({
+  required List<BiologyTopic> topicList,
+  required String emptyMessage,
+  required String emptyDescription,
+}) {
+  if (topicList.isEmpty) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.menu_book_outlined,
+            size: 40,
+            color: Color(0xFF166534),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            emptyMessage,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF12372A),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            emptyDescription,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.black54,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final width = constraints.maxWidth;
+
+      int count = 3;
+
+      if (width < 700) {
+        count = 1;
+      } else if (width < 1000) {
+        count = 2;
+      }
+
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: count,
+          mainAxisExtent: 190,
+          crossAxisSpacing: 14,
+          mainAxisSpacing: 14,
+        ),
+        itemCount: topicList.length,
+        itemBuilder: (context, index) {
+          final topic = topicList[index];
+
+          return _TopicCard(
+            icon: _getTopicIcon(index),
+            title: topic.title,
+            description: topic.description,
+            topic: topic,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TopicDetailPage(
+                    topic: topic,
+                  ),
+                ),
+              ).then((_) {
+                if (!mounted) return;
+                setState(() {});
+              });
+            },
+          );
+        },
+      );
+    },
+  );
+}
+    }
+    
 class _AchievementSection extends StatelessWidget {
   const _AchievementSection();
 
@@ -935,14 +1178,6 @@ class _AchievementSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Achievements',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             Text(
               '$unlockedCount/${achievements.length}',
               style: const TextStyle(
@@ -952,16 +1187,6 @@ class _AchievementSection extends StatelessWidget {
               ),
             ),
           ],
-        ),
-
-        const SizedBox(height: 6),
-
-        const Text(
-          'Collect badges as you explore biology.',
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 13,
-          ),
         ),
 
         const SizedBox(height: 18),
@@ -976,6 +1201,110 @@ class _AchievementSection extends StatelessWidget {
           }).toList(),
         ),
       ],
+    );
+  }
+}
+
+class _LearningStatCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+  final String subtitle;
+  final Color color;
+  final double? progress;
+
+  const _LearningStatCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.color,
+    this.progress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(
+        minHeight: 170,
+      ),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFE1EFE4),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF12372A).withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 24,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Color(0xFF12372A),
+              fontSize: 25,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 11,
+            ),
+          ),
+          if (progress != null) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: progress!.clamp(0.0, 1.0),
+                minHeight: 6,
+                backgroundColor: const Color(0xFFE8F1E9),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  Color(0xFF166534),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -1221,15 +1550,6 @@ class _TopicCardState extends State<_TopicCard> {
                         ),
                       ),
                     ],
-                    AnimatedOpacity(
-                      opacity: hovered ? 1 : 0.7,
-                      duration: const Duration(milliseconds: 200),
-                      child: const Icon(
-                        Icons.arrow_forward_rounded,
-                        color: primaryColor,
-                        size: 19,
-                      ),
-                    ),
                   ],
                 ),
               ),
