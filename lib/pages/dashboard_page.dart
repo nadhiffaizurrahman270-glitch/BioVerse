@@ -12,6 +12,9 @@ import '../models/achievement.dart';
 import '../models/achievement_manager.dart';
 import '../managers/learning_stats_manager.dart';
 import 'explore_page.dart';
+import '../models/user_profile_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -19,9 +22,67 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
+
+class BioVerseAvatar extends StatelessWidget {
+  final int avatarIndex;
+  final double radius;
+  final String? photoUrl;
+
+  const BioVerseAvatar({
+    super.key,
+    required this.avatarIndex,
+    this.radius = 28,
+    this.photoUrl,
+  });
+
+  static const Color primaryColor = Color(0xFF166534);
+
+  // Path PNG avatar BioVerse.
+  static const List<String> avatars = [
+    'assets/image/avatars/avatar_1.png',
+    'assets/image/avatars/avatar_2.png',
+    'assets/image/avatars/avatar_3.png',
+    'assets/image/avatars/avatar_4.png',
+    'assets/image/avatars/avatar_5.png',
+    'assets/image/avatars/avatar_6.png',
+    'assets/image/avatars/avatar_7.png',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final safeIndex = avatarIndex >= 0 && avatarIndex < avatars.length
+        ? avatarIndex
+        : 0;
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: primaryColor,
+      child: ClipOval(
+        child: SizedBox(
+          width: radius * 2,
+          height: radius * 2,
+          child: Image.asset(
+            avatars[safeIndex],
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(
+                Icons.person_rounded,
+                size: radius,
+                color: Colors.white,
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
   _DashboardPageState();
+
+  int _avatarIndex = 0;
 
   IconData _getTopicIcon(int index) {
     const icons = [
@@ -151,6 +212,7 @@ kehidupan berbagai organisme di dalamnya.
   @override
   void initState() {
     super.initState();
+    _loadUserAvatar();
 
     // DNA berputar terus
     _virusController = AnimationController(
@@ -183,6 +245,35 @@ kehidupan berbagai organisme di dalamnya.
       ),
       (route) => false,
     );
+  }
+
+  Future<void> _loadUserAvatar() async {
+    final user = AuthService.currentUser;
+
+    if (user == null) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      final value = doc.data()?['avatarIndex'];
+
+      if (!mounted) return;
+
+      setState(() {
+        if (value is num &&
+            value.toInt() >= 0 &&
+            value.toInt() < BioVerseAvatar.avatars.length) {
+          _avatarIndex = value.toInt();
+        } else {
+          _avatarIndex = 0;
+        }
+      });
+    } catch (e) {
+      debugPrint('Gagal memuat avatar: $e');
+    }
   }
 
   Future<void> _scrollTo(GlobalKey key) async {
@@ -343,6 +434,7 @@ kehidupan berbagai organisme di dalamnya.
           _ProfileMenu(
             userName: userName,
             onLogout: _logout,
+            onProfileUpdated: _loadUserAvatar,
           ),
         ],
       ),
@@ -745,32 +837,10 @@ kehidupan berbagai organisme di dalamnya.
                 ),
               ),
 
-              // DNA
-              AnimatedBuilder(
-                animation: _virusController,
-
-                builder: (context, child) {
-                  final rotation =
-                      math.sin(_virusController.value * math.pi * 2) * 0.08;
-
-                  final floating =
-                      math.sin(_virusController.value * math.pi * 2) * 8;
-
-                  return Transform.translate(
-                    offset: Offset(0, floating),
-
-                    child: Transform.rotate(
-                      angle: rotation,
-
-                      child: child,
-                    ),
-                  );
-                },
-
-                child: Image.asset(
-                  'assets/image/virus_jahat.png',
-                  width: _virusHovered ? 170 : 150,
-                ),
+              BioVerseAvatar(
+                avatarIndex: _avatarIndex,
+                radius: _virusHovered ? 88 : 78,
+                photoUrl: AuthService.currentUser?.photoURL,
               ),
 
               // CELL 1
@@ -1735,10 +1805,12 @@ class _ProgressStat extends StatelessWidget {
 class _ProfileMenu extends StatefulWidget {
   final String userName;
   final VoidCallback onLogout;
+  final Future<void> Function() onProfileUpdated;
 
   const _ProfileMenu({
     required this.userName,
     required this.onLogout,
+    required this.onProfileUpdated,
   });
 
   @override
@@ -1754,23 +1826,15 @@ class _ProfileMenuState extends State<_ProfileMenu> {
 
   final List<Map<String, dynamic>> menuItems = [
     {
-      'title': 'Dashboard',
-      'icon': Icons.dashboard_outlined,
-    },
-    {
-      'title': 'My Learning',
-      'icon': Icons.menu_book_outlined,
+      'title': 'Edit Profile',
+      'icon': Icons.person_outline,
     },
     {
       'title': 'My Progress',
       'icon': Icons.insights_outlined,
     },
     {
-      'title': 'Bookmarks',
-      'icon': Icons.bookmark_border,
-    },
-    {
-      'title': 'Certificates',
+      'title': 'Achievements',
       'icon': Icons.workspace_premium_outlined,
     },
     {
@@ -1951,12 +2015,21 @@ class _ProfileMenuState extends State<_ProfileMenu> {
                   title: item['title'],
                   icon: item['icon'],
 
-                  onTap: () {
+                  onTap: () async {
                     _hideMenu();
 
-                    debugPrint(
-                      'Menu dipilih: ${item['title']}',
-                    );
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const UserProfilePage(),
+                    ),
+                  );
+
+                  if (!mounted) return;
+
+                  if (result == true) {
+                    await widget.onProfileUpdated();
+                  }
                   },
                 );
               },

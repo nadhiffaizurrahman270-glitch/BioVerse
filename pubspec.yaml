@@ -65,6 +65,13 @@ flutter:
     - assets/image/virus_jahat.png
     - assets/image/NADIP DI TP.png
     - assets/image/LOGO GOOGLE.png
+    - assets/image/avatars/avatar_1.png
+    - assets/image/avatars/avatar_2.png
+    - assets/image/avatars/avatar_3.png
+    - assets/image/avatars/avatar_4.png
+    - assets/image/avatars/avatar_5.png
+    - assets/image/avatars/avatar_6.png
+    - assets/image/avatars/avatar_7.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
