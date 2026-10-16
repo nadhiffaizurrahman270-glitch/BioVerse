@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/biology_topic.dart';
-import 'topic_detail_page.dart';
+import '../../models/biology_topic.dart';
+import '../../views/topic_detail_page.dart';
 
 class ExplorePage extends StatelessWidget {
   const ExplorePage({

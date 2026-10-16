@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../models/biology_topic.dart';
-import '../models/quiz_data.dart';
-import '../models/quiz_question.dart';
-import '../models/progress_manager.dart';
-import '../managers/learning_stats_manager.dart';
+import '../../models/biology_topic.dart';
+import '../../models/quiz_data.dart';
+import '../../models/quiz_question.dart';
+import '../../controllers/progress_controller.dart';
+import '../../controllers/learning_stats_controller.dart';
 
 class TopicDetailPage extends StatefulWidget {
   final BiologyTopic topic;
@@ -61,13 +61,13 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
         answered = false;
       });
     } else {
-      await ProgressManager.saveProgress(
+      await ProgressController.saveProgress(
         widget.topic.title,
         score,
         questions.length,
       );
 
-      final xpEarned = await LearningStatsManager.recordQuizCompletion(
+      final xpEarned = await LearningStatsController.recordQuizCompletion(
         topicTitle: widget.topic.title,
         score: score,
         totalQuestions: questions.length,

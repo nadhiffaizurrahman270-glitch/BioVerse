@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/cell_background.dart';
-import '../services/auth_service.dart';
+import '../../services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});

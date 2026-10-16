@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/cell_background.dart';
 import 'dashboard_page.dart';
 import 'signup_page.dart';
-import '../services/auth_service.dart';
+import '../../services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

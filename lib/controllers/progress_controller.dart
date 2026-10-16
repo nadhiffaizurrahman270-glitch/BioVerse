@@ -1,8 +1,8 @@
-import 'quiz_progress.dart';
+import '../models/quiz_progress.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ProgressManager {
+class ProgressController {
   static const String _progressKey = 'bioverse_quiz_progress';
 
   static final Map<String, QuizProgress> _progressMap = {};

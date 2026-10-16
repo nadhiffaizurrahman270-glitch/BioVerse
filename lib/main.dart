@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_projek_1/pages/home_page.dart';
-import 'package:flutter_projek_1/managers/learning_stats_manager.dart';
-import 'package:flutter_projek_1/models/progress_manager.dart';
+import 'package:flutter_projek_1/views/pages/home_page.dart';
+import 'package:flutter_projek_1/controllers/learning_stats_controller.dart';
+import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -14,7 +14,7 @@ Future<void> main() async {
   );
 
   // Memuat data statistik
-  await LearningStatsManager.init();
+  await LearningStatsController.init();
 
   runApp(const BioVerseApp());
 }

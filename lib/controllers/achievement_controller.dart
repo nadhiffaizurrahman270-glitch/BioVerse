@@ -1,13 +1,13 @@
-import 'progress_manager.dart';
-import 'achievement.dart';
+import 'progress_controller.dart';
+import '../models/achievement.dart';
 
-class AchievementManager {
+class AchievementController {
   static List<Achievement> getAchievements() {
-    final dna = ProgressManager.getProgress('DNA & Genetics');
-    final cell = ProgressManager.getProgress('Cell Biology');
-    final viruses = ProgressManager.getProgress('Viruses');
+    final dna = ProgressController.getProgress('DNA & Genetics');
+    final cell = ProgressController.getProgress('Cell Biology');
+    final viruses = ProgressController.getProgress('Viruses');
     final ecosystem =
-        ProgressManager.getProgress('Life & Ecosystems');
+        ProgressController.getProgress('Life & Ecosystems');
 
     final completedTopics = [
       dna,

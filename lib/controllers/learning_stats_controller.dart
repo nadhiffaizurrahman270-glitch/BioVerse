@@ -1,8 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/learning_stats.dart';
 
-class LearningStatsManager {
+class LearningStatsController {
   static const String _xpKey = 'bioverse_total_xp';
   static const String _streakKey = 'bioverse_streak';
   static const String _completedQuizzesKey =

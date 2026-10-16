@@ -1,16 +1,16 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import '../widgets/cell_background.dart';
+import '../views/widgets/cell_background.dart';
 import 'login_page.dart';
 import 'about_page.dart';
 import 'package:flutter_projek_1/models/biology_topic.dart';
-import 'topic_detail_page.dart';
-import '../models/progress_manager.dart';
+import '../views/topic_detail_page.dart';
+import '../controllers/progress_controller.dart';
 import '../models/quiz_progress.dart';
 import '../models/achievement.dart';
-import '../models/achievement_manager.dart';
-import '../managers/learning_stats_manager.dart';
+import '../controllers/achievement_controller.dart';
+import '../controllers/learning_stats_controller.dart';
 import 'explore_page.dart';
 import '../models/user_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -545,7 +545,7 @@ kehidupan berbagai organisme di dalamnya.
   }
 
   Widget _buildLearningStats() {
-    final stats = LearningStatsManager.stats;
+    final stats = LearningStatsController.stats;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -970,23 +970,23 @@ kehidupan berbagai organisme di dalamnya.
   Widget _buildExploreSection() {
     // Topik yang sudah memiliki progres tetapi skornya belum maksimal.
     final continueTopics = topics.where((topic) {
-      final progress = ProgressManager.getProgress(topic.title);
+      final progress = ProgressController.getProgress(topic.title);
       final isCompleted =
-          LearningStatsManager.isTopicCompleted(topic.title);
+          LearningStatsController.isTopicCompleted(topic.title);
 
       return progress != null && !isCompleted;
     }).toList();
 
     final recommendedTopics = topics.where((topic) {
-      final progress = ProgressManager.getProgress(topic.title);
+      final progress = ProgressController.getProgress(topic.title);
       final isCompleted =
-          LearningStatsManager.isTopicCompleted(topic.title);
+          LearningStatsController.isTopicCompleted(topic.title);
 
       return progress == null && !isCompleted;
     }).toList();
 
     final completedTopics = topics.where((topic) {
-      return LearningStatsManager.isTopicCompleted(topic.title);
+      return LearningStatsController.isTopicCompleted(topic.title);
     }).toList();
 
     return Padding(
@@ -1236,7 +1236,7 @@ class _AchievementSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final achievements = AchievementManager.getAchievements();
+    final achievements = AchievementController.getAchievements();
 
     final unlockedCount =
         achievements.where((item) => item.unlocked).length;
@@ -1486,7 +1486,7 @@ class _TopicCardState extends State<_TopicCard> {
 
   @override
   Widget build(BuildContext context) {
-    final progress = ProgressManager.getProgress(widget.topic.title);
+    final progress = ProgressController.getProgress(widget.topic.title);
 
     return MouseRegion(
       onEnter: (_) {
@@ -1658,7 +1658,7 @@ class _LearningProgressBar extends StatelessWidget {
     int bestScore = 0;
 
     for (final topic in topics) {
-      final progress = ProgressManager.getProgress(topic.title);
+      final progress = ProgressController.getProgress(topic.title);
       if (progress != null) {
         completedTopics++;
         totalQuestions += progress.totalQuestions;
