@@ -1,52 +1,37 @@
 class BiologyTopic {
-  String _title;
-  String _description;
-  String _category;
-  String _level;
-  String _content;
+  
+  final String id; 
+  final String title;
+  final String description;
+  final String category;
+  final String level;
+  final String content;
+  final String? videoId;
 
   BiologyTopic({
-    required String title,
-    required String description,
-    required String category,
-    required String level,
-    required String content,
-  })  : _title = title,
-        _description = description,
-        _category = category,
-        _level = level,
-        _content = content;
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.category,
+    required this.level,
+    required this.content,
+    this.videoId,
+  });
 
-  // Getter
-  String get title => _title;
-  String get description => _description;
-  String get category => _category;
-  String get level => _level;
-  String get content => _content;
+  factory BiologyTopic.fromMap(Map<String, dynamic> map, String documentId) {
+    return BiologyTopic(
+      id: documentId,
+      title: map['title'] ?? 'Judul Tidak Ada',
+      description: map['description'] ?? 'Deskripsi tidak tersedia',
 
-  // Setter
-  set title(String value) {
-    _title = value;
+      category: map['category'] ?? map['tag'] ?? 'General', 
+      level: map['level'] ?? 'Beginner',
+      content: map['content'] ?? 'Materi belum tersedia',
+      videoId: map['videoId'],
+    );
   }
 
-  set description(String value) {
-    _description = value;
-  }
-
-  set category(String value) {
-    _category = value;
-  }
-
-  set level(String value) {
-    _level = value;
-  }
-
-  set content(String value) {
-    _content = value;
-  }
-
-  // Function
   String getTopicInfo() {
-    return '$_title - $_category - Level: $_level';
+    return '$title\n$category Level: $level';
   }
 }

@@ -1,10 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart'; // Import markdown
 import '../../models/biology_topic.dart';
 import '../../models/quiz_data.dart';
 import '../../models/quiz_question.dart';
 import '../../controllers/progress_controller.dart';
 import '../../controllers/learning_stats_controller.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class TopicDetailPage extends StatefulWidget {
   final BiologyTopic topic;
@@ -78,7 +80,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
         quizFinished = true;
       });
 
-      if(xpEarned) {
+      if (xpEarned) {
         final perfectScore = score == questions.length;
         final earnedXp = perfectScore ? 75 : 50;
 
@@ -102,6 +104,32 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
       answered = false;
       quizFinished = false;
     });
+  }
+
+  YoutubePlayerController? _youtubeController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi video jika videoId tersedia dari Firebase
+    if (widget.topic.videoId != null && widget.topic.videoId!.isNotEmpty) {
+      _youtubeController = YoutubePlayerController.fromVideoId(
+        videoId: widget.topic.videoId!,
+        autoPlay: false,
+        params: const YoutubePlayerParams(
+          showControls: true,
+          mute: false,
+          showFullscreenButton: true,
+          loop: false,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _youtubeController?.close();
+    super.dispose();
   }
 
   @override
@@ -132,7 +160,8 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
                   const SizedBox(height: 24),
                   _buildMaterial(),
                   const SizedBox(height: 24),
-
+                  _buildVideoSection(),
+                  const SizedBox(height: 24),
                   if (questions.isNotEmpty) _buildQuiz(),
                 ],
               ),
@@ -155,33 +184,6 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
       return Icons.eco_rounded;
     }
     return Icons.science_rounded;
-  }
-
-  List<String> _materialSections() {
-    final content = widget.topic.content.trim();
-    if (content.isEmpty) return [];
-
-    final paragraphs = content
-        .split(RegExp(r'\n\s*\n'))
-        .map((part) => part.trim())
-        .where((part) => part.isNotEmpty)
-        .toList();
-
-    if (paragraphs.length > 1) return paragraphs;
-
-    final sentences = content
-        .split(RegExp(r'(?<=[.!?])\s+'))
-        .where((part) => part.trim().isNotEmpty)
-        .toList();
-
-    if (sentences.length <= 2) return [content];
-
-    final sections = <String>[];
-    for (var i = 0; i < sentences.length; i += 2) {
-      final end = (i + 2 < sentences.length) ? i + 2 : sentences.length;
-      sections.add(sentences.sublist(i, end).join(' ').trim());
-    }
-    return sections;
   }
 
   Widget _buildHeader() {
@@ -229,53 +231,53 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
           );
 
           final topicText = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.topic.category.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFFC9F5D8),
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.topic.category.toUpperCase(),
+                style: const TextStyle(
+                  color: Color(0xFFC9F5D8),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                widget.topic.title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: compact ? 25 : 34,
+                  fontWeight: FontWeight.w800,
+                  height: 1.12,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                widget.topic.description,
+                style: const TextStyle(
+                  color: Color(0xFFE5F5E9),
+                  fontSize: 15,
+                  height: 1.55,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _headerBadge(
+                    Icons.signal_cellular_alt_rounded,
+                    'Level: ${widget.topic.level}',
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  widget.topic.title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: compact ? 25 : 34,
-                    fontWeight: FontWeight.w800,
-                    height: 1.12,
+                  _headerBadge(
+                    Icons.menu_book_rounded,
+                    'Materi & Quiz',
                   ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  widget.topic.description,
-                  style: const TextStyle(
-                    color: Color(0xFFE5F5E9),
-                    fontSize: 15,
-                    height: 1.55,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _headerBadge(
-                      Icons.signal_cellular_alt_rounded,
-                      'Level: ${widget.topic.level}',
-                    ),
-                    _headerBadge(
-                      Icons.menu_book_rounded,
-                      'Materi & Quiz',
-                    ),
-                  ],
-                ),
-              ],
-            );
+                ],
+              ),
+            ],
+          );
 
           if (compact) {
             return Column(
@@ -309,23 +311,28 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
 
     if (title.contains('dna') || title.contains('genetic')) {
       visualTitle = 'DNA Double Helix';
-      visualDescription = 'Dua untai DNA terhubung melalui pasangan basa nitrogen.';
+      visualDescription =
+          'Dua untai DNA terhubung melalui pasangan basa nitrogen.';
       visualIcon = Icons.biotech_rounded;
     } else if (title.contains('cell')) {
       visualTitle = 'Inside a Cell';
-      visualDescription = 'Sel memiliki membran, inti, dan organel dengan fungsi berbeda.';
+      visualDescription =
+          'Sel memiliki membran, inti, dan organel dengan fungsi berbeda.';
       visualIcon = Icons.grain_rounded;
     } else if (title.contains('virus')) {
       visualTitle = 'Virus Structure';
-      visualDescription = 'Materi genetik dilindungi kapsid dan pada sebagian virus terdapat selubung.';
+      visualDescription =
+          'Materi genetik dilindungi kapsid dan pada sebagian virus terdapat selubung.';
       visualIcon = Icons.coronavirus_rounded;
     } else if (title.contains('ecosystem') || title.contains('life')) {
       visualTitle = 'Ecosystem Connections';
-      visualDescription = 'Produsen, konsumen, dan pengurai saling terhubung dalam ekosistem.';
+      visualDescription =
+          'Produsen, konsumen, dan pengurai saling terhubung dalam ekosistem.';
       visualIcon = Icons.eco_rounded;
     } else {
       visualTitle = 'Biology Visual Lab';
-      visualDescription = 'Amati gambaran sederhana konsep biologi pada topik ini.';
+      visualDescription =
+          'Amati gambaran sederhana konsep biologi pada topik ini.';
       visualIcon = Icons.science_rounded;
     }
 
@@ -396,7 +403,8 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
             ),
             clipBehavior: Clip.antiAlias,
             child: CustomPaint(
-              painter: _BiologyIllustrationPainter(topicTitle: widget.topic.title),
+              painter:
+                  _BiologyIllustrationPainter(topicTitle: widget.topic.title),
               child: const SizedBox.expand(),
             ),
           ),
@@ -448,7 +456,680 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
   }
 
   Widget _buildMaterial() {
-    final sections = _materialSections();
+    final title = widget.topic.title.toLowerCase();
+
+    String topicEmoji = '🔬';
+    String topicFact = 'Setiap organisme memiliki karakteristik biologis '
+        'yang membantu kita memahami kehidupan.';
+
+    List<Map<String, String>> infoCards = [];
+
+    List<Map<String, String>> summaries = [];
+
+    if (title.contains('dna') || title.contains('genetic')) {
+      topicEmoji = '🧬';
+      topicFact = 'Urutan basa nitrogen pada DNA menyimpan informasi '
+          'genetik yang diwariskan dari satu generasi ke generasi berikutnya.';
+
+      infoCards = [
+        {
+          'title': 'Gula deoksiribosa',
+          'subtitle': 'Komponen gula DNA',
+          'description': 'Gula deoksiribosa merupakan bagian dari '
+              'tulang punggung DNA dan terhubung dengan gugus fosfat.',
+          'icon': '🍬',
+        },
+        {
+          'title': 'Gugus fosfat',
+          'subtitle': 'Penghubung nukleotida',
+          'description': 'Gugus fosfat membantu menghubungkan gula '
+              'antar-nukleotida dalam untai DNA.',
+          'icon': '⚛️',
+        },
+        {
+          'title': 'Basa nitrogen',
+          'subtitle': 'Penyimpan informasi genetik',
+          'description': 'DNA memiliki empat basa nitrogen, yaitu '
+              'Adenine, Thymine, Guanine, dan Cytosine.',
+          'icon': '🧩',
+        },
+      ];
+
+      summaries = [
+        {
+          'title': 'Apa fungsi DNA?',
+          'content': 'DNA menyimpan informasi genetik yang berperan '
+              'dalam perkembangan, fungsi, dan pewarisan sifat organisme.',
+        },
+        {
+          'title': 'Bagaimana pasangan basa DNA?',
+          'content': 'Adenine (A) berpasangan dengan Thymine (T), '
+              'sedangkan Guanine (G) berpasangan dengan Cytosine (C).',
+        },
+        {
+          'title': 'Apa itu nukleotida?',
+          'content': 'Nukleotida DNA tersusun atas gula deoksiribosa, '
+              'gugus fosfat, dan basa nitrogen.',
+        },
+      ];
+    } else if (title.contains('cell')) {
+      topicEmoji = '🔬';
+      topicFact = 'Meskipun ukurannya sangat kecil, sel memiliki '
+          'struktur khusus yang menjalankan fungsi penting bagi kehidupan.';
+
+      infoCards = [
+        {
+          'title': 'Membran sel',
+          'subtitle': 'Pembatas sel',
+          'description': 'Membran sel membatasi sel dan membantu '
+              'mengatur keluar masuknya berbagai zat.',
+          'icon': '🫧',
+        },
+        {
+          'title': 'Inti sel',
+          'subtitle': 'Pusat pengaturan',
+          'description': 'Pada sel eukariotik, inti menyimpan sebagian '
+              'besar materi genetik dan berperan dalam pengaturan aktivitas sel.',
+          'icon': '🔵',
+        },
+        {
+          'title': 'Mitokondria',
+          'subtitle': 'Produksi energi',
+          'description': 'Mitokondria menjadi tempat berlangsungnya '
+              'sebagian besar produksi ATP melalui respirasi seluler pada '
+              'sel eukariotik.',
+          'icon': '⚡',
+        },
+      ];
+
+      summaries = [
+        {
+          'title': 'Apa unit dasar kehidupan?',
+          'content': 'Sel merupakan unit struktural dan fungsional dasar '
+              'kehidupan.',
+        },
+        {
+          'title': 'Apa fungsi membran sel?',
+          'content': 'Membran sel membantu mengatur pertukaran zat '
+              'antara sel dan lingkungannya.',
+        },
+      ];
+    } else if (title.contains('virus')) {
+      topicEmoji = '🦠';
+      topicFact = 'Virus memerlukan sel inang untuk memperbanyak diri '
+          'karena tidak memiliki seluruh perangkat yang diperlukan '
+          'untuk reproduksi mandiri.';
+
+      infoCards = [
+        {
+          'title': 'Materi genetik',
+          'subtitle': 'DNA atau RNA',
+          'description': 'Virus membawa materi genetik berupa DNA '
+              'atau RNA yang berisi informasi untuk pembentukan virus.',
+          'icon': '🧬',
+        },
+        {
+          'title': 'Kapsid',
+          'subtitle': 'Pelindung materi genetik',
+          'description': 'Kapsid merupakan selubung protein yang '
+              'melindungi materi genetik virus.',
+          'icon': '🛡️',
+        },
+        {
+          'title': 'Sel inang',
+          'subtitle': 'Tempat replikasi',
+          'description': 'Virus memanfaatkan mesin sel inang untuk '
+              'menghasilkan komponen virus dan membentuk partikel virus baru.',
+          'icon': '🔬',
+        },
+      ];
+
+      summaries = [
+        {
+          'title': 'Apakah virus dapat bereproduksi sendiri?',
+          'content': 'Virus memerlukan sel inang untuk melakukan '
+              'replikasi.',
+        },
+        {
+          'title': 'Apa fungsi kapsid?',
+          'content': 'Kapsid melindungi materi genetik virus dan '
+              'membantu membentuk struktur partikelnya.',
+        },
+      ];
+    } else if (title.contains('ecosystem') || title.contains('life')) {
+      topicEmoji = '🌿';
+      topicFact = 'Perubahan pada satu komponen ekosistem dapat '
+          'memengaruhi hubungan antara organisme dan lingkungannya.';
+
+      infoCards = [
+        {
+          'title': 'Produsen',
+          'subtitle': 'Pembuat bahan organik',
+          'description': 'Produsen menghasilkan bahan organik, '
+              'umumnya melalui fotosintesis pada ekosistem yang '
+              'bergantung pada energi matahari.',
+          'icon': '🌱',
+        },
+        {
+          'title': 'Konsumen',
+          'subtitle': 'Pemakan organisme lain',
+          'description': 'Konsumen memperoleh energi dan bahan '
+              'organik dengan memakan organisme lain atau bahan organik.',
+          'icon': '🐇',
+        },
+        {
+          'title': 'Dekomposer',
+          'subtitle': 'Pengurai',
+          'description': 'Organisme seperti banyak jenis jamur dan '
+              'bakteri menguraikan bahan organik dan membantu '
+              'mendaur ulang unsur hara.',
+          'icon': '🍄',
+        },
+      ];
+
+      summaries = [
+        {
+          'title': 'Apa itu ekosistem?',
+          'content': 'Ekosistem mencakup interaksi antara makhluk hidup '
+              'dan lingkungan fisiknya.',
+        },
+        {
+          'title': 'Apa peran produsen?',
+          'content': 'Produsen membentuk bahan organik yang menjadi '
+              'sumber energi bagi organisme lain dalam rantai makanan.',
+        },
+      ];
+
+      } else if (title.contains('fotosintesis')) {
+      topicEmoji = '🍃';
+      topicFact = 'Tanpa fotosintesis, hampir tidak akan ada oksigen di atmosfer bumi untuk kita bernapas.';
+
+      infoCards = [
+        {
+          'title': 'Kloroplas',
+          'subtitle': 'Dapur sel tumbuhan',
+          'description': 'Kloroplas adalah organel tempat terjadinya seluruh proses fotosintesis.',
+          'icon': '🔋',
+        },
+        {
+          'title': 'Klorofil',
+          'subtitle': 'Penangkap cahaya',
+          'description': 'Pigmen hijau yang menyerap energi matahari untuk memecah molekul air.',
+          'icon': '☀️',
+        },
+        {
+          'title': 'Stomata',
+          'subtitle': 'Pintu pertukaran gas',
+          'description': 'Pori-pori kecil di daun tempat masuknya karbon dioksida dan keluarnya oksigen.',
+          'icon': '💨',
+        },
+      ];
+
+      summaries = [
+        {
+          'title': 'Apa hasil akhir fotosintesis?',
+          'content': 'Proses ini menghasilkan glukosa (makanan tumbuhan) dan oksigen sebagai produk sampingan yang dilepaskan ke udara.',
+        },
+        {
+          'title': 'Reaksi terang vs gelap',
+          'content': 'Reaksi terang butuh cahaya untuk menghasilkan energi, sedangkan reaksi gelap (Siklus Calvin) menggunakan energi tersebut untuk membentuk glukosa.',
+        },
+      ];
+    } else if (title.contains('keanekaragaman') || title.contains('hayati')) {
+      topicEmoji = '🌍';
+      topicFact = 'Indonesia adalah salah satu dari 17 negara megabiodiversitas di dunia, rumah bagi jutaan spesies flora dan fauna endemik.';
+
+      infoCards = [
+        {
+          'title': 'Tingkat Gen',
+          'subtitle': 'Variasi individu',
+          'description': 'Perbedaan susunan genetik yang menciptakan variasi dalam satu spesies yang sama.',
+          'icon': '🧬',
+        },
+        {
+          'title': 'Tingkat Spesies',
+          'subtitle': 'Perbedaan jenis',
+          'description': 'Variasi antar spesies yang berbeda di suatu tempat, seperti perbedaan antara kucing dan harimau.',
+          'icon': '🐅',
+        },
+        {
+          'title': 'Tingkat Ekosistem',
+          'subtitle': 'Keragaman habitat',
+          'description': 'Kumpulan ekosistem yang berbeda seperti hutan hujan, sabana, dan terumbu karang.',
+          'icon': '🏝️',
+        },
+      ];
+
+      summaries = [
+        {
+          'title': 'Mengapa biodiversitas penting?',
+          'content': 'Keberagaman makhluk hidup menjaga keseimbangan ekosistem, sumber pangan, dan obat-obatan.',
+        },
+      ];
+    } else if (title.contains('anatomi') || title.contains('tubuh')) {
+      topicEmoji = '🫀';
+      topicFact = 'Jantung manusia rata-rata memompa sekitar 7.500 liter darah setiap harinya tanpa pernah berhenti beristirahat.';
+
+      infoCards = [
+        {
+          'title': 'Sistem Pencernaan',
+          'subtitle': 'Penyerapan nutrisi',
+          'description': 'Memproses makanan menjadi molekul kecil agar nutrisinya bisa diserap oleh sel tubuh.',
+          'icon': '🍎',
+        },
+        {
+          'title': 'Sistem Pernapasan',
+          'subtitle': 'Pertukaran gas',
+          'description': 'Memasukkan oksigen ke dalam darah dan membuang karbon dioksida melalui paru-paru.',
+          'icon': '🫁',
+        },
+        {
+          'title': 'Sistem Saraf',
+          'subtitle': 'Pusat kendali',
+          'description': 'Otak dan jaringan saraf mengontrol seluruh aktivitas dan respons tubuh.',
+          'icon': '🧠',
+        },
+      ];
+
+      summaries = [
+        {
+          'title': 'Bagaimana sistem organ bekerja?',
+          'content': 'Sistem organ tidak bekerja sendiri-sendiri, melainkan saling terhubung (contoh: darah mengangkut oksigen dari paru-paru dan nutrisi dari usus).',
+        },
+      ];
+      
+    } else {
+      infoCards = [
+        {
+          'title': 'Konsep utama',
+          'subtitle': 'Pahami dasar materi',
+          'description': 'Baca materi utama untuk memahami konsep '
+              'dasar dari topik ini.',
+          'icon': '📖',
+        },
+        {
+          'title': 'Hubungan biologis',
+          'subtitle': 'Pelajari keterkaitannya',
+          'description': 'Perhatikan bagaimana konsep yang dipelajari '
+              'berhubungan dengan struktur, fungsi, atau proses kehidupan.',
+          'icon': '🔬',
+        },
+        {
+          'title': 'Penerapan',
+          'subtitle': 'Hubungkan dengan kehidupan',
+          'description': 'Cobalah menghubungkan konsep dalam materi '
+              'dengan fenomena biologis di sekitar kita.',
+          'icon': '🌱',
+        },
+      ];
+
+      summaries = [
+        {
+          'title': 'Apa inti materi ini?',
+          'content': 'Pelajari penjelasan utama di bagian materi '
+              'pembelajaran dan identifikasi konsep yang paling penting.',
+        },
+      ];
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // HEADER MATERI
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE4EFE7)),
+            boxShadow: [
+              BoxShadow(
+                color: darkColor.withValues(alpha: 0.05),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: lightGreen,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      Icons.menu_book_rounded,
+                      color: primaryColor,
+                      size: 27,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Materi Pembelajaran',
+                          style: TextStyle(
+                            color: darkColor,
+                            fontSize: 21,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Jelajahi dan pahami setiap konsep',
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // MATERI DARI FIREBASE
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFAFCFA),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: const Color(0xFFE6EEE8),
+                  ),
+                ),
+                child: widget.topic.content.trim().isEmpty
+                    ? const Text(
+                        'Materi belum tersedia.',
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 15,
+                        ),
+                      )
+                    : MarkdownBody(
+                        data: widget.topic.content,
+                        selectable: true,
+                        styleSheet: MarkdownStyleSheet(
+                          p: const TextStyle(
+                            color: Color(0xFF26352C),
+                            fontSize: 15,
+                            height: 1.8,
+                          ),
+                          h1: const TextStyle(
+                            color: Color(0xFF16804A),
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                          ),
+                          h2: const TextStyle(
+                            color: Color(0xFF16804A),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          h3: const TextStyle(
+                            color: darkColor,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          listBullet: const TextStyle(
+                            color: primaryColor,
+                            fontSize: 15,
+                          ),
+                          blockquote: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 14,
+                            height: 1.6,
+                          ),
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 22),
+
+        // KARTU INFORMASI INTERAKTIF
+        Row(
+          children: [
+            const Icon(
+              Icons.explore_rounded,
+              color: primaryColor,
+              size: 25,
+            ),
+            const SizedBox(width: 9),
+            const Expanded(
+              child: Text(
+                'Jelajahi Konsep',
+                style: TextStyle(
+                  color: darkColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 12),
+
+        ...infoCards.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Card(
+              color: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+                side: const BorderSide(
+                  color: Color(0xFFE4EFE7),
+                ),
+              ),
+              child: ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 8,
+                ),
+                childrenPadding: const EdgeInsets.fromLTRB(
+                  18,
+                  0,
+                  18,
+                  18,
+                ),
+                leading: Text(
+                  item['icon']!,
+                  style: const TextStyle(fontSize: 27),
+                ),
+                title: Text(
+                  item['title']!,
+                  style: const TextStyle(
+                    color: darkColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Text(item['subtitle']!),
+                iconColor: primaryColor,
+                collapsedIconColor: Colors.black54,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      item['description']!,
+                      style: const TextStyle(
+                        color: Color(0xFF37443A),
+                        fontSize: 14,
+                        height: 1.7,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // FAKTA MENARIK
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFFE8F8ED),
+                Color(0xFFF5FCF6),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: const Color(0xFFD2EED9),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    topicEmoji,
+                    style: const TextStyle(fontSize: 27),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Fakta Menarik',
+                      style: TextStyle(
+                        color: darkColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.lightbulb_rounded,
+                    color: Color(0xFFB7791F),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                topicFact,
+                style: const TextStyle(
+                  color: Color(0xFF37443A),
+                  fontSize: 14,
+                  height: 1.7,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 22),
+
+        // RINGKASAN BUKA-TUTUP
+        Row(
+          children: [
+            const Icon(
+              Icons.checklist_rounded,
+              color: primaryColor,
+              size: 25,
+            ),
+            const SizedBox(width: 9),
+            const Expanded(
+              child: Text(
+                'Ringkasan Materi',
+                style: TextStyle(
+                  color: darkColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 12),
+
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: const Color(0xFFE4EFE7),
+            ),
+          ),
+          child: Column(
+            children: [
+              for (int i = 0; i < summaries.length; i++) ...[
+                ExpansionTile(
+                  initiallyExpanded: i == 0,
+                  leading: CircleAvatar(
+                    radius: 17,
+                    backgroundColor: lightGreen,
+                    child: Text(
+                      '${i + 1}',
+                      style: const TextStyle(
+                        color: primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    summaries[i]['title']!,
+                    style: const TextStyle(
+                      color: darkColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  childrenPadding: const EdgeInsets.fromLTRB(
+                    20,
+                    0,
+                    20,
+                    18,
+                  ),
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        summaries[i]['content']!,
+                        style: const TextStyle(
+                          color: Color(0xFF37443A),
+                          height: 1.7,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (i < summaries.length - 1)
+                  const Divider(
+                    height: 1,
+                    indent: 16,
+                    endIndent: 16,
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVideoSection() {
+    if (_youtubeController == null) return const SizedBox.shrink();
 
     return Container(
       width: double.infinity,
@@ -474,12 +1155,12 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: lightGreen,
+                  color: const Color(0xFFFEF2F2),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: const Icon(
-                  Icons.menu_book_rounded,
-                  color: primaryColor,
+                  Icons.play_circle_fill_rounded,
+                  color: Color(0xFFDC2626), // Warna merah ala YouTube
                   size: 25,
                 ),
               ),
@@ -489,7 +1170,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Materi Pembelajaran',
+                      'Video Pembelajaran',
                       style: TextStyle(
                         color: darkColor,
                         fontSize: 21,
@@ -498,11 +1179,8 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
                     ),
                     SizedBox(height: 3),
                     Text(
-                      'Pelajari konsep utamanya satu per satu',
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 13,
-                      ),
+                      'Tonton video animasi untuk pemahaman lebih baik',
+                      style: TextStyle(color: Colors.black54, fontSize: 13),
                     ),
                   ],
                 ),
@@ -510,115 +1188,13 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
             ],
           ),
           const SizedBox(height: 22),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0FDF4),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.lightbulb_outline_rounded,
-                  color: primaryColor,
-                  size: 22,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Baca setiap bagian dengan teliti. Setelah memahami materi, '
-                    'lanjutkan ke quiz untuk menguji pemahamanmu.',
-                    style: TextStyle(
-                      color: darkColor.withValues(alpha: 0.9),
-                      fontSize: 14,
-                      height: 1.55,
-                    ),
-                  ),
-                ),
-              ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: YoutubePlayer(
+              controller: _youtubeController!,
+              aspectRatio: 16 / 9,
             ),
           ),
-          const SizedBox(height: 22),
-          if (sections.isEmpty)
-            const Text(
-              'Materi belum tersedia.',
-              style: TextStyle(color: Colors.black54, fontSize: 15),
-            )
-          else
-            ...List.generate(sections.length, (index) {
-              final isAlternate = index.isOdd;
-
-              return Container(
-                width: double.infinity,
-                margin: EdgeInsets.only(
-                  bottom: index == sections.length - 1 ? 0 : 12,
-                ),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: isAlternate
-                      ? const Color(0xFFFAFCFA)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFFE6EEE8),
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 42,
-                      height: 42,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFFDCFCE7), Color(0xFFECFDF5)],
-                        ),
-                        borderRadius: BorderRadius.circular(13),
-                      ),
-                      child: Text(
-                        '${index + 1}'.padLeft(2, '0'),
-                        style: const TextStyle(
-                          color: primaryColor,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'BAGIAN ${(index + 1).toString().padLeft(2, '0')}',
-                            style: const TextStyle(
-                              color: Color(0xFF16804A),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 7),
-                          Text(
-                            sections[index],
-                            style: const TextStyle(
-                              color: Color(0xFF26352C),
-                              fontSize: 15,
-                              height: 1.75,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
         ],
       ),
     );
@@ -701,9 +1277,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: LinearProgressIndicator(
@@ -713,9 +1287,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
               valueColor: const AlwaysStoppedAnimation<Color>(primaryColor),
             ),
           ),
-
           const SizedBox(height: 28),
-
           Text(
             question.question,
             style: const TextStyle(
@@ -725,9 +1297,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
               height: 1.5,
             ),
           ),
-
           const SizedBox(height: 20),
-
           ...List.generate(
             question.answers.length,
             (index) => _buildAnswerOption(
@@ -736,9 +1306,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
               question.correctAnswer,
             ),
           ),
-
           const SizedBox(height: 20),
-
           if (!answered)
             SizedBox(
               width: double.infinity,
@@ -761,7 +1329,6 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
                 ),
               ),
             ),
-
           if (answered) ...[
             _buildAnswerFeedback(question.correctAnswer),
             const SizedBox(height: 16),
@@ -865,11 +1432,13 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
               ),
             ),
             if (answered && isCorrect)
-              const Icon(Icons.check_circle_rounded, color: Colors.green, size: 21)
+              const Icon(Icons.check_circle_rounded,
+                  color: Colors.green, size: 21)
             else if (answered && isSelected && !isCorrect)
               const Icon(Icons.cancel_rounded, color: Colors.red, size: 21)
             else if (isSelected)
-              const Icon(Icons.radio_button_checked_rounded, color: primaryColor, size: 21),
+              const Icon(Icons.radio_button_checked_rounded,
+                  color: primaryColor, size: 21),
           ],
         ),
       ),
@@ -883,29 +1452,23 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isCorrect
-            ? Colors.green.shade50
-            : Colors.red.shade50,
+        color: isCorrect ? Colors.green.shade50 : Colors.red.shade50,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           Icon(
-            isCorrect
-                ? Icons.check_circle
-                : Icons.cancel,
+            isCorrect ? Icons.check_circle : Icons.cancel,
             color: isCorrect ? Colors.green : Colors.red,
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               isCorrect
-                  ? 'Jawaban kamu benar! 🎉'
+                  ? 'Jawaban kamu benar!'
                   : 'Jawaban kamu belum tepat.',
               style: TextStyle(
-                color: isCorrect
-                    ? Colors.green.shade800
-                    : Colors.red.shade800,
+                color: isCorrect ? Colors.green.shade800 : Colors.red.shade800,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -916,19 +1479,22 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
   }
 
   Widget _buildQuizResult() {
-    double percentage =
-        (score / questions.length) * 100;
+    double percentage = (score / questions.length) * 100;
 
     String message;
 
     if (percentage == 100) {
-      message = 'Sempurna! Kamu menguasai materi ${widget.topic.title} dengan sangat baik.';
+      message =
+          'Sempurna! Kamu menguasai materi ${widget.topic.title} dengan sangat baik.';
     } else if (percentage >= 80) {
-      message = 'Mantap! Pemahaman kamu tentang ${widget.topic.title} sudah sangat baik.';
+      message =
+          'Mantap! Pemahaman kamu tentang ${widget.topic.title} sudah sangat baik.';
     } else if (percentage >= 60) {
-      message = 'Lumayan! Pelajari kembali beberapa bagian materi ${widget.topic.title}, lalu coba lagi.';
+      message =
+          'Lumayan! Pelajari kembali beberapa bagian materi ${widget.topic.title}, lalu coba lagi.';
     } else {
-      message = 'Jangan menyerah! Baca kembali materi ${widget.topic.title} dan coba lagi.';
+      message =
+          'Jangan menyerah! Baca kembali materi ${widget.topic.title} dan coba lagi.';
     }
 
     return Container(
@@ -1043,9 +1609,18 @@ class _BiologyIllustrationPainter extends CustomPainter {
 
   void _drawDna(Canvas canvas, Size size) {
     final center = size.width / 2;
-    final strandA = Paint()..color = const Color(0xFF15803D)..strokeWidth = 4..strokeCap = StrokeCap.round;
-    final strandB = Paint()..color = const Color(0xFF0EA5E9)..strokeWidth = 4..strokeCap = StrokeCap.round;
-    final rung = Paint()..color = const Color(0xFF86B99A)..strokeWidth = 2.5..strokeCap = StrokeCap.round;
+    final strandA = Paint()
+      ..color = const Color(0xFF15803D)
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+    final strandB = Paint()
+      ..color = const Color(0xFF0EA5E9)
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+    final rung = Paint()
+      ..color = const Color(0xFF86B99A)
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round;
     final pointsA = <Offset>[];
     final pointsB = <Offset>[];
     for (int i = 0; i <= 80; i++) {
@@ -1060,101 +1635,190 @@ class _BiologyIllustrationPainter extends CustomPainter {
     }
     for (int i = 3; i < pointsA.length; i += 8) {
       canvas.drawLine(pointsA[i], pointsB[i], rung);
-      canvas.drawCircle(pointsA[i], 3.2, Paint()..color = const Color(0xFF166534));
-      canvas.drawCircle(pointsB[i], 3.2, Paint()..color = const Color(0xFF0284C7));
+      canvas.drawCircle(
+          pointsA[i], 3.2, Paint()..color = const Color(0xFF166534));
+      canvas.drawCircle(
+          pointsB[i], 3.2, Paint()..color = const Color(0xFF0284C7));
     }
     _label(canvas, 'A', Offset(center - 108, 30), const Color(0xFF166534));
     _label(canvas, 'T', Offset(center + 92, 58), const Color(0xFF0284C7));
-    _label(canvas, 'G', Offset(center - 110, size.height - 42), const Color(0xFF166534));
-    _label(canvas, 'C', Offset(center + 92, size.height - 36), const Color(0xFF0284C7));
+    _label(canvas, 'G', Offset(center - 110, size.height - 42),
+        const Color(0xFF166534));
+    _label(canvas, 'C', Offset(center + 92, size.height - 36),
+        const Color(0xFF0284C7));
   }
 
   void _drawCell(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final membrane = Paint()..color = const Color(0xFF65A30D).withValues(alpha: 0.20)..style = PaintingStyle.fill;
-    final membraneBorder = Paint()..color = const Color(0xFF4D8B50)..style = PaintingStyle.stroke..strokeWidth = 4;
-    canvas.drawOval(Rect.fromCenter(center: center, width: size.width * 0.64, height: size.height * 0.72), membrane);
-    canvas.drawOval(Rect.fromCenter(center: center, width: size.width * 0.64, height: size.height * 0.72), membraneBorder);
+    final membrane = Paint()
+      ..color = const Color(0xFF65A30D).withValues(alpha: 0.20)
+      ..style = PaintingStyle.fill;
+    final membraneBorder = Paint()
+      ..color = const Color(0xFF4D8B50)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4;
+    canvas.drawOval(
+        Rect.fromCenter(
+            center: center,
+            width: size.width * 0.64,
+            height: size.height * 0.72),
+        membrane);
+    canvas.drawOval(
+        Rect.fromCenter(
+            center: center,
+            width: size.width * 0.64,
+            height: size.height * 0.72),
+        membraneBorder);
     final nucleus = Offset(center.dx - 12, center.dy - 5);
-    canvas.drawCircle(nucleus, 28, Paint()..color = const Color(0xFF8B5CF6).withValues(alpha: 0.8));
+    canvas.drawCircle(nucleus, 28,
+        Paint()..color = const Color(0xFF8B5CF6).withValues(alpha: 0.8));
     canvas.drawCircle(nucleus, 10, Paint()..color = const Color(0xFFC4B5FD));
-    _organelle(canvas, Offset(center.dx + 52, center.dy - 36), 23, const Color(0xFFF59E0B));
-    _organelle(canvas, Offset(center.dx + 55, center.dy + 35), 18, const Color(0xFF0EA5E9));
-    _organelle(canvas, Offset(center.dx - 65, center.dy + 40), 16, const Color(0xFFEC4899));
-    _organelle(canvas, Offset(center.dx - 65, center.dy - 42), 13, const Color(0xFF16A34A));
+    _organelle(
+        canvas, Offset(center.dx + 52, center.dy - 36), 23, const Color(0xFFF59E0B));
+    _organelle(
+        canvas, Offset(center.dx + 55, center.dy + 35), 18, const Color(0xFF0EA5E9));
+    _organelle(
+        canvas, Offset(center.dx - 65, center.dy + 40), 16, const Color(0xFFEC4899));
+    _organelle(
+        canvas, Offset(center.dx - 65, center.dy - 42), 13, const Color(0xFF16A34A));
     _label(canvas, 'Nucleus', Offset(12, 14), const Color(0xFF6D28D9));
-    _label(canvas, 'Organelles', Offset(size.width - 105, size.height - 27), const Color(0xFF166534));
+    _label(canvas, 'Organelles', Offset(size.width - 105, size.height - 27),
+        const Color(0xFF166534));
   }
 
   void _drawVirus(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.height * 0.28;
-    final spikePaint = Paint()..color = const Color(0xFFEA580C)..strokeWidth = 5..strokeCap = StrokeCap.round;
-    final corePaint = Paint()..color = const Color(0xFFFB923C).withValues(alpha: 0.75);
-    final capsidPaint = Paint()..color = const Color(0xFFB45309)..style = PaintingStyle.stroke..strokeWidth = 4;
+    final spikePaint = Paint()
+      ..color = const Color(0xFFEA580C)
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round;
+    final corePaint = Paint()
+      ..color = const Color(0xFFFB923C).withValues(alpha: 0.75);
+    final capsidPaint = Paint()
+      ..color = const Color(0xFFB45309)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4;
     for (int i = 0; i < 18; i++) {
       final angle = i * 2 * 3.141592653589793 / 18;
-      final inner = Offset(center.dx + radius * _cos(angle), center.dy + radius * _sin(angle));
-      final outer = Offset(center.dx + (radius + 18) * _cos(angle), center.dy + (radius + 18) * _sin(angle));
+      final inner = Offset(
+          center.dx + radius * _cos(angle), center.dy + radius * _sin(angle));
+      final outer = Offset(center.dx + (radius + 18) * _cos(angle),
+          center.dy + (radius + 18) * _sin(angle));
       canvas.drawLine(inner, outer, spikePaint);
       canvas.drawCircle(outer, 4, Paint()..color = const Color(0xFFEA580C));
     }
     canvas.drawCircle(center, radius, corePaint);
     canvas.drawCircle(center, radius, capsidPaint);
-    final genome = Paint()..color = const Color(0xFF7C2D12)..strokeWidth = 3..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
+    final genome = Paint()
+      ..color = const Color(0xFF7C2D12)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
     final path = Path()..moveTo(center.dx - 20, center.dy - 22);
     for (int i = 0; i <= 30; i++) {
-      path.lineTo(center.dx - 20 + i * 1.3, center.dy + 18 * _sin(i / 30 * 4 * 3.141592653589793));
+      path.lineTo(center.dx - 20 + i * 1.3,
+          center.dy + 18 * _sin(i / 30 * 4 * 3.141592653589793));
     }
     canvas.drawPath(path, genome);
     _label(canvas, 'Capsid', Offset(18, 18), const Color(0xFF9A3412));
-    _label(canvas, 'Genetic material', Offset(size.width - 145, size.height - 28), const Color(0xFF9A3412));
+    _label(canvas, 'Genetic material',
+        Offset(size.width - 145, size.height - 28), const Color(0xFF9A3412));
   }
 
   void _drawEcosystem(Canvas canvas, Size size) {
-    final ground = Paint()..color = const Color(0xFF86B77A)..strokeWidth = 4..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(20, size.height - 30), Offset(size.width - 20, size.height - 30), ground);
+    final ground = Paint()
+      ..color = const Color(0xFF86B77A)
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(Offset(20, size.height - 30),
+        Offset(size.width - 20, size.height - 30), ground);
     final sunCenter = Offset(size.width - 55, 42);
     canvas.drawCircle(sunCenter, 20, Paint()..color = const Color(0xFFFBBF24));
     for (int i = 0; i < 8; i++) {
       final angle = i * 2 * 3.141592653589793 / 8;
       canvas.drawLine(
-        Offset(sunCenter.dx + 25 * _cos(angle), sunCenter.dy + 25 * _sin(angle)),
-        Offset(sunCenter.dx + 32 * _cos(angle), sunCenter.dy + 32 * _sin(angle)),
-        Paint()..color = const Color(0xFFF59E0B)..strokeWidth = 3,
+        Offset(
+            sunCenter.dx + 25 * _cos(angle), sunCenter.dy + 25 * _sin(angle)),
+        Offset(
+            sunCenter.dx + 32 * _cos(angle), sunCenter.dy + 32 * _sin(angle)),
+        Paint()
+          ..color = const Color(0xFFF59E0B)
+          ..strokeWidth = 3,
       );
     }
     // Plant / producer
-    final plant = Paint()..color = const Color(0xFF15803D)..strokeWidth = 5..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(size.width * 0.28, size.height - 30), Offset(size.width * 0.28, size.height * 0.43), plant);
-    canvas.drawOval(Rect.fromCenter(center: Offset(size.width * 0.23, size.height * 0.55), width: 35, height: 16), Paint()..color = const Color(0xFF22C55E));
-    canvas.drawOval(Rect.fromCenter(center: Offset(size.width * 0.34, size.height * 0.48), width: 35, height: 16), Paint()..color = const Color(0xFF4DAD63));
+    final plant = Paint()
+      ..color = const Color(0xFF15803D)
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(Offset(size.width * 0.28, size.height - 30),
+        Offset(size.width * 0.28, size.height * 0.43), plant);
+    canvas.drawOval(
+        Rect.fromCenter(
+            center: Offset(size.width * 0.23, size.height * 0.55),
+            width: 35,
+            height: 16),
+        Paint()..color = const Color(0xFF22C55E));
+    canvas.drawOval(
+        Rect.fromCenter(
+            center: Offset(size.width * 0.34, size.height * 0.48),
+            width: 35,
+            height: 16),
+        Paint()..color = const Color(0xFF4DAD63));
     // Simple consumer
     final animal = Paint()..color = const Color(0xFFB77945);
-    canvas.drawOval(Rect.fromCenter(center: Offset(size.width * 0.56, size.height * 0.67), width: 62, height: 34), animal);
-    canvas.drawCircle(Offset(size.width * 0.61, size.height * 0.58), 15, animal);
-    canvas.drawCircle(Offset(size.width * 0.615, size.height * 0.575), 2.5, Paint()..color = Colors.white);
+    canvas.drawOval(
+        Rect.fromCenter(
+            center: Offset(size.width * 0.56, size.height * 0.67),
+            width: 62,
+            height: 34),
+        animal);
+    canvas.drawCircle(
+        Offset(size.width * 0.61, size.height * 0.58), 15, animal);
+    canvas.drawCircle(Offset(size.width * 0.615, size.height * 0.575), 2.5,
+        Paint()..color = Colors.white);
     // Decomposer / mushroom
     final mushroomX = size.width * 0.79;
-    canvas.drawRect(Rect.fromCenter(center: Offset(mushroomX, size.height - 43), width: 10, height: 22), Paint()..color = const Color(0xFFD6B58B));
-    canvas.drawOval(Rect.fromCenter(center: Offset(mushroomX, size.height - 55), width: 32, height: 17), Paint()..color = const Color(0xFFDC7865));
-    _label(canvas, 'Producer', Offset(size.width * 0.12, 18), const Color(0xFF166534));
-    _label(canvas, 'Consumer', Offset(size.width * 0.43, 18), const Color(0xFF8A4B20));
-    _label(canvas, 'Decomposer', Offset(size.width * 0.69, size.height - 22), const Color(0xFF9A3412));
-    final arrow = Paint()..color = const Color(0xFF739B78)..strokeWidth = 2.2..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(size.width * 0.34, size.height * 0.33), Offset(size.width * 0.48, size.height * 0.33), arrow);
-    canvas.drawLine(Offset(size.width * 0.48, size.height * 0.33), Offset(size.width * 0.44, size.height * 0.29), arrow);
-    canvas.drawLine(Offset(size.width * 0.48, size.height * 0.33), Offset(size.width * 0.44, size.height * 0.37), arrow);
+    canvas.drawRect(
+        Rect.fromCenter(
+            center: Offset(mushroomX, size.height - 43), width: 10, height: 22),
+        Paint()..color = const Color(0xFFD6B58B));
+    canvas.drawOval(
+        Rect.fromCenter(
+            center: Offset(mushroomX, size.height - 55), width: 32, height: 17),
+        Paint()..color = const Color(0xFFDC7865));
+    _label(canvas, 'Producer', Offset(size.width * 0.12, 18),
+        const Color(0xFF166534));
+    _label(canvas, 'Consumer', Offset(size.width * 0.43, 18),
+        const Color(0xFF8A4B20));
+    _label(canvas, 'Decomposer', Offset(size.width * 0.69, size.height - 22),
+        const Color(0xFF9A3412));
+    final arrow = Paint()
+      ..color = const Color(0xFF739B78)
+      ..strokeWidth = 2.2
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(Offset(size.width * 0.34, size.height * 0.33),
+        Offset(size.width * 0.48, size.height * 0.33), arrow);
+    canvas.drawLine(Offset(size.width * 0.48, size.height * 0.33),
+        Offset(size.width * 0.44, size.height * 0.29), arrow);
+    canvas.drawLine(Offset(size.width * 0.48, size.height * 0.33),
+        Offset(size.width * 0.44, size.height * 0.37), arrow);
   }
 
   void _organelle(Canvas canvas, Offset center, double radius, Color color) {
     canvas.drawOval(
-      Rect.fromCenter(center: center, width: radius * 2.1, height: radius * 1.35),
+      Rect.fromCenter(
+          center: center, width: radius * 2.1, height: radius * 1.35),
       Paint()..color = color.withValues(alpha: 0.82),
     );
-    final inner = Paint()..color = Colors.white.withValues(alpha: 0.65)..strokeWidth = 1.5..style = PaintingStyle.stroke;
+    final inner = Paint()
+      ..color = Colors.white.withValues(alpha: 0.65)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
     canvas.drawArc(
-      Rect.fromCenter(center: center, width: radius * 1.3, height: radius * 0.7),
+      Rect.fromCenter(
+          center: center, width: radius * 1.3, height: radius * 0.7),
       0.2,
       4.8,
       false,

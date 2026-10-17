@@ -5,7 +5,7 @@ import '../widgets/cell_background.dart';
 import 'login_page.dart';
 import 'about_page.dart';
 import 'package:flutter_projek_1/models/biology_topic.dart';
-import '../topic_detail_page.dart';
+import 'topic_detail_page.dart';
 import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:flutter_projek_1/models/quiz_progress.dart';
 import 'package:flutter_projek_1/models/achievement.dart';
@@ -15,6 +15,8 @@ import 'explore_page.dart';
 import 'package:flutter_projek_1/models/user_profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_projek_1/controllers/topic_controller.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -47,6 +49,7 @@ class BioVerseAvatar extends StatelessWidget {
     'assets/image/avatars/avatar_6.png',
     'assets/image/avatars/avatar_7.png',
   ];
+
 
   @override
   Widget build(BuildContext context) {
@@ -108,119 +111,21 @@ class _DashboardPageState extends State<DashboardPage>
 
   bool _virusHovered = false;
 
-        final List<BiologyTopic> topics = [
-      BiologyTopic(
-        title: 'DNA & Genetics',
-        description: 'Jelajah DNA dan informasi genetik', 
-        category: 'Genetics', 
-        level: 'Beginner',
-        content: '''
-DNA atau Deoxyribonucleic Acid merupakan molekul
-yang menyimpan informasi genetik pada makhluk hidup.
-
-DNA memiliki peran penting dalam menentukan dan
-mewariskan karakteristik suatu organisme.
-
-STRUKTUR DNA
-
-DNA memiliki bentuk double helix atau heliks ganda.
-Struktur ini tersusun dari unit-unit yang disebut
-nukleotida.
-
-Setiap nukleotida terdiri dari:
-• Gula deoksiribosa
-• Gugus fosfat
-• Basa nitrogen
-
-BASA NITROGEN
-
-DNA memiliki empat jenis basa nitrogen, yaitu:
-
-• Adenine (A)
-• Thymine (T)
-• Guanine (G)
-• Cytosine (C)
-
-Basa nitrogen tersebut memiliki pasangan tertentu:
-
-A ↔ T
-G ↔ C
-
-FUNGSI DNA
-
-DNA berfungsi sebagai penyimpan informasi genetik
-yang diperlukan oleh organisme. Informasi tersebut
-juga dapat diwariskan dari satu generasi ke generasi
-berikutnya.
-
-DNA menjadi salah satu komponen penting dalam
-pewarisan sifat dan berbagai proses biologis.
-''',
-      ),
-      BiologyTopic(
-        title: 'Cell Biology',
-        description: 'Pelajari tentang sel dan organ-organnya.',
-        category: 'Cells',
-        level: 'Beginner',
-        content: '''
-Sel adalah unit dasar kehidupan.
-Semua makhluk hidup tersusun atas sel.
-
-Setiap sel memiliki organel yang menjalankan fungsi tertentu.
-• Inti sel mengendalikan aktivitas sel.
-• Mitokondria menghasilkan energi.
-• Ribosom memproduksi protein.
-• Membran sel mengatur keluar masuk zat.
-
-Sel-sel dapat membentuk jaringan, organ, dan sistem organ.
-''',
-      ),
-      BiologyTopic(
-        title: 'Viruses',
-        description: 'Pelajari struktur dan replikasi virus.',
-        category: 'Microbiology',
-        level: 'Intermediate',
-        content: '''
-Virus adalah agen infeksius yang hanya dapat berkembang biak
-pada sel inang.
-
-Virus memiliki kapsid yang melindungi materi genetiknya.
-Beberapa virus memiliki membran lipid di luar kapsid.
-
-Replikasi virus biasanya terjadi setelah virus menempel
-pada sel inang dan memasukkan materi genetiknya.
-''',
-      ),
-      BiologyTopic(
-        title: 'Life & Ecosystems',
-        description: 'Memahami organisme dan lingkungannya',
-        category: 'Ecology',
-        level: 'Intermediate',
-        content: '''
-Ekosistem adalah hubungan antara makhluk hidup
-dengan lingkungan sekitarnya.
-
-Di dalam ekosistem, terdapat produsen, konsumen,
-dan dekomposer yang saling berinteraksi.
-
-Ketidakseimbangan ekosistem dapat memengaruhi
-kehidupan berbagai organisme di dalamnya.
-''',
-      ),
-    ];
-
   @override
   void initState() {
     super.initState();
     _loadUserAvatar();
 
-    // DNA berputar terus
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<TopicController>(context, listen: false).fetchTopics();
+    });
+
     _virusController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 12),
     )..repeat();
 
-    // Animasi floating
+
     _floatingController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
@@ -405,9 +310,7 @@ kehidupan berbagai organisme di dalamnya.
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ExplorePage(
-                      topics: topics,
-                    ),
+                    builder: (_) => const ExplorePage(),
                   ),
                 );
               },
@@ -968,175 +871,180 @@ kehidupan berbagai organisme di dalamnya.
   // ==================================================
 
   Widget _buildExploreSection() {
-    // Topik yang sudah memiliki progres tetapi skornya belum maksimal.
-    final continueTopics = topics.where((topic) {
-      final progress = ProgressController.getProgress(topic.title);
-      final isCompleted =
-          LearningStatsController.isTopicCompleted(topic.title);
+    return Consumer<TopicController>(
+      builder: (context, topicController, child) {
+        // Ambil data dinamis dari Firebase
+        final topics = topicController.topics;
 
-      return progress != null && !isCompleted;
-    }).toList();
+        // Tampilkan loading jika data masih diunduh
+        if (topicController.isLoading) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 100),
+            child: Center(child: CircularProgressIndicator(color: Colors.white)),
+          );
+        }
 
-    final recommendedTopics = topics.where((topic) {
-      final progress = ProgressController.getProgress(topic.title);
-      final isCompleted =
-          LearningStatsController.isTopicCompleted(topic.title);
+        // Topik yang sudah memiliki progres tetapi skornya belum maksimal.
+        final continueTopics = topics.where((topic) {
+          final progress = ProgressController.getProgress(topic.title);
+          final isCompleted =
+              LearningStatsController.isTopicCompleted(topic.title);
+          return progress != null && !isCompleted;
+        }).toList();
 
-      return progress == null && !isCompleted;
-    }).toList();
+        final recommendedTopics = topics.where((topic) {
+          final progress = ProgressController.getProgress(topic.title);
+          final isCompleted =
+              LearningStatsController.isTopicCompleted(topic.title);
+          return progress == null && !isCompleted;
+        }).toList();
 
-    final completedTopics = topics.where((topic) {
-      return LearningStatsController.isTopicCompleted(topic.title);
-    }).toList();
+        final completedTopics = topics.where((topic) {
+          return LearningStatsController.isTopicCompleted(topic.title);
+        }).toList();
 
-    return Padding(
-      key: _exploreKey,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 60,
-        vertical: 35,
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 1200,
+        return Padding(
+          key: _exploreKey,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 60,
+            vertical: 35,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ========================================
-              // 1. CONTINUE LEARNING
-              // ========================================
-
-              Text(
-                'Continue Learning',
-                key: _learnKey,
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 1200,
               ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ========================================
+                  // 1. CONTINUE LEARNING
+                  // ========================================
 
-              const SizedBox(height: 8),
+                  Text(
+                    'Continue Learning',
+                    key: _learnKey,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Pick up where you left off and keep exploring.',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-              Text(
-                'Pick up where you left off and keep exploring.',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.75),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
+                  _buildTopicGrid(
+                    topicList: continueTopics,
+                    emptyMessage: 'No topics to continue yet',
+                    emptyDescription: 'Start exploring biology to see your learning progress here.',
+                  ),
+
+                  const SizedBox(height: 48),
+
+                  // ========================================
+                  // 2. RECOMMENDED TOPICS
+                  // ========================================
+
+                  const Text(
+                    'Recommended Topics',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Discover new topics and expand your biology knowledge.',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildTopicGrid(
+                    topicList: recommendedTopics,
+                    emptyMessage: 'You have explored all topics!',
+                    emptyDescription: 'Great job! You have started learning every available topic.',
+                  ),
+
+                  const SizedBox(height: 48),
+
+                  // ========================================
+                  // 3. COMPLETED LEARNING
+                  // ========================================
+
+                  const Text(
+                    'Completed Learning',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Review the biology topics you have completed.',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildTopicGrid(
+                    topicList: completedTopics,
+                    emptyMessage: 'No completed topics yet',
+                    emptyDescription:
+                        'Complete a biology quiz to see your achievements here.',
+                  ),
+
+                  // ========================================
+                  // 4. RECENT ACHIEVEMENTS
+                  // ========================================
+
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Recent Achievements',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Celebrate your progress and milestones.',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  const _AchievementSection(),
+                ],
               ),
-
-              const SizedBox(height: 24),
-
-              _buildTopicGrid(
-                topicList: continueTopics,
-                emptyMessage: 'No topics to continue yet',
-                emptyDescription: 'Start exploring biology to see your learning progress here.',
-              ),
-
-              const SizedBox(height: 48),
-
-              // ========================================
-              // 2. RECOMMENDED TOPICS
-              // ========================================
-
-              const Text(
-                'Recommended Topics',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                'Discover new topics and expand your biology knowledge.',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.75),
-                  fontSize: 15,
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              _buildTopicGrid(
-                topicList: recommendedTopics,
-                emptyMessage: 'You have explored all topics!',
-                emptyDescription: 'Great job! You have started learning every available topic.',
-              ),
-
-              const SizedBox(height: 48),
-
-              const Text(
-                'Completed Learning',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                'Review the biology topics you have completed.',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.75),
-                  fontSize: 15,
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              _buildTopicGrid(
-                topicList: completedTopics,
-                emptyMessage: 'No completed topics yet',
-                emptyDescription:
-                    'Complete a biology quiz to see your achievements here.',
-              ),
-
-              // ========================================
-              // 3. RECENT ACHIEVEMENTS
-              // ========================================
-
-              const SizedBox(height: 24),
-              const Text(
-                'Recent Achievements',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                'Celebrate your progress and milestones.',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.75),
-                  fontSize: 15,
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              const _AchievementSection(),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
-  
+
 Widget _buildTopicGrid({
   required List<BiologyTopic> topicList,
   required String emptyMessage,
@@ -1215,7 +1123,7 @@ Widget _buildTopicGrid({
                 context,
                 MaterialPageRoute(
                   builder: (context) => TopicDetailPage(
-                    topic: topic,
+                    topic: topicList[index],
                   ),
                 ),
               ).then((_) {
@@ -1534,6 +1442,7 @@ class _TopicCardState extends State<_TopicCard> {
             ],
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 46,
@@ -1556,6 +1465,45 @@ class _TopicCardState extends State<_TopicCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            widget.topic.category.toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            widget.topic.level,
+                            style: const TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E88E5), // Warna biru
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
                     Text(
                       widget.title,
                       maxLines: 1,
@@ -1569,6 +1517,7 @@ class _TopicCardState extends State<_TopicCard> {
                     Text(
                       widget.description,
                       maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 12,
                         height: 1.35,

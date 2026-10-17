@@ -3,20 +3,28 @@ import 'package:flutter_projek_1/views/pages/home_page.dart';
 import 'package:flutter_projek_1/controllers/learning_stats_controller.dart';
 import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+import 'controllers/topic_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Memuat data statistik
   await LearningStatsController.init();
 
-  runApp(const BioVerseApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<ProgressController>(create: (_) => ProgressController()),
+        ChangeNotifierProvider(create: (_) => TopicController()),
+      ],
+      child: const BioVerseApp(),
+    ),
+  );
 }
 
 class BioVerseApp extends StatelessWidget {
