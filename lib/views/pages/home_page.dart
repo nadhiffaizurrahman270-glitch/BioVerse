@@ -1,12 +1,98 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
+import 'signup_page.dart';
+import '../../models/biology_topic.dart';
+import 'topic_detail_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   static const green = Color(0xFF16804A);
   static const darkGreen = Color(0xFF12372A);
   static const paleGreen = Color(0xFFE8F5EC);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final GlobalKey homeKey = GlobalKey();
+  final GlobalKey learnKey = GlobalKey();
+  final GlobalKey exploreKey = GlobalKey();
+  final GlobalKey aboutKey = GlobalKey();
+
+  String _searchQuery = '';
+
+  final List<Map<String, dynamic>> _allTopics = [
+    {
+      'icon': Icons.biotech_rounded,
+      'number': '01',
+      'title': 'DNA & Genetics',
+      'desc': 'Explore genetic information, DNA structures, and the traits that make organisms unique.',
+      'tag': 'GENETICS',
+    },
+    {
+      'icon': Icons.bubble_chart_rounded,
+      'number': '02',
+      'title': 'Cell Biology',
+      'desc': 'Discover cells, their organelles, and how these tiny building blocks keep life running.',
+      'tag': 'MICRO WORLD',
+    },
+    {
+      'icon': Icons.coronavirus_outlined,
+      'number': '03',
+      'title': 'Viruses',
+      'desc': 'Understand virus structures, how they spread, and their relationship with living organisms.',
+      'tag': 'VIROLOGY',
+    },
+    {
+      'icon': Icons.eco_rounded,
+      'number': '04',
+      'title': 'Life & Ecosystems',
+      'desc': 'Learn how organisms interact with each other and the environments they call home.',
+      'tag': 'ECOLOGY',
+    },
+    {
+      'icon': Icons.wb_sunny_rounded,
+      'number': '05',
+      'title': 'Photosynthesis',
+      'desc': 'The amazing process by which plants convert sunlight into food.',
+      'tag': 'PLANT BIOLOGY',
+    },
+    {
+      'icon': Icons.public_rounded,
+      'number': '06',
+      'title': 'Biodiversity',
+      'desc': 'Learn about the various levels of diversity among living organisms on Earth.',
+      'tag': 'ECOLOGY',
+    },
+    {
+      'icon': Icons.accessibility_new_rounded,
+      'number': '07',
+      'title': 'Human Body Anatomy',
+      'desc': 'Get to know the organ systems that work together in our body.',
+      'tag': 'ANATOMY',
+    },
+  ];
+
+  void _openTopic(Map<String, dynamic> topic) {
+    final biologyTopic = BiologyTopic(
+        id: topic['number'].toString(),
+        title: topic['title'],
+        description: topic['desc'],
+        category: topic['tag'],
+        level: 'Beginner',
+        content: topic['content'] ?? 'Materi belum tersedia.',
+      );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TopicDetailPage(
+          topic: biologyTopic,
+        ),
+      ),
+    );
+  }
 
   void _login(BuildContext context) => Navigator.push(
         context,
@@ -22,69 +108,268 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Widget _nav(BuildContext context, String label, GlobalKey key) => TextButton(
-        onPressed: () => _scroll(context, key),
-        child: Text(label,
-            style: const TextStyle(
-                color: darkGreen, fontWeight: FontWeight.w600)),
-      );
+Widget _topic(
+  IconData icon,
+  String number,
+  String title,
+  String description,
+  String tag,
+) =>
+    InkWell(
+      onTap: () {
+        final topic = BiologyTopic(
+          id: number,
+          title: title,
+          description: description,
+          category: tag,
+          level: 'Beginner',
+          content: 'Materi belum tersedia.',
+        );
 
-  Widget _topic(IconData icon, String number, String title,
-      String description, String tag) => Container(
-        padding: const EdgeInsets.all(22),
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TopicDetailPage(topic: topic),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 24,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFE3ECE5)),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFFE3ECE5),
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
-              color: darkGreen.withValues(alpha: .04),
-              blurRadius: 20,
-              offset: const Offset(0, 7),
-            )
+              color: HomePage.darkGreen.withValues(alpha: .04),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
           ],
         ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Container(
-              width: 58,
-              height: 58,
-              decoration: BoxDecoration(
-                  color: paleGreen, borderRadius: BorderRadius.circular(17)),
-              child: Icon(icon, color: green, size: 30),
-            ),
-            Text(number,
-                style: const TextStyle(
-                    color: Color(0xFFD6E5D9),
-                    fontSize: 25,
-                    fontWeight: FontWeight.w800)),
-          ]),
-          const SizedBox(height: 20),
-          Text(title,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: HomePage.green, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              textAlign: TextAlign.center,
               style: const TextStyle(
-                  color: darkGreen,
-                  fontSize: 19,
-                  fontWeight: FontWeight.w800)),
-          const SizedBox(height: 9),
-          Expanded(
-            child: Text(description,
+                color: HomePage.darkGreen,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF68766D),
+                fontSize: 12,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 11,
+                vertical: 7,
+              ),
+              decoration: BoxDecoration(
+                color: HomePage.paleGreen,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Text(
+                tag,
                 style: const TextStyle(
-                    color: Color(0xFF68766D), fontSize: 13, height: 1.6)),
+                  color: HomePage.green,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: .5,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    Widget _buildBenefitsSection(bool wide) {
+      return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(wide ? 50 : 26),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF5ED), 
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Flex(
+        direction: wide ? Axis.horizontal : Axis.vertical,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            flex: wide ? 6 : 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'FREE ACCOUNT',
+                  style: TextStyle(
+                    color: HomePage.green,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Simpan progressmu.\nKapan saja, di mana saja.',
+                  style: TextStyle(
+                    color: HomePage.darkGreen,
+                    fontSize: wide ? 42 : 32,
+                    fontWeight: FontWeight.w900,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Belajar biologi 100% gratis. Buat akun sekarang untuk menyimpan XP, mempertahankan streak harian, dan melihat statistik belajarmu di BioVerse.',
+                  style: TextStyle(
+                    color: Color(0xFF4A5C51),
+                    fontSize: 15,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Wrap(
+                  spacing: 40,
+                  runSpacing: 15,
+                  children: [
+                    _benefitCheck('Progress tracking'),
+                    _benefitCheck('XP & Streaks'),
+                    _benefitCheck('Interactive Quizzes'),
+                    _benefitCheck('Ad-free learning'),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-            decoration: BoxDecoration(
-                color: paleGreen, borderRadius: BorderRadius.circular(30)),
-            child: Text(tag,
-                style: const TextStyle(
-                    color: green,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: .5)),
+          if (wide) const SizedBox(width: 40) else const SizedBox(height: 32),
+          Flexible(
+            flex: wide ? 4 : 1,
+            child: Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: HomePage.green.withValues(alpha: 0.08),
+                    blurRadius: 25,
+                    offset: const Offset(0, 8),
+                  )
+                ],
+              ),
+              child: Column(
+                children: [
+                  const Icon(Icons.rocket_launch_rounded,
+                      color: HomePage.green, size: 36),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Mulai dengan satu klik',
+                    style: TextStyle(
+                      color: HomePage.darkGreen,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Buat akun gratis dan lanjutkan belajarmu dari mana saja.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.black54, fontSize: 13),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => _login(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Color(0xFFE3ECE5)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text(
+                        'Sign In',
+                        style: TextStyle(
+                            color: HomePage.darkGreen,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Text('or',
+                        style: TextStyle(color: Colors.black45, fontSize: 12)),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SignUpPage(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF171717),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('Sign Up',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ]),
-      );
+        ],
+      ),
+    );
+  }
+
+  Widget _benefitCheck(String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.check_rounded, color: HomePage.green, size: 18),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: const TextStyle(
+              color: HomePage.darkGreen,
+              fontWeight: FontWeight.w600,
+              fontSize: 14),
+        ),
+      ],
+    );
+  }
 
   Widget _feature(IconData icon, String title, String description) => Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,15 +378,15 @@ class HomePage extends StatelessWidget {
             width: 54,
             height: 54,
             decoration: BoxDecoration(
-                color: paleGreen, borderRadius: BorderRadius.circular(16)),
-            child: Icon(icon, color: green, size: 27),
+                color: HomePage.paleGreen, borderRadius: BorderRadius.circular(16)),
+            child: Icon(icon, color: HomePage.green, size: 27),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title,
                   style: const TextStyle(
-                      color: darkGreen,
+                      color: HomePage.darkGreen,
                       fontSize: 17,
                       fontWeight: FontWeight.w800)),
               const SizedBox(height: 6),
@@ -118,10 +403,16 @@ class HomePage extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     final wide = width >= 900;
     final padding = width >= 1100 ? 76.0 : width >= 650 ? 38.0 : 22.0;
-    final homeKey = GlobalKey();
-    final learnKey = GlobalKey();
-    final exploreKey = GlobalKey();
-    final aboutKey = GlobalKey();
+    
+
+    final filteredTopics = _allTopics.where((topic) {
+      final titleMatch =
+          topic['title'].toLowerCase().contains(_searchQuery.toLowerCase());
+      final descMatch =
+          topic['desc'].toLowerCase().contains(_searchQuery.toLowerCase());
+      return titleMatch || descMatch;
+    }).toList();
+    
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FBF8),
@@ -130,50 +421,110 @@ class HomePage extends StatelessWidget {
           // White navbar
           Container(
             key: homeKey,
-            color: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: padding, vertical: 16),
-            child: Row(children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                    color: green, borderRadius: BorderRadius.circular(14)),
-                child: const Icon(Icons.eco_rounded,
-                    color: Colors.white, size: 25),
+            padding: EdgeInsets.symmetric(horizontal: padding, vertical: 14),
+            decoration: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Color(0xFFEEF4F0), width: 1),
               ),
-              const SizedBox(width: 10),
-              const Text('BioVerse',
-                  style: TextStyle(
-                      color: darkGreen,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -.5)),
+            ),
+            child: Row(children: [
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() => _searchQuery = '');
+                    _scroll(context, homeKey);
+                  },
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                            color: HomePage.green,
+                            borderRadius: BorderRadius.circular(12)),
+                        child: const Icon(Icons.eco_rounded,
+                            color: Colors.white, size: 24),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text('BioVerse',
+                          style: TextStyle(
+                              color: HomePage.darkGreen,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -.5)),
+                    ],
+                  ),
+                ),
+              ),
+
               const Spacer(),
               if (wide) ...[
-                _nav(context, 'Home', homeKey),
-                _nav(context, 'Learn', learnKey),
-                _nav(context, 'Explore', exploreKey),
-                _nav(context, 'About', aboutKey),
-                const SizedBox(width: 12),
-              ],
-              ElevatedButton(
+                Container(
+                  width: 280,
+                  height: 42,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F7F4),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: const Color(0xFFE3ECE5)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search_rounded, 
+                      color: Color(0xFF68766D), size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          onChanged: (value) {
+                            setState((){
+                            _searchQuery = value;
+                            });
+                            if (value.isNotEmpty) _scroll(context, exploreKey);
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Search topics',
+                            hintStyle: TextStyle(color: Color(0xFF9EAFA4), fontSize: 14),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          style: const TextStyle(fontSize: 14, color: HomePage.darkGreen),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 20),
+                TextButton(
                 onPressed: () => _login(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: HomePage.darkGreen,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                child: const Text('Sign In', style: TextStyle(fontWeight: FontWeight.w700)),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (_) => const SignUpPage()));
+                },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: green,
+                  backgroundColor: HomePage.green,
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Sign In',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                child: const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.w700)),
               ),
-            ]),
+            ],
+        ]),
           ),
 
-          // Dark green hero with an auto-playing feature carousel
           Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(
@@ -207,7 +558,7 @@ class HomePage extends StatelessWidget {
                   height: wide ? 115 : 48,
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: green.withValues(alpha: .16)),
+                      color: HomePage.green.withValues(alpha: .16)),
                 ),
               ),
               if (wide)
@@ -221,7 +572,10 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 36),
-                  const Expanded(flex: 5, child: _HeroCarousel()),
+                  Expanded(
+                    flex: 5,
+                    child: _HeroCarousel(onSignIn: () => _login(context)),
+                  ),
                 ])
               else
                 Column(
@@ -233,13 +587,14 @@ class HomePage extends StatelessWidget {
                       onExplore: () => _scroll(context, exploreKey),
                     ),
                     const SizedBox(height: 42),
-                    const _HeroCarousel(),
+                    _HeroCarousel(onSignIn: () => _login(context)),
                   ],
                 ),
             ]),
           ),
 
           // Topic cards
+          
           Container(
             key: exploreKey,
             width: double.infinity,
@@ -253,26 +608,25 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               GridView.count(
-                crossAxisCount: width >= 1100 ? 4 : width >= 650 ? 2 : 1,
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
+                crossAxisCount: width >= 1100 ? 4 : width >= 650 ? 3 : 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
                 childAspectRatio: width >= 1100
-                    ? .95
+                    ? 1.2
                     : width >= 650
-                        ? 1.1
-                        : 1.7,
+                        ? 1.0
+                        : 0.85,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _topic(Icons.biotech_rounded, '01', 'DNA & Genetics',
-                      'Explore genetic information, DNA structures, and the traits that make organisms unique.', 'GENETICS'),
-                  _topic(Icons.bubble_chart_rounded, '02', 'Cell Biology',
-                      'Discover cells, their organelles, and how these tiny building blocks keep life running.', 'MICRO WORLD'),
-                  _topic(Icons.coronavirus_outlined, '03', 'Viruses',
-                      'Understand virus structures, how they spread, and their relationship with living organisms.', 'VIROLOGY'),
-                  _topic(Icons.eco_rounded, '04', 'Life & Ecosystems',
-                      'Learn how organisms interact with each other and the environments they call home.', 'ECOLOGY'),
-                ],
+                children: filteredTopics
+                  .map((topic) => _topic(
+                      topic['icon'] as IconData,
+                      topic['number'] as String,
+                      topic['title'] as String,
+                      topic['desc'] as String,
+                      topic['tag'] as String,
+                    ))
+                  .toList(),
               ),
             ]),
           ),
@@ -291,14 +645,14 @@ class HomePage extends StatelessWidget {
                           children: [
                         Text('YOUR LEARNING SPACE',
                             style: TextStyle(
-                                color: green,
+                              color: HomePage.green,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 2)),
                         SizedBox(height: 12),
                         Text('Learn biology\nyour way.',
                             style: TextStyle(
-                                color: darkGreen,
+                                color: HomePage.darkGreen,
                                 fontSize: 38,
                                 height: 1.2,
                                 fontWeight: FontWeight.w800)),
@@ -328,23 +682,23 @@ class HomePage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => _login(context),
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: green,
+                          backgroundColor: HomePage.green,
                           foregroundColor: Colors.white,
                           elevation: 0),
-                      child: const Text('Continue Learning'),
+                      child: const Text('Start Learning'),
                     ),
                   ])
                 : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     const Text('YOUR LEARNING SPACE',
                         style: TextStyle(
-                            color: green,
+                            color: HomePage.green,
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 2)),
                     const SizedBox(height: 12),
                     const Text('Learn biology your way.',
                         style: TextStyle(
-                            color: darkGreen,
+                            color: HomePage.darkGreen,
                             fontSize: 32,
                             fontWeight: FontWeight.w800)),
                     const SizedBox(height: 14),
@@ -365,7 +719,7 @@ class HomePage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => _login(context),
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: green,
+                          backgroundColor: HomePage.green,
                           foregroundColor: Colors.white,
                           elevation: 0),
                       child: const Text('Continue Learning'),
@@ -509,19 +863,6 @@ class _HeroCopy extends StatelessWidget {
                 Icon(Icons.arrow_forward_rounded, size: 18),
               ]),
             ),
-            OutlinedButton(
-              onPressed: onExplore,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 21, vertical: 17),
-                side: BorderSide(color: Colors.white.withValues(alpha: .3)),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(11)),
-              ),
-              child: const Text('Explore Topics',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
-            ),
           ]),
           const SizedBox(height: 28),
           const Wrap(spacing: 20, runSpacing: 10, children: [
@@ -534,7 +875,8 @@ class _HeroCopy extends StatelessWidget {
 }
 
 class _HeroCarousel extends StatefulWidget {
-  const _HeroCarousel();
+  final VoidCallback onSignIn;
+  const _HeroCarousel({required this.onSignIn});
 
   @override
   State<_HeroCarousel> createState() => _HeroCarouselState();
@@ -622,11 +964,17 @@ class _HeroCarouselState extends State<_HeroCarousel> {
       onEnter: (_) => setState(() => _paused = true),
       onExit: (_) => setState(() => _paused = false),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 280, maxHeight: 320),
+        constraints: const BoxConstraints(
+          minHeight: 260,
+          maxHeight: 275,
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
         decoration: BoxDecoration(
           color: const Color(0xFF174936),
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: Colors.white.withValues(alpha: .11)),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: .11),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: .14),
@@ -635,104 +983,164 @@ class _HeroCarouselState extends State<_HeroCarousel> {
             ),
           ],
         ),
-        child: Column(children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _controller,
-              itemCount: _slides.length,
-              onPageChanged: (index) => setState(() => _currentPage = index),
-              itemBuilder: (context, index) => _buildSlide(_slides[index]),
+        child: Stack(
+          children: [
+            const Positioned(
+              top: 2,
+              right: 2,
+              child: Icon(
+                Icons.lock_rounded,
+                color: Colors.white54,
+                size: 20,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_slides.length, (index) {
-                final selected = index == _currentPage;
-                return GestureDetector(
-                  onTap: () => _goToPage(index),
-                  behavior: HitTestBehavior.opaque,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      width: selected ? 25 : 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? const Color(0xFF8BE0A7)
-                            : Colors.white.withValues(alpha: .3),
-                        borderRadius: BorderRadius.circular(20),
+            Column(
+              children: [
+                Expanded(
+                  child: PageView.builder(
+                    controller: _controller,
+                    itemCount: _slides.length,
+                    onPageChanged: (index) {
+                      setState(() => _currentPage = index);
+                    },
+                    itemBuilder: (context, index) {
+                      return _buildSlide(_slides[index]);
+                    },
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 0,
+                    bottom: 4,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(_slides.length, (index) {
+                      final selected = index == _currentPage;
+
+                      return GestureDetector(
+                        onTap: () => _goToPage(index),
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 5,
+                          ),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            width: selected ? 25 : 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? const Color(0xFF8BE0A7)
+                                  : Colors.white.withValues(alpha: .3),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: widget.onSignIn,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF22C55E),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      minimumSize: const Size(0, 40),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Sign in',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                );
-              }),
-            ),
-          ),
-        ]),
-      ),
-    );
-  }
-
-  Widget _buildSlide(_CarouselSlideData slide) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              slide.eyebrow,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Color(0xFFB6E9C5),
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.4,
-              ),
-            ),
-            const SizedBox(height: 15),
-            Container(
-              width: 58,
-              height: 58,
-              decoration: BoxDecoration(
-                color: slide.accent.withValues(alpha: .13),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: slide.accent.withValues(alpha: .24)),
-              ),
-              child: Icon(slide.icon, color: slide.accent, size: 31),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              slide.title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 23,
-                height: 1.15,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -.4,
-              ),
-            ),
-            const SizedBox(height: 9),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 310),
-              child: Text(
-                slide.description,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Color(0xFFC3D6CA),
-                  fontSize: 12,
-                  height: 1.5,
                 ),
-              ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+  Widget _buildSlide(_CarouselSlideData slide) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  slide.eyebrow,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFFB6E9C5),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: slide.accent.withValues(alpha: .13),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: slide.accent.withValues(alpha: .24)),
+                  ),
+                  child: Icon(slide.icon, color: slide.accent, size: 28),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  slide.title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    height: 1.15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 7),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 300,
+                    maxHeight: constraints.maxHeight * .30,
+                  ),
+                  child: Text(
+                    slide.description,
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                    style: const TextStyle(
+                      color: Color(0xFFC3D6CA),
+                      fontSize: 12,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
