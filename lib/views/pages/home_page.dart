@@ -3,6 +3,7 @@ import 'login_page.dart';
 import 'signup_page.dart';
 import '../../models/biology_topic.dart';
 import 'topic_detail_page.dart';
+import '../../services/topic_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -75,23 +76,47 @@ class _HomePageState extends State<HomePage> {
     },
   ];
 
-  void _openTopic(Map<String, dynamic> topic) {
-    final biologyTopic = BiologyTopic(
-        id: topic['number'].toString(),
-        title: topic['title'],
-        description: topic['desc'],
-        category: topic['tag'],
-        level: 'Beginner',
-        content: topic['content'] ?? 'Materi belum tersedia.',
+  Future<void> _openTopic(String title) async {
+    try {
+      final topics = await TopicService().getAllTopics();
+
+      if (!mounted) return;
+
+      // Cari materi Firebase berdasarkan judul
+      final matchingTopics = topics.where(
+        (topic) => topic.title.trim().toLowerCase() ==
+            title.trim().toLowerCase(),
       );
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TopicDetailPage(
-          topic: biologyTopic,
+
+      if (matchingTopics.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Materi "$title" tidak ditemukan di Firebase.'),
+          ),
+        );
+        return;
+      }
+
+      final selectedTopic = matchingTopics.first;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TopicDetailPage(
+            topic: selectedTopic,
+            isGuest: true,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mengambil materi: $e'),
+        ),
+      );
+    }
   }
 
   void _login(BuildContext context) => Navigator.push(

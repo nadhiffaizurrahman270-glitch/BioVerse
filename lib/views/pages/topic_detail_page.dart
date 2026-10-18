@@ -7,13 +7,17 @@ import '../../models/quiz_question.dart';
 import '../../controllers/progress_controller.dart';
 import '../../controllers/learning_stats_controller.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TopicDetailPage extends StatefulWidget {
   final BiologyTopic topic;
+  final bool isGuest;
 
   const TopicDetailPage({
     super.key,
     required this.topic,
+    this.isGuest = false,
   });
 
   @override
@@ -62,20 +66,29 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
         selectedAnswer = -1;
         answered = false;
       });
-    } else {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    try {
+      // Simpan hasil kuis, baik guest maupun user yang login.
       await ProgressController.saveProgress(
         widget.topic.title,
         score,
         questions.length,
       );
 
-      final xpEarned = await LearningStatsController.recordQuizCompletion(
+      // Simpan XP dan statistik kuis secara lokal.
+      final xpEarned =
+          await LearningStatsController.recordQuizCompletion(
         topicTitle: widget.topic.title,
         score: score,
         totalQuestions: questions.length,
       );
 
       if (!mounted) return;
+
       setState(() {
         quizFinished = true;
       });
@@ -86,13 +99,58 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Keren! Kamu mendapatkan $earnedXp XP!'),
+            content: Text(
+              'Keren! Kamu mendapatkan $earnedXp XP!',
+            ),
             duration: const Duration(seconds: 2),
             backgroundColor: Colors.green.shade700,
             behavior: SnackBarBehavior.floating,
           ),
         );
       }
+
+      // Beri tahu guest bahwa hasilnya tersimpan di perangkat.
+      if (FirebaseAuth.instance.currentUser == null) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Hasil kuis tersimpan di perangkat! Login untuk melihat progresmu.',
+            ),
+            duration: const Duration(seconds: 4),
+            backgroundColor: const Color(0xFF12372A),
+            behavior: SnackBarBehavior.floating,
+            action: SnackBarAction(
+              label: 'Sign In',
+              textColor: const Color(0xFF8BE0A7),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LoginPage(),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        quizFinished = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Kuis selesai, tetapi progres gagal disimpan.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
