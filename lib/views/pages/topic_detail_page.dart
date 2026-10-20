@@ -79,7 +79,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
         questions.length,
       );
 
-      // Simpan XP dan statistik kuis secara lokal.
+      // Simpan XP dan statistik k secara lokal.
       final xpEarned =
           await LearningStatsController.recordQuizCompletion(
         topicTitle: widget.topic.title,
@@ -236,12 +236,17 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
     if (title.contains('dna') || title.contains('genetic')) {
       return Icons.biotech_rounded;
     }
-    if (title.contains('cell')) return Icons.grain_rounded;
-    if (title.contains('virus')) return Icons.coronavirus_rounded;
+    if (title.contains('cell')) return Icons.bubble_chart_rounded;
+    if (title.contains('virus')) return Icons.coronavirus_outlined;
     if (title.contains('ecosystem') || title.contains('life')) {
       return Icons.eco_rounded;
     }
-    return Icons.science_rounded;
+    if (title.contains('photosynthesis')) return Icons.wb_sunny_rounded;
+    if (title.contains('biodiversity')) return Icons.public_rounded;
+    if (title.contains('human body anatomy')) {
+      return Icons.accessibility_new_rounded;
+    }
+    return Icons.menu_book_rounded;
   }
 
   Widget _buildHeader() {

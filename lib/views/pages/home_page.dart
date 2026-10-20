@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
-import 'signup_page.dart';
 import '../../models/biology_topic.dart';
 import 'topic_detail_page.dart';
 import '../../services/topic_service.dart';
@@ -27,97 +26,54 @@ class _HomePageState extends State<HomePage> {
   final List<Map<String, dynamic>> _allTopics = [
     {
       'icon': Icons.biotech_rounded,
-      'number': '01',
       'title': 'DNA & Genetics',
       'desc': 'Explore genetic information, DNA structures, and the traits that make organisms unique.',
       'tag': 'GENETICS',
+      'level': 'Beginner',
     },
     {
       'icon': Icons.bubble_chart_rounded,
-      'number': '02',
       'title': 'Cell Biology',
       'desc': 'Discover cells, their organelles, and how these tiny building blocks keep life running.',
       'tag': 'MICRO WORLD',
+      'level': 'Beginner',
     },
     {
       'icon': Icons.coronavirus_outlined,
-      'number': '03',
       'title': 'Viruses',
       'desc': 'Understand virus structures, how they spread, and their relationship with living organisms.',
       'tag': 'VIROLOGY',
+      'level': 'Intermediate',
     },
     {
       'icon': Icons.eco_rounded,
-      'number': '04',
       'title': 'Life & Ecosystems',
       'desc': 'Learn how organisms interact with each other and the environments they call home.',
       'tag': 'ECOLOGY',
+      'level': 'Intermediate',
     },
     {
       'icon': Icons.wb_sunny_rounded,
-      'number': '05',
       'title': 'Photosynthesis',
       'desc': 'The amazing process by which plants convert sunlight into food.',
       'tag': 'PLANT BIOLOGY',
+      'level': 'Intermediate',
     },
     {
       'icon': Icons.public_rounded,
-      'number': '06',
       'title': 'Biodiversity',
       'desc': 'Learn about the various levels of diversity among living organisms on Earth.',
       'tag': 'ECOLOGY',
+      'level': 'Beginner',
     },
     {
       'icon': Icons.accessibility_new_rounded,
-      'number': '07',
       'title': 'Human Body Anatomy',
       'desc': 'Get to know the organ systems that work together in our body.',
       'tag': 'ANATOMY',
+      'level': 'Intermediate',
     },
   ];
-
-  Future<void> _openTopic(String title) async {
-    try {
-      final topics = await TopicService().getAllTopics();
-
-      if (!mounted) return;
-
-      // Cari materi Firebase berdasarkan judul
-      final matchingTopics = topics.where(
-        (topic) => topic.title.trim().toLowerCase() ==
-            title.trim().toLowerCase(),
-      );
-
-      if (matchingTopics.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Materi "$title" tidak ditemukan di Firebase.'),
-          ),
-        );
-        return;
-      }
-
-      final selectedTopic = matchingTopics.first;
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TopicDetailPage(
-            topic: selectedTopic,
-            isGuest: true,
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengambil materi: $e'),
-        ),
-      );
-    }
-  }
 
   void _login(BuildContext context) => Navigator.push(
         context,
@@ -206,172 +162,196 @@ Widget _topic(
               ),
             ),
             const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 11,
-                vertical: 7,
-              ),
-              decoration: BoxDecoration(
-                color: HomePage.paleGreen,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                tag,
-                style: const TextStyle(
-                  color: HomePage.green,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: .5,
+
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: HomePage.paleGreen,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    tag.toUpperCase(),
+                    style: const TextStyle(
+                      color: HomePage.green,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: .5,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
       ),
     );
 
-    Widget _buildBenefitsSection(bool wide) {
-      return Container(
+  Widget _buildBenefitsSection(bool wide, double width) {
+    final isMobile = width < 600;
+
+    return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(wide ? 50 : 26),
+      padding: EdgeInsets.all(wide ? 44 : (isMobile ? 20 : 32)),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF5ED), 
-        borderRadius: BorderRadius.circular(30),
+        color: const Color(0xFFEAF5ED),
+        borderRadius: BorderRadius.circular(24),
       ),
-      child: Flex(
-        direction: wide ? Axis.horizontal : Axis.vertical,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            flex: wide ? 6 : 1,
-            child: Column(
+      child: wide
+          ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'FREE ACCOUNT',
-                  style: TextStyle(
-                    color: HomePage.green,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                    fontSize: 12,
-                  ),
+                // BAGIAN TEKS KIRI (LAPTOP)
+                Expanded(
+                  flex: 6,
+                  child: _buildBenefitsTextContent(wide, isMobile),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Simpan progressmu.\nKapan saja, di mana saja.',
-                  style: TextStyle(
-                    color: HomePage.darkGreen,
-                    fontSize: wide ? 42 : 32,
-                    fontWeight: FontWeight.w900,
-                    height: 1.1,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Belajar biologi 100% gratis. Buat akun sekarang untuk menyimpan XP, mempertahankan streak harian, dan melihat statistik belajarmu di BioVerse.',
-                  style: TextStyle(
-                    color: Color(0xFF4A5C51),
-                    fontSize: 15,
-                    height: 1.6,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                Wrap(
-                  spacing: 40,
-                  runSpacing: 15,
-                  children: [
-                    _benefitCheck('Progress tracking'),
-                    _benefitCheck('XP & Streaks'),
-                    _benefitCheck('Interactive Quizzes'),
-                    _benefitCheck('Ad-free learning'),
-                  ],
+                const SizedBox(width: 32),
+                // BAGIAN KARTU KANAN (LAPTOP)
+                Expanded(
+                  flex: 4,
+                  child: _buildBenefitsCardContent(isMobile),
                 ),
               ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // BAGIAN TEKS ATAS (HP / TABLET)
+                _buildBenefitsTextContent(wide, isMobile),
+                const SizedBox(height: 28),
+                // BAGIAN KARTU BOWA (HP / TABLET)
+                _buildBenefitsCardContent(isMobile),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildBenefitsTextContent(bool wide, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'FREE ACCOUNT',
+          style: TextStyle(
+            color: HomePage.green,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Simpan progressmu.\nKapan saja, di mana saja.',
+          style: TextStyle(
+            color: HomePage.darkGreen,
+            fontSize: wide ? 34 : (isMobile ? 24 : 28),
+            fontWeight: FontWeight.w900,
+            height: 1.15,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          'Belajar biologi 100% gratis. Buat akun sekarang untuk menyimpan XP, mempertahankan streak harian, dan melihat statistik belajarmu di BioVerse.',
+          style: TextStyle(
+            color: const Color(0xFF4A5C51),
+            fontSize: isMobile ? 13 : 14,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Wrap(
+          spacing: isMobile ? 16 : 24,
+          runSpacing: 10,
+          children: [
+            _benefitCheck('Progress tracking'),
+            _benefitCheck('XP & Streaks'),
+            _benefitCheck('Interactive Quizzes'),
+            _benefitCheck('Ad-free learning'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBenefitsCardContent(bool isMobile) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isMobile ? 20 : 28),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: HomePage.green.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.rocket_launch_rounded,
+              color: HomePage.green, size: 36),
+          const SizedBox(height: 14),
+          const Text(
+            'Mulai dengan satu klik',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: HomePage.darkGreen,
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          if (wide) const SizedBox(width: 40) else const SizedBox(height: 32),
-          Flexible(
-            flex: wide ? 4 : 1,
-            child: Container(
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: HomePage.green.withValues(alpha: 0.08),
-                    blurRadius: 25,
-                    offset: const Offset(0, 8),
-                  )
-                ],
+          const SizedBox(height: 6),
+          const Text(
+            'Buat akun gratis dan lanjutkan belajarmu dari mana saja.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.black54, fontSize: 12.5),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () => _login(context),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                side: const BorderSide(color: Color(0xFFE3ECE5)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
-              child: Column(
-                children: [
-                  const Icon(Icons.rocket_launch_rounded,
-                      color: HomePage.green, size: 36),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Mulai dengan satu klik',
-                    style: TextStyle(
-                      color: HomePage.darkGreen,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Buat akun gratis dan lanjutkan belajarmu dari mana saja.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black54, fontSize: 13),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () => _login(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: Color(0xFFE3ECE5)),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text(
-                        'Sign In',
-                        style: TextStyle(
-                            color: HomePage.darkGreen,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Text('or',
-                        style: TextStyle(color: Colors.black45, fontSize: 12)),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SignUpPage(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF171717),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Sign Up',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
+              child: const Text(
+                'Sign In',
+                style: TextStyle(
+                    color: HomePage.darkGreen,
+                    fontWeight: FontWeight.bold),
               ),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Text('or',
+                style: TextStyle(color: Colors.black45, fontSize: 12)),
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _login(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF171717),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              child: const Text('Sign Up',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -443,111 +423,130 @@ Widget _topic(
       backgroundColor: const Color(0xFFF8FBF8),
       body: SingleChildScrollView(
         child: Column(children: [
-          // White navbar
+          // STICKY NAVBAR RESPONSIF
           Container(
             key: homeKey,
-            padding: EdgeInsets.symmetric(horizontal: padding, vertical: 14),
-            decoration: const BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: Color(0xFFEEF4F0), width: 1),
-              ),
+            padding: EdgeInsets.symmetric(
+              horizontal: padding, 
+              vertical: width < 600 ? 10 : 14, // Padding lebih kecil di HP
             ),
-            child: Row(children: [
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() => _searchQuery = '');
-                    _scroll(context, homeKey);
-                  },
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: Color(0xFFEEF4F0), width: 1)),
+            ),
+            child: Row(
+              children: [
+                // Logo & Nama App
+                GestureDetector(
+                  onTap: () => setState(() => _searchQuery = ''),
                   child: Row(
                     children: [
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: width < 600 ? 34 : 40,
+                        height: width < 600 ? 34 : 40,
                         decoration: BoxDecoration(
-                            color: HomePage.green,
-                            borderRadius: BorderRadius.circular(12)),
-                        child: const Icon(Icons.eco_rounded,
-                            color: Colors.white, size: 24),
+                          color: HomePage.green,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(Icons.eco_rounded, color: Colors.white, size: width < 600 ? 20 : 24),
                       ),
-                      const SizedBox(width: 10),
-                      const Text('BioVerse',
-                          style: TextStyle(
-                              color: HomePage.darkGreen,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: -.5)),
-                    ],
-                  ),
-                ),
-              ),
-
-              const Spacer(),
-              if (wide) ...[
-                Container(
-                  width: 280,
-                  height: 42,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F7F4),
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: const Color(0xFFE3ECE5)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.search_rounded, 
-                      color: Color(0xFF68766D), size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          onChanged: (value) {
-                            setState((){
-                            _searchQuery = value;
-                            });
-                            if (value.isNotEmpty) _scroll(context, exploreKey);
-                          },
-                          decoration: const InputDecoration(
-                            hintText: 'Search topics',
-                            hintStyle: TextStyle(color: Color(0xFF9EAFA4), fontSize: 14),
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          style: const TextStyle(fontSize: 14, color: HomePage.darkGreen),
+                      const SizedBox(width: 8),
+                      Text(
+                        'BioVerse',
+                        style: TextStyle(
+                          color: HomePage.darkGreen,
+                          fontSize: width < 600 ? 18 : 22,
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 20),
+                const Spacer(),
+                
+                if (wide) ...[
+                  Container(
+                    width: 280,
+                    height: 42,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F7F4),
+                      borderRadius: BorderRadius.circular(21),
+                      border: Border.all(color: const Color(0xFFE3ECE5)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center, 
+                      children: [
+                        const Icon(
+                          Icons.search_rounded,
+                          color: Color(0xFF68766D),
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                _searchQuery = value;
+                              });
+                              if (value.isNotEmpty) {
+                                _scroll(context, exploreKey);
+                              }
+                            },
+                            textAlignVertical: TextAlignVertical.center, // Memastikan teks tepat di tengah secara vertikal
+                            decoration: const InputDecoration(
+                              hintText: 'Search topics...',
+                              hintStyle: TextStyle(
+                                color: Color(0xFF9EAFA4),
+                                fontSize: 13,
+                              ),
+                              border: InputBorder.none,
+                              isCollapsed: true, // Mengabaikan padding bawaan TextField agar rapi di dalam Row
+                            ),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: HomePage.darkGreen,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 TextButton(
-                onPressed: () => _login(context),
-                style: TextButton.styleFrom(
-                  foregroundColor: HomePage.darkGreen,
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  onPressed: () => _login(context),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: width < 600 ? 10 : 18),
+                  ),
+                  child: Text(
+                    'Sign In',
+                    style: TextStyle(
+                      fontSize: width < 600 ? 13 : 14,
+                      fontWeight: FontWeight.w700,
+                      color: HomePage.darkGreen,
+                    ),
+                  ),
                 ),
-                child: const Text('Sign In', style: TextStyle(fontWeight: FontWeight.w700)),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () {
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(builder: (_) => const SignUpPage()));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: HomePage.green,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                SizedBox(width: width < 600 ? 4 : 8),
+                ElevatedButton(
+                  onPressed: () => _login(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: HomePage.green,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: EdgeInsets.symmetric(horizontal: width < 600 ? 14 : 22, vertical: width < 600 ? 10 : 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text(
+                    'Sign Up',
+                    style: TextStyle(
+                      fontSize: width < 600 ? 13 : 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
-                child: const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.w700)),
-              ),
-            ],
-        ]),
+              ],
+            ),
           ),
 
           Container(
@@ -623,38 +622,77 @@ Widget _topic(
           Container(
             key: exploreKey,
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: padding, vertical: 78),
-            child: Column(children: [
+            padding: EdgeInsets.symmetric(
+              horizontal: padding, vertical: wide ? 60 : 36),
+            child: Column(
+              children: [
               const _SectionTitle(
                 eyebrow: 'EXPLORE & DISCOVER',
                 title: 'Discover Biology',
                 subtitle: 'Start with the fundamentals of life. Pick a topic '
                     'and begin exploring the science behind it.',
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 36),
+
+              if (!wide) ...[
+                Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE3ECE5)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search_rounded, color: Color(0xFF68766D), size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          onChanged: (value) {
+                            setState(() => _searchQuery = value);
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Cari materi biologi...',
+                            hintStyle: TextStyle(color: Color(0xFF9EAFA4), fontSize: 13),
+                            border: InputBorder.none,
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+
               GridView.count(
-                crossAxisCount: width >= 1100 ? 4 : width >= 650 ? 3 : 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                crossAxisCount: width >= 1100 ? 4 : width >= 700 ? 3 : width >= 480 ? 2 : 1,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
                 childAspectRatio: width >= 1100
-                    ? 1.2
-                    : width >= 650
-                        ? 1.0
-                        : 0.85,
+                    ? 1.05
+                    : width >= 700
+                        ? 0.90
+                        : 1.35,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                children: filteredTopics
-                  .map((topic) => _topic(
-                      topic['icon'] as IconData,
-                      topic['number'] as String,
-                      topic['title'] as String,
-                      topic['desc'] as String,
-                      topic['tag'] as String,
-                    ))
-                  .toList(),
+                children: filteredTopics.map((topic) {
+                  return _topic(
+                    topic['icon'],
+                    topic['title'],
+                    topic['desc'],
+                    topic['tag'],
+                    topic['level'],
+                  );
+                }).toList(),
               ),
             ]),
           ),
+
+          const SizedBox(height: 60),
+
+          _buildBenefitsSection(wide, width),
 
           // Learning center
           Container(

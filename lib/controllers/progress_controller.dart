@@ -38,6 +38,10 @@ class ProgressController {
     }
   }
 
+  static Map<String, QuizProgress> getAllProgress() {
+    return _progressMap;
+  }
+
   static Future<void> saveProgress(
     String topicTitle,
     int score,

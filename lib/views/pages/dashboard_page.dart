@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_projek_1/controllers/bookmark_controller.dart' as bookmark_controller;
 import 'package:flutter_projek_1/services/auth_service.dart';
 import '../widgets/cell_background.dart';
 import 'login_page.dart';
@@ -17,6 +18,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_projek_1/controllers/topic_controller.dart';
+import 'achievement_page.dart';
+import 'bookmark_page.dart';
+import 'progress_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -468,9 +472,9 @@ class _DashboardPageState extends State<DashboardPage>
               const Text(
                 'YOUR LEARNING PROGRESS',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF12372A),
+                  color: Colors.white,
                   letterSpacing: 1.5,
                 ),
               ),
@@ -1010,32 +1014,6 @@ class _DashboardPageState extends State<DashboardPage>
                     emptyDescription:
                         'Complete a biology quiz to see your achievements here.',
                   ),
-
-                  // ========================================
-                  // 4. RECENT ACHIEVEMENTS
-                  // ========================================
-
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Recent Achievements',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Celebrate your progress and milestones.',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.75),
-                      fontSize: 15,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const _AchievementSection(),
                 ],
               ),
             ),
@@ -1396,6 +1374,12 @@ class _TopicCardState extends State<_TopicCard> {
   Widget build(BuildContext context) {
     final progress = ProgressController.getProgress(widget.topic.title);
 
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: bookmark_controller.BookmarkController.bookmarkedTopicTitles,
+      builder: (context, bookmarkedList, _) {
+        final isSaved = bookmarkedList.contains(widget.topic.title);
+      
+
     return MouseRegion(
       onEnter: (_) {
         setState(() {
@@ -1418,335 +1402,139 @@ class _TopicCardState extends State<_TopicCard> {
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: 18,
-            vertical: 16,
+            vertical: 20,
           ),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: hovered
-                  ? primaryColor.withValues(alpha: 0.35)
-                  : Colors.white,
+                  ? primaryColor.withValues(alpha: 0.4)
+                  : const Color(0xFFE3ECE5),
+                  width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
                 color: primaryColor.withValues(
-                  alpha: hovered ? 0.13 : 0.05,
+                  alpha: hovered ? 0.12 : 0.03,
                 ),
-                blurRadius: hovered ? 18 : 10,
+                blurRadius: hovered ? 16 : 10,
                 offset: Offset(
                   0,
-                  hovered ? 10 : 5,
+                  hovered ? 8 : 4,
                 ),
               ),
             ],
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: primaryColor.withValues(
-                    alpha: 0.10,
+          child: Stack(
+              children: [
+                Positioned(
+                  top: -6,
+                  right: -6,
+                  child: IconButton(
+                    icon: Icon(
+                      isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                      color: isSaved ? primaryColor : Colors.grey,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      bookmark_controller.BookmarkController.toggleBookmark(widget.topic.title);
+                    },
                   ),
-                  borderRadius: BorderRadius.circular(13),
                 ),
-                child: Icon(
-                  widget.icon,
-                  color: primaryColor,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: primaryColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            widget.topic.category.toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                              color: primaryColor,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            widget.topic.level,
-                            style: const TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E88E5), // Warna biru
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
 
-                    Text(
-                      widget.title,
-                      maxLines: 1,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: darkColor,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        height: 1.35,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    if (progress != null) ...[
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Progress',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            '${progress.score}/${progress.totalQuestions}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Color(0xFF166534),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: LinearProgressIndicator(
-                          value: progress.percentage,
-                          minHeight: 5,
-                          backgroundColor: Colors.grey.shade200,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Color(0xFF166534),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${(progress.percentage * 100).toInt()}% selesai',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.black45,
-                        ),
-                      ),
-                    ],
-                  ],
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                widget.icon,
+                color: primaryColor,
+                size: 38,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                widget.title,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: darkColor,
                 ),
               ),
+              const SizedBox(height: 4),
+              Text(
+                widget.description,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  height: 1.35,
+                  color: Color(0xFF68766D),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F5EC),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      widget.topic.category.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      widget.topic.level,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E88E5),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (progress != null) ...[
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: progress.percentage,
+                    minHeight: 5,
+                    backgroundColor: Colors.grey.shade200,
+                    valueColor: const AlwaysStoppedAnimation<Color>(primaryColor),
+                  ),
+                ),
+              ],
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LearningProgressSummary extends StatelessWidget {
-  final List<BiologyTopic> topics;
-
-  const _LearningProgressSummary({
-    required this.topics,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _LearningProgressBar(topics: topics);
-  }
-}
-
-class _LearningProgressBar extends StatelessWidget {
-  final List<BiologyTopic> topics;
-
-  const _LearningProgressBar({
-    required this.topics,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    int completedTopics = 0;
-    int totalQuestions = 0;
-    int totalScore = 0;
-    int bestScore = 0;
-
-    for (final topic in topics) {
-      final progress = ProgressController.getProgress(topic.title);
-      if (progress != null) {
-        completedTopics++;
-        totalQuestions += progress.totalQuestions;
-        totalScore += progress.score;
-        if (progress.score > bestScore) {
-          bestScore = progress.score;
-        }
-      }
-    }
-
-    final double overallProgress =
-        totalQuestions == 0 ? 0 : totalScore / totalQuestions;
-
-    final int averagePercentage =
-        totalQuestions == 0 ? 0 : (overallProgress * 100).round();
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF12372A),
-            Color(0xFF166534),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Your Learning Progress',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Track your biology learning journey',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: _ProgressStat(
-                  value: '$completedTopics',
-                  label: 'Topics Completed',
-                ),
-              ),
-              Expanded(
-                child: _ProgressStat(
-                  value: '$averagePercentage%',
-                  label: 'Average Score',
-                ),
-              ),
-              Expanded(
-                child: _ProgressStat(
-                  value: totalQuestions == 0 ? '0' : '$bestScore/5',
-                  label: 'Best Score',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 26),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Overall Progress',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                '$averagePercentage%',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: overallProgress,
-              minHeight: 9,
-              backgroundColor: Colors.white.withValues(alpha: 0.2),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProgressStat extends StatelessWidget {
-  final String value;
-  final String label;
-
-  const _ProgressStat({
-    required this.value,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 12,
-          ),
-        ),
-      ],
+    )
+  );
+      },
     );
   }
 }
@@ -1777,18 +1565,22 @@ class _ProfileMenuState extends State<_ProfileMenu> {
     {
       'title': 'Edit Profile',
       'icon': Icons.person_outline,
+      'route': 'profile',
     },
     {
       'title': 'My Progress',
       'icon': Icons.insights_outlined,
+      'route': 'progress',
+    },
+    {
+      'title': 'Bookmarks',
+      'icon': Icons.bookmark_outline_rounded,
+      'route': 'bookmarks',
     },
     {
       'title': 'Achievements',
       'icon': Icons.workspace_premium_outlined,
-    },
-    {
-      'title': 'Settings',
-      'icon': Icons.settings_outlined,
+      'route': 'achievements',
     },
   ];
 
@@ -1823,6 +1615,56 @@ class _ProfileMenuState extends State<_ProfileMenu> {
     setState(() {
       _isOpen = true;
     });
+
+    PopupMenuButton<String>(
+  onSelected: (value) {
+    if (value == 'achievements') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AchievementPage()),
+      );
+    } else if (value == 'bookmarks') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BookmarkPage()),
+      );
+    } else if (value == 'logout') {
+    }
+  },
+  itemBuilder: (context) => [
+    const PopupMenuItem(
+      value: 'bookmarks',
+      child: Row(
+        children: [
+          Icon(Icons.bookmark_outline_rounded, size: 20),
+          SizedBox(width: 10),
+          Text('Saved Topics'),
+        ],
+      ),
+    ),
+    const PopupMenuItem(
+      value: 'achievements',
+      child: Row(
+        children: [
+          Icon(Icons.emoji_events_outlined, size: 20),
+          SizedBox(width: 10),
+          Text('Achievements'),
+        ],
+      ),
+    ),
+    const PopupMenuDivider(),
+    const PopupMenuItem(
+      value: 'logout',
+      child: Row(
+        children: [
+          Icon(Icons.logout_rounded, size: 20, color: Colors.red),
+          SizedBox(width: 10),
+          Text('Logout', style: TextStyle(color: Colors.red)),
+        ],
+      ),
+    ),
+  ],
+);
   }
 
   // ==================================================
@@ -1950,7 +1792,7 @@ class _ProfileMenuState extends State<_ProfileMenu> {
           // ==========================================
 
           SizedBox(
-            height: 270,
+            height: 220,
 
             child: ListView.builder(
               padding: EdgeInsets.zero,
@@ -1967,18 +1809,41 @@ class _ProfileMenuState extends State<_ProfileMenu> {
                   onTap: () async {
                     _hideMenu();
 
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const UserProfilePage(),
-                    ),
-                  );
+                    final route = item['route'];
 
-                  if (!mounted) return;
-
-                  if (result == true) {
-                    await widget.onProfileUpdated();
-                  }
+                    if (route == 'profile') {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const UserProfilePage(),
+                        ),
+                      );
+                      if (!mounted) return;
+                      if (result == true) {
+                        await widget.onProfileUpdated();
+                      }
+                    } else if (route == 'progress') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ProgressPage(),
+                        ),
+                      );
+                    } else if (route == 'bookmarks') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BookmarkPage(),
+                        ),
+                      );
+                    } else if (route == 'achievements') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AchievementPage(),
+                        ),
+                      );
+                    }
                   },
                 );
               },
