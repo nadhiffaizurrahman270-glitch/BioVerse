@@ -63,7 +63,7 @@ class AboutPage extends StatelessWidget {
       'initial': 'T5',
     },
     {
-      'name': 'Nama Teman 6',
+      'name': 'Ratriska Elvina Velyani',
       'role': 'Quality Assurance (QA)',
       'university': 'Universitas Negeri Surabaya',
       'bio': 'Menguji fitur aplikasi di berbagai skenario untuk memastikan BioVerse berjalan lancar tanpa bug.',
