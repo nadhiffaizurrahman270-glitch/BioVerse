@@ -68,7 +68,7 @@ class AboutPage extends StatelessWidget {
       'university': 'Universitas Negeri Surabaya',
       'bio': 'Menguji fitur aplikasi di berbagai skenario untuk memastikan BioVerse berjalan lancar tanpa bug.',
       'imagePath': '',
-      'github': 'https://github.com/teman6',
+      'github': 'https://github.com/Ratriska-Elvina-Velyani-414',
       'initial': 'T6',
     },
   ];
