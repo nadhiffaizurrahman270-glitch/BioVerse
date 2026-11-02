@@ -45,12 +45,12 @@ class AboutPage extends StatelessWidget {
       'initial': 'T3',
     },
     {
-      'name': 'Nama Teman 4',
+      'name': 'Andrew Mitchel P.G.W.P',
       'role': 'Backend & Database',
       'university': 'Universitas Negeri Surabaya',
       'bio': 'Mengelola sistem penyimpanan data, progres belajar pengguna, dan infrastruktur server BioVerse.',
-      'imagePath': '',
-      'github': 'https://github.com/teman4',
+      'imagePath': 'assets/image/hacob.jpeg',
+      'github': 'https://github.com/AndrewMitchel',
       'initial': 'T4',
     },
     {
