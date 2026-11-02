@@ -67,7 +67,7 @@ class AboutPage extends StatelessWidget {
       'role': 'Quality Assurance (QA)',
       'university': 'Universitas Negeri Surabaya',
       'bio': 'Menguji fitur aplikasi di berbagai skenario untuk memastikan BioVerse berjalan lancar tanpa bug.',
-      'imagePath': '',
+      'imagePath': 'assets/image/Ratriska.jpeg',
       'github': 'https://github.com/Ratriska-Elvina-Velyani-414',
       'initial': 'T6',
     },
