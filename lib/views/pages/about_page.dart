@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -6,6 +7,71 @@ class AboutPage extends StatelessWidget {
   static const Color primaryColor = Color(0xFF166534);
   static const Color darkColor = Color(0xFF12372A);
   static const Color backgroundColor = Color(0xFFF0FDF4);
+  static const List<Map<String, String>> teamMembers = [
+    {
+      'name': 'M. Nadhif Faizurrahman',
+      'role': 'Lead Developer & Creator',
+      'university': 'Universitas Negeri Surabaya',
+      'bio': 'Mengembangkan arsitektur utama aplikasi dan merancang pengalaman interaktif di BioVerse.',
+      'imagePath': 'assets/image/NADIP DI TP.png',
+      'github': 'https://github.com/nadhiffaizurrahman270-glitch',
+      'initial': 'NF',
+    },
+    {
+      'name': 'Nama Teman 1',
+      'role': 'UI/UX Designer',
+      'university': 'Universitas Negeri Surabaya',
+      'bio': 'Fokus pada riset pengguna, desain antarmuka, dan memastikan aplikasi nyaman digunakan.',
+      'imagePath': 'assets/image/kucing.jpg',
+      'github': 'https://github.com/teman1',
+      'initial': 'T1',
+    },
+    {
+      'name': 'Nama Teman 2',
+      'role': 'Content & QA',
+      'university': 'Universitas Negeri Surabaya',
+      'bio': 'Menyusun kurikulum materi biologi, merancang kuis, dan menguji kualitas fitur aplikasi.',
+      'imagePath': '',
+      'github': 'https://github.com/teman2',
+      'initial': 'T2',
+    },
+    {
+      'name': 'Nama Teman 3',
+      'role': 'Content & QA',
+      'university': 'Universitas Negeri Surabaya',
+      'bio': 'Menyusun kurikulum materi biologi, merancang kuis, dan menguji kualitas fitur aplikasi.',
+      'imagePath': '',
+      'github': 'https://github.com/teman3',
+      'initial': 'T3',
+    },
+    {
+      'name': 'Nama Teman 4',
+      'role': 'Content & QA',
+      'university': 'Universitas Negeri Surabaya',
+      'bio': 'Menyusun kurikulum materi biologi, merancang kuis, dan menguji kualitas fitur aplikasi.',
+      'imagePath': '',
+      'github': 'https://github.com/teman4',
+      'initial': 'T4',
+    },
+    {
+      'name': 'Nama Teman 5',
+      'role': 'Content & QA',
+      'university': 'Universitas Negeri Surabaya',
+      'bio': 'Menyusun kurikulum materi biologi, merancang kuis, dan menguji kualitas fitur aplikasi.',
+      'imagePath': '',
+      'github': 'https://github.com/teman5',
+      'initial': 'T5',
+    },
+    {
+      'name': 'Nama Teman 6',
+      'role': 'Content & QA',
+      'university': 'Universitas Negeri Surabaya',
+      'bio': 'Menyusun kurikulum materi biologi, merancang kuis, dan menguji kualitas fitur aplikasi.',
+      'imagePath': '',
+      'github': 'https://github.com/teman6',
+      'initial': 'T6',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -274,284 +340,62 @@ class AboutPage extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-const Text(
-  'Meet the Creator',
-  style: TextStyle(
-    fontSize: 32,
-    fontWeight: FontWeight.w800,
-    color: darkColor,
-  ),
-  textAlign: TextAlign.center,
-),
-
-const SizedBox(height: 10),
-
-Text(
-  'Get to know the person behind BioVerse.',
-  style: TextStyle(
-    fontSize: 15,
-    color: Colors.black.withValues(alpha: 0.55),
-  ),
-  textAlign: TextAlign.center,
-),
-
-const SizedBox(height: 35),
-
-Container(
-  width: double.infinity,
-  padding: const EdgeInsets.all(32),
-  decoration: BoxDecoration(
-    color: Colors.white.withValues(alpha: 0.95),
-    borderRadius: BorderRadius.circular(24),
-    boxShadow: [
-      BoxShadow(
-        color: primaryColor.withValues(alpha: 0.08),
-        blurRadius: 25,
-        offset: const Offset(0, 10),
-      ),
-    ],
-  ),
-  child: Column(
-    children: [
-
-      // ===============================
-      // PROFILE
-      // ===============================
-
-      Container(
-        width: 150,
-        height: 150,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white,
-            width: 4,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: primaryColor.withValues(alpha: 0.15),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+          const Text(
+            'Meet The Team',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: darkColor,
             ),
-          ],
-          image: const DecorationImage(
-            image: AssetImage(
-              'assets/image/NADIP DI TP.png',
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Kolaborator di balik pengembangan BioVerse.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.black.withValues(alpha: 0.55),
             ),
-            fit: BoxFit.cover,
           ),
-        ),
-      ),
+          const SizedBox(height: 35),
 
-      const SizedBox(height: 20),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1100),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  int crossAxisCount = constraints.maxWidth > 900
+                      ? 3
+                      : (constraints.maxWidth > 600 ? 2 : 1);
 
-      const Text(
-        'Muhammad Nadhif Faizurrahman',
-        style: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.w800,
-          color: darkColor,
-        ),
-        textAlign: TextAlign.center,
-      ),
-
-      const SizedBox(height: 5),
-
-      Text(
-        'Nadip',
-        style: TextStyle(
-          fontSize: 15,
-          color: primaryColor.withValues(alpha: 0.8),
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-
-      const SizedBox(height: 8),
-
-      Text(
-        'Student & BioVerse Creator',
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.black.withValues(alpha: 0.5),
-        ),
-      ),
-
-      const SizedBox(height: 40),
-
-      // ===============================
-      // PERSONAL INFORMATION
-      // ===============================
-
-      _CreatorSectionTitle(
-        icon: Icons.person_outline,
-        title: 'Personal Information',
-      ),
-
-      const SizedBox(height: 18),
-
-      _CreatorInfoGrid(
-        items: const [
-          _CreatorInfoItem(
-            icon: Icons.badge_outlined,
-            title: 'Full Name',
-            value: 'Muhammad Nadhif Faizurrahman',
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 24,
+                      mainAxisSpacing: 24,
+                      mainAxisExtent: 400,
+                    ),
+                    itemCount: teamMembers.length,
+                    itemBuilder: (context, index) {
+                      final member = teamMembers[index];
+                      return _TeamMemberCard(
+                        name: member['name']!,
+                        role: member['role']!,
+                        university: member['university']!,
+                        bio: member['bio']!,
+                        imagePath: member['imagePath']!,
+                        githubUrl: member['github']!,
+                        initial: member['initial']!,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ),
-          _CreatorInfoItem(
-            icon: Icons.face_outlined,
-            title: 'Nickname',
-            value: 'Nadip',
-          ),
-          _CreatorInfoItem(
-            icon: Icons.cake_outlined,
-            title: 'Place & Date of Birth',
-            value: 'Ngawi, 26 November 2006',
-          ),
-          _CreatorInfoItem(
-            icon: Icons.location_on_outlined,
-            title: 'Address',
-            value: 'H8M7+VGG, Jl. Raya Kedunggalar, RT.01/RW.11, Ngarengan, Jenggrik, Kec. Kedunggalar, Kabupaten Ngawi, Jawa Timur 63254',
-          ),
-          _CreatorInfoItem(
-            icon: Icons.phone_outlined,
-            title: 'Phone',
-            value: '085336017722',
-          ),
-          _CreatorInfoItem(
-            icon: Icons.email_outlined,
-            title: 'Email',
-            value: 'nadhiffaizurrahman270@gmail.com',
-          ),
-        ],
-      ),
-
-      const SizedBox(height: 45),
-
-      // ===============================
-      // EDUCATION
-      // ===============================
-
-      _CreatorSectionTitle(
-        icon: Icons.school_outlined,
-        title: 'Education',
-      ),
-
-      const SizedBox(height: 18),
-
-      _EducationCard(
-        icon: Icons.account_balance,
-        title: 'University',
-        institution: 'Universitas Negeri Surabaya',
-        detail: 'Teknik Informatika • Fakultas Teknik • Angkatan 2025',
-      ),
-
-      const SizedBox(height: 14),
-
-      _EducationCard(
-        icon: Icons.school_outlined,
-        title: 'Sekolah Menengah Atas',
-        institution: 'MA Darul Huda',
-        detail: 'Agama',
-      ),
-
-      const SizedBox(height: 45),
-
-      // ===============================
-      // ABOUT ME
-      // ===============================
-
-      _CreatorSectionTitle(
-        icon: Icons.auto_awesome_outlined,
-        title: 'About Me',
-      ),
-
-      const SizedBox(height: 18),
-
-      Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(22),
-        decoration: BoxDecoration(
-          color: primaryColor.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: primaryColor.withValues(alpha: 0.08),
-          ),
-        ),
-        child: const Text(
-          'Saya adalah mahasiswa Teknik Informatika yang tertarik pada pengembangan perangkat lunak,  '
-          'platform pembelajaran interaktif, dan teknologi '
-          'BioVerse merupakan salah satu proyek saya yang dikembangkan untuk memadukan teknologi dan pendidikan biologi menjadi sebuah pengalaman belajar yang interaktif.',
-          style: TextStyle(
-            fontSize: 15,
-            height: 1.7,
-            color: Colors.black87,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-
-      const SizedBox(height: 45),
-
-      // ===============================
-      // CONNECT WITH ME
-      // ===============================
-
-      _CreatorSectionTitle(
-        icon: Icons.link_outlined,
-        title: 'Connect With Me',
-      ),
-
-      const SizedBox(height: 18),
-
-      Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        alignment: WrapAlignment.center,
-        children: [
-          _SocialButton(
-            icon: Icons.code,
-            label: 'GitHub',
-            onTap: () {
-              // TODO: buka GitHub
-            },
-          ),
-
-          _SocialButton(
-            icon: Icons.camera_alt_outlined,
-            label: 'Instagram',
-            onTap: () {
-              // TODO: buka Instagram
-            },
-          ),
-
-          _SocialButton(
-            icon: Icons.work_outline,
-            label: 'LinkedIn',
-            onTap: () {
-              // TODO: buka LinkedIn
-            },
-          ),
-
-          _SocialButton(
-            icon: Icons.email_outlined,
-            label: 'Email',
-            onTap: () {
-              // TODO: buka Email
-            },
-          ),
-
-          _SocialButton(
-            icon: Icons.language,
-            label: 'Portfolio',
-            onTap: () {
-              // TODO: buka Portfolio
-            },
-          ),
-        ],
-      ),
-
-      ],
-    ),
-  ),
 
       const SizedBox(height: 45),
 
@@ -616,65 +460,6 @@ Container(
 // FEATURE CARD
 // ======================================================
 
-class _FeatureCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String description;
-
-  const _FeatureCard({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
-
-  static const Color primaryColor = Color(0xFF166534);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(25),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: primaryColor.withValues(alpha: 0.08),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            color: primaryColor,
-            size: 32,
-          ),
-          const SizedBox(height: 18),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            description,
-            style: const TextStyle(
-              fontSize: 14,
-              height: 1.5,
-              color: Colors.black54,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ======================================================
-// TOPIC CARD
-// ======================================================
-
 class _TopicCard extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -687,30 +472,27 @@ class _TopicCard extends StatelessWidget {
   });
 
   static const Color primaryColor = Color(0xFF166534);
+  static const Color darkColor = Color(0xFF12372A);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          Container(
-            width: 55,
-            height: 55,
-            decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(
-              icon,
-              color: primaryColor,
-            ),
-          ),
+          Icon(icon, color: primaryColor, size: 32),
           const SizedBox(width: 18),
           Expanded(
             child: Column(
@@ -719,11 +501,12 @@ class _TopicCard extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: darkColor,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 6),
                 Text(
                   description,
                   style: const TextStyle(
@@ -741,200 +524,15 @@ class _TopicCard extends StatelessWidget {
   }
 }
 
-// =====================================================
-// CREATOR SECTION TITLE
-// =====================================================
-
-class _CreatorSectionTitle extends StatelessWidget {
+class _FeatureCard extends StatelessWidget {
   final IconData icon;
   final String title;
+  final String description;
 
-  const _CreatorSectionTitle({
+  const _FeatureCard({
     required this.icon,
     required this.title,
-  });
-
-  static const Color primaryColor = Color(0xFF166534);
-  static const Color darkColor = Color(0xFF12372A);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: primaryColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            icon,
-            color: primaryColor,
-            size: 22,
-          ),
-        ),
-
-        const SizedBox(width: 12),
-
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: darkColor,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-
-// =====================================================
-// CREATOR INFO ITEM
-// =====================================================
-
-class _CreatorInfoItem {
-  final IconData icon;
-  final String title;
-  final String value;
-
-  const _CreatorInfoItem({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-}
-
-
-// =====================================================
-// CREATOR INFO GRID
-// =====================================================
-
-class _CreatorInfoGrid extends StatelessWidget {
-  final List<_CreatorInfoItem> items;
-
-  const _CreatorInfoGrid({
-    required this.items,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        int count;
-
-        if (constraints.maxWidth > 900) {
-          count = 3;
-        } else if (constraints.maxWidth > 600) {
-          count = 2;
-        } else {
-          count = 1;
-        }
-
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: count,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
-            mainAxisExtent: 135,
-          ),
-
-          itemCount: items.length,
-
-          itemBuilder: (context, index) {
-            final item = items[index];
-
-            return Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 16,
-              ),
-
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Colors.grey.shade200,
-                ),
-              ),
-
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // ICON
-                  Icon(
-                    item.icon,
-                    color: const Color(0xFF166534),
-                    size: 25,
-                  ),
-
-                  const SizedBox(width: 14),
-
-                  // TEXT
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // LABEL
-                        Text(
-                          item.title,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-
-                        const SizedBox(height: 6),
-
-                        // VALUE
-                        Text(
-                          item.value,
-                          maxLines: 3,
-                          overflow: TextOverflow.visible,
-                          softWrap: true,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            height: 1.45,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF12372A),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-
-// =====================================================
-// EDUCATION CARD
-// =====================================================
-
-class _EducationCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String institution;
-  final String detail;
-
-  const _EducationCard({
-    required this.icon,
-    required this.title,
-    required this.institution,
-    required this.detail,
+    required this.description,
   });
 
   static const Color primaryColor = Color(0xFF166534);
@@ -943,75 +541,38 @@ class _EducationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(18),
-
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
-
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 52,
-            height: 52,
-
-            decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14),
-            ),
-
-            child: Icon(
-              icon,
-              color: primaryColor,
-              size: 26,
+          Icon(icon, color: primaryColor, size: 32),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: darkColor,
             ),
           ),
-
-          const SizedBox(width: 16),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black.withValues(
-                      alpha: 0.5,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 3),
-
-                Text(
-                  institution,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: darkColor,
-                  ),
-                ),
-
-                const SizedBox(height: 3),
-
-                Text(
-                  detail,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.5,
+              color: Colors.black54,
             ),
           ),
         ],
@@ -1020,103 +581,164 @@ class _EducationCard extends StatelessWidget {
   }
 }
 
+class _TeamMemberCard extends StatelessWidget {
+  final String name;
+  final String role;
+  final String university;
+  final String bio;
+  final String imagePath;
+  final String githubUrl;
+  final String initial;
 
-// =====================================================
-// SOCIAL BUTTON
-// =====================================================
-
-class _SocialButton extends StatefulWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _SocialButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
+  const _TeamMemberCard({
+    required this.name,
+    required this.role,
+    required this.university,
+    required this.bio,
+    required this.imagePath,
+    required this.githubUrl,
+    required this.initial,
   });
 
-  @override
-  State<_SocialButton> createState() =>
-      _SocialButtonState();
-}
-
-class _SocialButtonState extends State<_SocialButton> {
-  bool hovered = false;
-
   static const Color primaryColor = Color(0xFF166534);
+  static const Color darkColor = Color(0xFF12372A);
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-
-      onEnter: (_) {
-        setState(() {
-          hovered = true;
-        });
-      },
-
-      onExit: (_) {
-        setState(() {
-          hovered = false;
-        });
-      },
-
-      child: GestureDetector(
-        onTap: widget.onTap,
-
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-
-          padding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 12,
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: primaryColor.withValues(alpha: 0.08),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
-
-          decoration: BoxDecoration(
-            color: hovered
-                ? primaryColor
-                : primaryColor.withValues(
-                    alpha: 0.08,
-                  ),
-
-            borderRadius: BorderRadius.circular(14),
-
-            border: Border.all(
-              color: primaryColor.withValues(
-                alpha: hovered ? 0 : 0.15,
-              ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // FOTO PROFIL
+          Container(
+            width: 85,
+            height: 85,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: primaryColor.withValues(alpha: 0.1),
+              image: imagePath.isNotEmpty
+                  ? DecorationImage(
+                      image: AssetImage(imagePath),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+            ),
+            child: imagePath.isEmpty
+                ? Center(
+                    child: Text(
+                      initial,
+                      style: const TextStyle(
+                        color: primaryColor,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                : null,
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // NAMA & PERAN
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: darkColor,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            role,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: primaryColor,
             ),
           ),
 
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-
-            children: [
-              Icon(
-                widget.icon,
-                size: 19,
-                color: hovered
-                    ? Colors.white
-                    : primaryColor,
+          const SizedBox(height: 12),
+          
+          // INSTANSI & BIO
+          Text(
+            university,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.black45,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Text(
+              bio,
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: Colors.black87,
               ),
-
-              const SizedBox(width: 8),
-
-              Text(
-                widget.label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: hovered
-                      ? Colors.white
-                      : primaryColor,
+            ),
+          ),
+          
+          // TOMBOL GITHUB
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.code, size: 18),
+              label: const Text('GitHub'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: primaryColor,
+                side: BorderSide(color: primaryColor.withValues(alpha: 0.3)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-            ],
+              onPressed: () async {
+                final Uri url = Uri.parse(githubUrl);
+
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(
+                    url, 
+                    mode: LaunchMode.externalApplication,
+                  );
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Gagal membuka link GitHub: $githubUrl'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

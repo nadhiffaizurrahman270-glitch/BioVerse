@@ -40,7 +40,6 @@ class _ProgressPageState extends State<ProgressPage> {
   Widget build(BuildContext context) {
     final stats = LearningStatsController.stats;
 
-    // Filter riwayat berdasarkan pencarian
     final filteredProgress = _userProgress.entries.where((entry) {
       return entry.key.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
@@ -107,13 +106,13 @@ class _ProgressPageState extends State<ProgressPage> {
                             ),
                             const Spacer(),
                             Container(
-                              width: 240,
-                              height: 40,
+                              width: 260,
+                              height: 42,
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
+                                  const EdgeInsets.symmetric(horizontal: 14),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(21),
                                 border:
                                     Border.all(color: const Color(0xFFE3ECE5)),
                               ),
@@ -134,12 +133,11 @@ class _ProgressPageState extends State<ProgressPage> {
                                         hintText: 'Cari riwayat kuis...',
                                         hintStyle: TextStyle(
                                             color: Color(0xFF9EAFA4),
-                                            fontSize: 12.5),
+                                            fontSize: 13),
                                         border: InputBorder.none,
                                         isCollapsed: true,
+                                        contentPadding: EdgeInsets.zero,
                                       ),
-                                      style: const TextStyle(
-                                          fontSize: 12.5, color: darkGreen),
                                     ),
                                   ),
                                 ],
@@ -241,19 +239,6 @@ class _ProgressPageState extends State<ProgressPage> {
                     color: darkGreen),
               ),
             ],
-          ),
-          const Spacer(),
-          TextButton(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const DashboardPage()),
-                (route) => false,
-              );
-            },
-            child: const Text('Dashboard',
-                style:
-                    TextStyle(color: darkGreen, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
