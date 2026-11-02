@@ -36,12 +36,12 @@ class AboutPage extends StatelessWidget {
       'initial': 'T2',
     },
     {
-      'name': 'Nama Teman 3',
+      'name': 'Akhdan Farrel Bernadine',
       'role': 'Content & QA',
       'university': 'Universitas Negeri Surabaya',
-      'bio': 'Menyusun kurikulum materi biologi, merancang kuis, dan menguji kualitas fitur aplikasi.',
-      'imagePath': '',
-      'github': 'https://github.com/teman3',
+      'bio': 'jangan lupa makan,kesehatan lebih penting',
+      'imagePath': 'assets/image/profil.png',
+      'github': 'https://github.com/AKHDAN-ctrl',
       'initial': 'T3',
     },
     {
