@@ -54,12 +54,12 @@ class AboutPage extends StatelessWidget {
       'initial': 'T4',
     },
     {
-      'name': 'Nama Teman 5',
+      'name': 'Muhamad Zubair A.M',
       'role': 'Visual & Asset Creator',
       'university': 'Universitas Negeri Surabaya',
       'bio': 'Membuat ilustrasi dan aset visual interaktif seperti struktur sel, DNA, dan anatomi biologi.',
-      'imagePath': '',
-      'github': 'https://github.com/teman5',
+      'imagePath': 'BioVerse/assets/image/zubair dulure gus iqdam.jpeg',
+      'github': 'https://github.com/zubairjo133-max',
       'initial': 'T5',
     },
     {
