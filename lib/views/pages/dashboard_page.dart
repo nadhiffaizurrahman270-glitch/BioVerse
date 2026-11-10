@@ -2,12 +2,10 @@ import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_projek_1/controllers/achievement_controller.dart';
 import 'package:flutter_projek_1/controllers/bookmark_controller.dart' as bookmark_controller;
 import 'package:flutter_projek_1/controllers/learning_stats_controller.dart';
 import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:flutter_projek_1/controllers/topic_controller.dart';
-import 'package:flutter_projek_1/models/achievement.dart';
 import 'package:flutter_projek_1/models/biology_topic.dart';
 import 'package:flutter_projek_1/models/user_profile_page.dart';
 import 'package:flutter_projek_1/services/auth_service.dart';
@@ -1137,49 +1135,6 @@ Widget _buildTopicGrid({
   );
 }
     }
-    
-class _AchievementSection extends StatelessWidget {
-  const _AchievementSection();
-
-  @override
-  Widget build(BuildContext context) {
-    final achievements = AchievementController.getAchievements();
-
-    final unlockedCount =
-        achievements.where((item) => item.unlocked).length;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '$unlockedCount/${achievements.length}',
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 18),
-
-        Wrap(
-          spacing: 14,
-          runSpacing: 14,
-          children: achievements.map((achievement) {
-            return _AchievementBadge(
-              achievement: achievement,
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-}
 
 class _LearningStatCard extends StatelessWidget {
   final IconData icon;
@@ -1280,83 +1235,6 @@ class _LearningStatCard extends StatelessWidget {
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _AchievementBadge extends StatelessWidget {
-  final Achievement achievement;
-
-  const _AchievementBadge({
-    required this.achievement,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final unlocked = achievement.unlocked;
-
-    return Tooltip(
-      message: '${achievement.title}\n${achievement.description}',
-      child: Container(
-        width: 76,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 12,
-        ),
-        decoration: BoxDecoration(
-          color: unlocked
-              ? Colors.white.withValues(alpha: 0.13)
-              : Colors.white.withValues(alpha: 0.04),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withValues(
-              alpha: unlocked ? 0.35 : 0.10,
-            ),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Opacity(
-              opacity: unlocked ? 1.0 : 0.28,
-              child: Text(
-                achievement.icon,
-                style: const TextStyle(
-                  fontSize: 30,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Icon(
-              unlocked
-                  ? Icons.check_circle
-                  : Icons.lock_outline,
-              size: 13,
-              color: unlocked
-                  ? const Color(0xFF86EFAC)
-                  : Colors.white30,
-            ),
-
-            const SizedBox(height: 5),
-
-            Text(
-              achievement.title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white.withValues(
-                  alpha: unlocked ? 0.95 : 0.35,
-                ),
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_projek_1/controllers/learning_stats_controller.dart';
 import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:flutter_projek_1/models/quiz_progress.dart';
-import 'package:flutter_projek_1/views/pages/dashboard_page.dart';
+
 
 class ProgressPage extends StatefulWidget {
   const ProgressPage({super.key});
