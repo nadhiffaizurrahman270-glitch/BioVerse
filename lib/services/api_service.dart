@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import '../models/biology_topic.dart';
 import 'package:http/http.dart';
+import '../models/biology_topic.dart';
 
 class ApiService {
   static String get baseUrl {
     if (kIsWeb) {
-      return 'http://127.0.0.1:8000/api/v1';
+      return 'http://192.168.110.241:8000/api/v1';
     }
-    return 'http://10.0.2.2:8000/api/v1';
+    return 'http://192.168.110.241:8000/api/v1';
   }
 
   Future<List<BiologyTopic>> fetchMateri() async {

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'controllers/topic_controller.dart';
 import 'screens/materi_screen.dart';
+import 'views/pages/dashboard_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,7 +43,7 @@ class BioVerseApp extends StatelessWidget {
         useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      home: const MateriScreen(),
+      home: const DashboardPage(),
     );
   }
 }

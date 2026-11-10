@@ -87,10 +87,9 @@ class BioVerseAvatar extends StatelessWidget {
 
 class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
-  _DashboardPageState();
-
+  
   int _avatarIndex = 0;
-
+  final TopicController _topicController = TopicController();
   IconData _getTopicIcon(int index) {
     const icons = [
       Icons.biotech,
@@ -977,11 +976,39 @@ class _DashboardPageState extends State<DashboardPage>
                   ),
                   const SizedBox(height: 24),
 
-                  _buildTopicGrid(
-                    topicList: recommendedTopics,
-                    emptyMessage: 'You have explored all topics!',
-                    emptyDescription: 'Great job! You have started learning every available topic.',
-                  ),
+                  FutureBuilder<List<BiologyTopic>>(
+                  future: _topicController.getTopics(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'Gagal memuat materi: ${snapshot.error}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      );
+                    }
+
+                    final liveTopics = snapshot.data ?? [];
+
+                    return _buildTopicGrid(
+                      topicList: liveTopics,
+                      emptyMessage: 'Belum ada topik materi biologi',
+                      emptyDescription: 'Materi biologi akan muncul di sini setelah dimuat dari server.',
+                    );
+                  },
+                ),
 
                   const SizedBox(height: 48),
 
