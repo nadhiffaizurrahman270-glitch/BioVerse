@@ -19,16 +19,16 @@ class BiologyTopic {
 
   // Factory untuk membaca JSON dari FastAPI Backend
   factory BiologyTopic.fromJson(Map<String, dynamic> json) {
-    return BiologyTopic(
-      id: json['id'],
-      title: json['judul'] ?? 'Judul Tidak Ada',
-      description: json['deskripsi'] ?? 'Deskripsi tidak tersedia',
-      category: json['kategori'] ?? 'General',
-      level: json['level'] ?? 'Beginner',
-      content: json['konten'] ?? 'Materi belum tersedia',
-      videoId: json['video_id'],
-    );
-  }
+  return BiologyTopic(
+    id: json['id'],
+    title: json['title'] ?? json['judul'] ?? 'Judul Tidak Ada',
+    description: json['description'] ?? json['deskripsi'] ?? 'Deskripsi tidak tersedia',
+    category: json['category'] ?? json['kategori'] ?? 'General',
+    level: json['level'] ?? 'Beginner',
+    content: json['content'] ?? json['konten'] ?? 'Materi belum tersedia',
+    videoId: json['video_id'] ?? json['videoId'],
+  );
+}
 
   String getTopicInfo() {
     return '$title\n$category Level: $level';
