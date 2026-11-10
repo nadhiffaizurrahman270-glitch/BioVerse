@@ -1,6 +1,5 @@
 class BiologyTopic {
-  
-  final String id; 
+  final dynamic id; 
   final String title;
   final String description;
   final String category;
@@ -18,16 +17,16 @@ class BiologyTopic {
     this.videoId,
   });
 
-  factory BiologyTopic.fromMap(Map<String, dynamic> map, String documentId) {
+  // Factory untuk membaca JSON dari FastAPI Backend
+  factory BiologyTopic.fromJson(Map<String, dynamic> json) {
     return BiologyTopic(
-      id: documentId,
-      title: map['title'] ?? 'Judul Tidak Ada',
-      description: map['description'] ?? 'Deskripsi tidak tersedia',
-
-      category: map['category'] ?? map['tag'] ?? 'General', 
-      level: map['level'] ?? 'Beginner',
-      content: map['content'] ?? 'Materi belum tersedia',
-      videoId: map['videoId'],
+      id: json['id'],
+      title: json['judul'] ?? 'Judul Tidak Ada',
+      description: json['deskripsi'] ?? 'Deskripsi tidak tersedia',
+      category: json['kategori'] ?? 'General',
+      level: json['level'] ?? 'Beginner',
+      content: json['konten'] ?? 'Materi belum tersedia',
+      videoId: json['video_id'],
     );
   }
 

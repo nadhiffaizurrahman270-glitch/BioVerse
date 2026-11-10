@@ -38,6 +38,10 @@ dependencies:
   provider: ^6.1.2
   flutter_markdown: ^0.7.7+1
   youtube_player_iframe: ^6.0.2
+  dio: ^5.8.0+1
+  cached_network_image: ^3.2.4
+  google_generative_ai: ^0.4.7
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

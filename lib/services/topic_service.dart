@@ -13,10 +13,9 @@ class TopicService {
       print('Jumlah dokumen topik: ${snapshot.docs.length}');
 
       return snapshot.docs.map((doc) {
-        return BiologyTopic.fromMap(
-          doc.data(),
-          doc.id,
-        );
+        final data = doc.data();
+        final topic = (BiologyTopic as dynamic).fromMap(data, doc.id);
+        return topic as BiologyTopic;
       }).toList();
     } catch (e) {
       print('Error mengambil topik: $e');
