@@ -1,26 +1,26 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
-import 'package:flutter_projek_1/controllers/bookmark_controller.dart' as bookmark_controller;
-import 'package:flutter_projek_1/services/auth_service.dart';
-import '../widgets/cell_background.dart';
-import 'login_page.dart';
-import 'about_page.dart';
-import 'package:flutter_projek_1/models/biology_topic.dart';
-import 'topic_detail_page.dart';
-import 'package:flutter_projek_1/controllers/progress_controller.dart';
-import 'package:flutter_projek_1/models/quiz_progress.dart';
-import 'package:flutter_projek_1/models/achievement.dart';
-import 'package:flutter_projek_1/controllers/achievement_controller.dart';
-import 'package:flutter_projek_1/controllers/learning_stats_controller.dart';
-import 'explore_page.dart';
-import 'package:flutter_projek_1/models/user_profile_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_projek_1/controllers/achievement_controller.dart';
+import 'package:flutter_projek_1/controllers/bookmark_controller.dart' as bookmark_controller;
+import 'package:flutter_projek_1/controllers/learning_stats_controller.dart';
+import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:flutter_projek_1/controllers/topic_controller.dart';
+import 'package:flutter_projek_1/models/achievement.dart';
+import 'package:flutter_projek_1/models/biology_topic.dart';
+import 'package:flutter_projek_1/models/user_profile_page.dart';
+import 'package:flutter_projek_1/services/auth_service.dart';
+import 'package:provider/provider.dart';
+
+import '../widgets/cell_background.dart';
+import 'about_page.dart';
 import 'achievement_page.dart';
 import 'bookmark_page.dart';
+import 'explore_page.dart';
+import 'login_page.dart';
 import 'progress_page.dart';
+import 'topic_detail_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -895,13 +895,7 @@ class _DashboardPageState extends State<DashboardPage>
           return progress != null && !isCompleted;
         }).toList();
 
-        final recommendedTopics = topics.where((topic) {
-          final progress = ProgressController.getProgress(topic.title);
-          final isCompleted =
-              LearningStatsController.isTopicCompleted(topic.title);
-          return progress == null && !isCompleted;
-        }).toList();
-
+        
         final completedTopics = topics.where((topic) {
           return LearningStatsController.isTopicCompleted(topic.title);
         }).toList();
