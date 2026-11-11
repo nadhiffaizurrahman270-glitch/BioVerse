@@ -1,10 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  // User yang sedang login
-  static User? get currentUser => _auth.currentUser;
+  static final Dio _dio = Dio(
+    BaseOptions(baseUrl: 'http://127.0.0.1:8000/api/v1'),
+  );
+  static const String _tokenKey = 'jwt_token';
 
   // ==========================================
   // REGISTER
@@ -16,29 +17,18 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final credential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
-
-      await credential.user?.updateDisplayName(name.trim());
-
-      await credential.user?.reload();
+      await _dio.post('/auth/register', data: {
+        'username': name.trim(),
+        'email': email.trim(),
+        'password': password,
+      });
 
       return null;
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'email-already-in-use':
-          return 'Email sudah terdaftar.';
-        case 'invalid-email':
-          return 'Format email tidak valid.';
-        case 'weak-password':
-          return 'Password terlalu lemah. Gunakan password yang lebih kuat.';
-        case 'operation-not-allowed':
-          return 'Login email dan password belum diaktifkan di Firebase.';
-        default:
-          return 'Registrasi gagal: ${e.message ?? e.code}';
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 400) {
+        return 'Email sudah terdaftar atau format tidak valid.';
       }
+      return 'Registrasi gagal: ${e.message}';
     } catch (e) {
       return 'Terjadi kesalahan saat registrasi.';
     }
@@ -48,25 +38,8 @@ class AuthService {
   // GOOGLE
   // ==========================================
 
-    static Future<String?> signInWithGoogle() async {
-    try {
-      final provider = GoogleAuthProvider();
-
-      await FirebaseAuth.instance.signInWithPopup(provider);
-
-      return null;
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'popup-closed-by-user':
-          return 'Login Google dibatalkan.';
-        case 'account-exists-with-different-credential':
-          return 'Email sudah terdaftar menggunakan metode login lain.';
-        default:
-          return 'Login Google gagal: ${e.message ?? e.code}';
-      }
-    } catch (e) {
-      return 'Terjadi kesalahan saat login dengan Google.';
-    }
+  static Future<String?> signInWithGoogle() async {
+    return 'Fitur Login Google sedang dialihkan ke server utama. Silakan gunakan email.';
   }
 
   // ==========================================
@@ -78,52 +51,46 @@ class AuthService {
     required String password,
   }) async {
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
+      final response = await _dio.post('/auth/login', data: {
+        'email': email.trim(),
+        'password': password,
+      });
 
-      return null;
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'invalid-email':
-          return 'Format email tidak valid.';
-        case 'user-not-found':
-        case 'wrong-password':
-        case 'invalid-credential':
-          return 'Email atau password salah.';
-        case 'user-disabled':
-          return 'Akun ini telah dinonaktifkan.';
-        case 'too-many-requests':
-          return 'Terlalu banyak percobaan. Coba lagi nanti.';
-        default:
-          return 'Login gagal: ${e.message ?? e.code}';
+      final token = response.data['access_token'];
+
+      if (token != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_tokenKey, token);
+        return null;
+      } else {
+        return 'Token tidak ditemukan dari server.';
       }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 404) {
+        return 'Email atau password salah.';
+      }
+      return 'Login gagal: ${e.message}';
     } catch (e) {
       return 'Terjadi kesalahan saat login.';
     }
   }
 
+  // RESET PASSWORD
+
   static Future<String?> resetPassword({
     required String email,
   }) async {
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(
-        email: email.trim(),
-      );
+      await _dio.post('/auth/reset-password', data: {
+        'email': email.trim(),
+      });
 
       return null;
-    } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'invalid-email':
-          return 'Format email tidak valid.';
-        case 'user-not-found':
-          return 'Akun tidak ditemukan.';
-        case 'too-many-requests':
-          return 'Terlalu banyak percobaan. Coba lagi nanti.';
-        default:
-          return 'Gagal mengirim email reset password.';
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return 'Akun tidak ditemukan.';
       }
+      return 'Gagal mengirim permintaan reset password.';
     } catch (e) {
       return 'Terjadi kesalahan. Periksa koneksi internetmu.';
     }
@@ -134,12 +101,22 @@ class AuthService {
   // ==========================================
 
   static Future<void> logout() async {
-    await _auth.signOut();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
   }
 
   // ==========================================
   // CEK LOGIN
   // ==========================================
 
-  static bool get isLoggedIn => _auth.currentUser != null;
+  static Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey(_tokenKey);
+  }
+
+  // Fungsi tambahan untuk mengambil token untuk dikirim di Header API lainnya
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
+  }
 }

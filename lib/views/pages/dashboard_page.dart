@@ -1,16 +1,13 @@
 import 'dart:math' as math;
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_projek_1/controllers/bookmark_controller.dart' as bookmark_controller;
 import 'package:flutter_projek_1/controllers/learning_stats_controller.dart';
 import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:flutter_projek_1/controllers/topic_controller.dart';
 import 'package:flutter_projek_1/models/biology_topic.dart';
-import 'package:flutter_projek_1/models/user_profile_page.dart';
+import 'package:flutter_projek_1/views/pages/user_profile_page.dart';
 import 'package:flutter_projek_1/services/auth_service.dart';
 import 'package:provider/provider.dart';
-
 import '../widgets/cell_background.dart';
 import 'about_page.dart';
 import 'achievement_page.dart';
@@ -66,19 +63,33 @@ class BioVerseAvatar extends StatelessWidget {
         child: SizedBox(
           width: radius * 2,
           height: radius * 2,
-          child: Image.asset(
-            avatars[safeIndex],
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              return Icon(
-                Icons.person_rounded,
-                size: radius,
-                color: Colors.white,
-              );
-            },
-          ),
+          child: photoUrl != null && photoUrl!.isNotEmpty
+              ? Image.network(
+                  photoUrl!,
+                  fit: BoxFit.cover,
+                  // Jika gagal memuat gambar dari URL, fallback ke asset lokal
+                  errorBuilder: (context, error, stackTrace) {
+                    return _buildAssetImage(safeIndex);
+                  },
+                )
+              : _buildAssetImage(safeIndex),
         ),
       ),
+    );
+  }
+
+  // Dipisah menjadi fungsi kecil agar rapi
+  Widget _buildAssetImage(int safeIndex) {
+    return Image.asset(
+      avatars[safeIndex],
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        return Icon(
+          Icons.person_rounded,
+          size: radius,
+          color: Colors.white,
+        );
+      },
     );
   }
 }
@@ -154,31 +165,26 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Future<void> _loadUserAvatar() async {
-    final user = AuthService.currentUser;
-
-    if (user == null) return;
 
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      // TODO: Panggil fungsi API milikmu untuk mengambil profil user
+      // Contoh: final profile = await ApiService.getUserProfile();
+      // final value = profile.avatarIndex;
 
-      final value = doc.data()?['avatarIndex'];
+      // Untuk sementara, kita set default avatarIndex ke 0
+      int value = 0;
 
       if (!mounted) return;
 
       setState(() {
-        if (value is num &&
-            value.toInt() >= 0 &&
-            value.toInt() < BioVerseAvatar.avatars.length) {
+        if (value >= 0 && value < BioVerseAvatar.avatars.length) {
           _avatarIndex = value.toInt();
         } else {
           _avatarIndex = 0;
         }
       });
     } catch (e) {
-      debugPrint('Gagal memuat avatar: $e');
+      debugPrint('Gagal memuat avatar dari server: $e');
     }
   }
 
@@ -195,6 +201,7 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   @override
+<<<<<<< HEAD
 Widget build(BuildContext context) {
   final user = AuthService.currentUser;
   final userName = user?.displayName ?? 'Explorer';
@@ -211,6 +218,32 @@ Widget build(BuildContext context) {
         // 2. Konten Utama ber-scroll aman
         SafeArea(
           child: SingleChildScrollView(
+=======
+  Widget build(BuildContext context) {
+    // TODO: Ambil nama dari state lokal atau SharedPreferences
+    // Misalnya: final userName = _localUserName ?? 'Explorer';
+
+    final userName = 'Explorer';
+
+    return Scaffold(
+      backgroundColor: lightGreen,
+
+      body: Stack(
+        children: [
+          // ==========================================
+          // BACKGROUND SEL
+          // ==========================================
+
+          const Positioned.fill(
+            child: CellBackground(),
+          ),
+
+          // ==========================================
+          // MAIN CONTENT
+          // ==========================================
+
+          Positioned.fill(
+>>>>>>> 09c1ba23cf0c10c9a757d45a13e0546a39ef98c1
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -703,7 +736,7 @@ Widget build(BuildContext context) {
               BioVerseAvatar(
                 avatarIndex: _avatarIndex,
                 radius: _virusHovered ? 88 : 78,
-                photoUrl: AuthService.currentUser?.photoURL,
+                photoUrl: null,
               ),
 
               // CELL 1
@@ -1473,56 +1506,6 @@ class _ProfileMenuState extends State<_ProfileMenu> {
     setState(() {
       _isOpen = true;
     });
-
-    PopupMenuButton<String>(
-  onSelected: (value) {
-    if (value == 'achievements') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AchievementPage()),
-      );
-    } else if (value == 'bookmarks') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const BookmarkPage()),
-      );
-    } else if (value == 'logout') {
-    }
-  },
-  itemBuilder: (context) => [
-    const PopupMenuItem(
-      value: 'bookmarks',
-      child: Row(
-        children: [
-          Icon(Icons.bookmark_outline_rounded, size: 20),
-          SizedBox(width: 10),
-          Text('Saved Topics'),
-        ],
-      ),
-    ),
-    const PopupMenuItem(
-      value: 'achievements',
-      child: Row(
-        children: [
-          Icon(Icons.emoji_events_outlined, size: 20),
-          SizedBox(width: 10),
-          Text('Achievements'),
-        ],
-      ),
-    ),
-    const PopupMenuDivider(),
-    const PopupMenuItem(
-      value: 'logout',
-      child: Row(
-        children: [
-          Icon(Icons.logout_rounded, size: 20, color: Colors.red),
-          SizedBox(width: 10),
-          Text('Logout', style: TextStyle(color: Colors.red)),
-        ],
-      ),
-    ),
-  ],
-);
   }
 
   // ==================================================

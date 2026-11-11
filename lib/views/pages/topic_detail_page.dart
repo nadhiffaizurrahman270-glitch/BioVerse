@@ -8,7 +8,7 @@ import '../../controllers/progress_controller.dart';
 import '../../controllers/learning_stats_controller.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'login_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/auth_service.dart';
 
 class TopicDetailPage extends StatefulWidget {
   final BiologyTopic topic;
@@ -110,7 +110,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
       }
 
       // Beri tahu guest bahwa hasilnya tersimpan di perangkat.
-      if (FirebaseAuth.instance.currentUser == null) {
+      if (widget.isGuest) {
         if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(

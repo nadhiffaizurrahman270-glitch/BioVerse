@@ -1,72 +1,28 @@
-# BioVerse Backend (FastAPI)
+# BioVerse FastAPI backend (PostgreSQL)
 
-Backend ini menyediakan dua endpoint yang dipakai aplikasi Flutter BioVerse:
+Backend ini menjalankan endpoint:
+- `GET /api/v1/materi` — membaca `public.materi` dari PostgreSQL.
+- `GET /api/v1/materi/{id}` — membaca satu materi dari PostgreSQL.
+- `POST /api/v1/ai/tutor` — fitur BioBot yang sudah ada.
+- `GET /api/v1/health` — pemeriksaan backend.
 
-| Method | Endpoint              | Dipanggil dari                          |
-|--------|-----------------------|------------------------------------------|
-| GET    | `/api/v1/materi`      | `lib/services/api_service.dart`          |
-| POST   | `/api/v1/ai/tutor`    | `lib/services/ai_tutor_service.dart`     |
-| GET    | `/api/v1/health`      | (opsional, untuk uptime monitor)         |
+## Konfigurasi
 
-Data materi saat ini disimpan langsung di kode (`app/data.py`), bukan di
-database. Ini terpisah dari Firebase/Firestore yang dipakai fitur lain di
-aplikasi (login, progres belajar, dll.) — tidak saling menyentuh.
+Salin `.env.example` menjadi `.env`, lalu isi `DATABASE_PASSWORD` dengan password role PostgreSQL khusus backend (`bioverse_api`). Jangan gunakan akun `postgres` atau akun editor manusia untuk aplikasi.
 
-## Jalankan di komputer sendiri (development)
+FastAPI dan PostgreSQL dirancang berjalan pada Ubuntu server yang sama. Backend terhubung ke PostgreSQL melalui `127.0.0.1:5432`; port PostgreSQL tidak perlu dibuka ke internet.
+
+## Install dan jalankan
 
 ```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate      # Windows: .venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env           # isi GEMINI_API_KEY kalau mau BioBot aktif
-uvicorn app.main:app --reload --port 8000
+cp .env.example .env
+# Edit .env terlebih dahulu
+uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Cek di browser: `http://127.0.0.1:8000/docs`.
+Uji dari server: `curl http://127.0.0.1:8000/api/v1/health` dan `curl http://127.0.0.1:8000/api/v1/materi`.
 
-Selama backend jalan di komputer sendiri seperti ini, aplikasi Flutter
-yang dijalankan dengan `flutter run -d chrome` di komputer yang sama akan
-otomatis terhubung ke `http://127.0.0.1:8000` (lihat
-`lib/config/api_config.dart`).
-
-## PENTING: ini belum bisa diakses dari internet
-
-`http://127.0.0.1:8000` dan IP seperti `192.168.x.x` cuma bisa diakses
-dari jaringan/komputer itu sendiri. Website yang sudah di-deploy ke
-GitHub Pages (diakses lewat HTTPS dari mana saja) **tidak akan pernah**
-bisa memanggil alamat itu, siapa pun yang membukanya.
-
-Supaya BioVerse yang sudah online bisa memuat materi dan BioBot, backend
-ini harus di-deploy ke layanan yang memberi alamat publik dengan **HTTPS**
-(wajib HTTPS, karena GitHub Pages pakai HTTPS dan browser akan memblokir
-panggilan ke HTTP biasa / mixed content). Beberapa pilihan yang umum
-dipakai untuk FastAPI kecil seperti ini:
-
-- **Render** (render.com) — ada free tier, HTTPS otomatis.
-- **Railway** (railway.app) — mudah deploy dari GitHub, HTTPS otomatis.
-- **Fly.io** — HTTPS otomatis, perlu CLI.
-- VPS sendiri + reverse proxy (nginx/caddy) + sertifikat TLS (certbot).
-
-Langkah umumnya kurang lebih:
-
-1. Push folder `backend/` ini ke repo (boleh repo yang sama atau repo
-   terpisah).
-2. Di layanan hosting, deploy dengan start command:
-   `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-3. Isi environment variable `GEMINI_API_KEY` (dan `GEMINI_MODEL` kalau
-   mau) di dashboard layanan tersebut.
-4. Setelah deploy, layanan akan memberi URL publik, misalnya
-   `https://bioverse-api.onrender.com`.
-5. Tes dulu: buka `https://<url-dari-layanan>/api/v1/health` di browser,
-   harus muncul `{"status":"ok"}`.
-6. Set URL itu (ditambah `/api/v1`, jadi
-   `https://bioverse-api.onrender.com/api/v1`) sebagai secret/variable
-   `API_BASE_URL` di GitHub repo Settings → Secrets and variables →
-   Actions, supaya dipakai otomatis saat build GitHub Pages
-   (lihat `.github/workflows/deploy.yml`).
-
-Tanpa langkah ini, build production akan tetap memakai alamat
-development (`http://127.0.0.1:8000`) dan error "Failed to fetch" di
-GitHub Pages akan tetap muncul — bukan karena kode Flutter-nya salah,
-tapi karena memang belum ada backend yang bisa diakses dari internet.
+Untuk frontend GitHub Pages, publikasikan FastAPI melalui HTTPS (misalnya Cloudflare Tunnel) dan set GitHub Actions variable `API_BASE_URL` ke `https://HOST-API/api/v1`. Pastikan `ALLOWED_ORIGINS` berisi origin GitHub Pages yang benar.
