@@ -1,6 +1,8 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import 'package:flutter_projek_1/controllers/bookmark_controller.dart' as bookmark_controller;
+import 'package:flutter_projek_1/controllers/bookmark_controller.dart'
+    as bookmark_controller;
 import 'package:flutter_projek_1/controllers/learning_stats_controller.dart';
 import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:flutter_projek_1/controllers/topic_controller.dart';
@@ -8,6 +10,7 @@ import 'package:flutter_projek_1/models/biology_topic.dart';
 import 'package:flutter_projek_1/views/pages/user_profile_page.dart';
 import 'package:flutter_projek_1/services/auth_service.dart';
 import 'package:provider/provider.dart';
+
 import '../widgets/cell_background.dart';
 import 'about_page.dart';
 import 'achievement_page.dart';
@@ -22,7 +25,6 @@ class DashboardPage extends StatefulWidget {
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
-
 
 class BioVerseAvatar extends StatelessWidget {
   final int avatarIndex;
@@ -48,7 +50,6 @@ class BioVerseAvatar extends StatelessWidget {
     'assets/image/avatars/avatar_6.png',
     'assets/image/avatars/avatar_7.png',
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -84,11 +85,7 @@ class BioVerseAvatar extends StatelessWidget {
       avatars[safeIndex],
       fit: BoxFit.contain,
       errorBuilder: (context, error, stackTrace) {
-        return Icon(
-          Icons.person_rounded,
-          size: radius,
-          color: Colors.white,
-        );
+        return Icon(Icons.person_rounded, size: radius, color: Colors.white);
       },
     );
   }
@@ -96,7 +93,6 @@ class BioVerseAvatar extends StatelessWidget {
 
 class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
-  
   int _avatarIndex = 0;
   final TopicController _topicController = TopicController();
   IconData _getTopicIcon(int index) {
@@ -137,7 +133,6 @@ class _DashboardPageState extends State<DashboardPage>
       duration: const Duration(seconds: 12),
     )..repeat();
 
-
     _floatingController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
@@ -157,15 +152,12 @@ class _DashboardPageState extends State<DashboardPage>
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (context) => const LoginPage(),
-      ),
+      MaterialPageRoute(builder: (context) => const LoginPage()),
       (route) => false,
     );
   }
 
   Future<void> _loadUserAvatar() async {
-
     try {
       // TODO: Panggil fungsi API milikmu untuk mengambil profil user
       // Contoh: final profile = await ApiService.getUserProfile();
@@ -201,17 +193,16 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   @override
-  Widget build(BuildContext context) {
-    const userName = 'Explorer';
+Widget build(BuildContext context) {
+  const userName = 'Explorer';
 
-    return Scaffold(
-      backgroundColor: lightGreen,
-      body: Stack(
-        children: [
-          const Positioned.fill(
-            child: CellBackground(),
-          ),
-          Positioned.fill(
+  return Scaffold(
+    backgroundColor: Colors.lightGreen,
+    body: Stack(
+      children: [
+        const Positioned.fill(child: CellBackground()),
+        SafeArea(
+          child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -222,11 +213,11 @@ class _DashboardPageState extends State<DashboardPage>
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
+        ),
+      ],
+    ),
+  );
+}
 
   // ==================================================
   // NAVBAR
@@ -236,9 +227,7 @@ class _DashboardPageState extends State<DashboardPage>
     return Container(
       height: 76,
 
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
 
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.94),
@@ -265,11 +254,7 @@ class _DashboardPageState extends State<DashboardPage>
                   borderRadius: BorderRadius.circular(12),
                 ),
 
-                child: const Icon(
-                  Icons.biotech,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: const Icon(Icons.biotech, color: Colors.white, size: 24),
               ),
 
               const SizedBox(width: 12),
@@ -298,9 +283,7 @@ class _DashboardPageState extends State<DashboardPage>
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const ExplorePage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const ExplorePage()),
                 );
               },
             ),
@@ -312,9 +295,7 @@ class _DashboardPageState extends State<DashboardPage>
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const AboutPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const AboutPage()),
                 );
               },
             ),
@@ -333,19 +314,13 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  Widget _navButton(
-    String title, {
-    required VoidCallback onTap
-    }) {
+  Widget _navButton(String title, {required VoidCallback onTap}) {
     return TextButton(
       onPressed: onTap,
 
       child: Text(
         title,
-        style: const TextStyle(
-          color: darkColor,
-          fontWeight: FontWeight.w500,
-        ),
+        style: const TextStyle(color: darkColor, fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -354,17 +329,20 @@ class _DashboardPageState extends State<DashboardPage>
   // HERO
   // ==================================================
 
- Widget _buildHero(String userName) {
+  Widget _buildHero(String userName) {
     final screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 900;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(isMobile ? 16 : 60, 55, isMobile ? 16 : 60, 20),
+      padding: EdgeInsets.fromLTRB(
+        isMobile ? 16 : 60,
+        55,
+        isMobile ? 16 : 60,
+        20,
+      ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 1200,
-          ),
+          constraints: const BoxConstraints(maxWidth: 1200),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -376,9 +354,7 @@ class _DashboardPageState extends State<DashboardPage>
                 ],
               ),
               borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                color: const Color(0xFFE5F6E9),
-              ),
+              border: Border.all(color: const Color(0xFFE5F6E9)),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF12372A).withValues(alpha: 0.05),
@@ -405,14 +381,8 @@ class _DashboardPageState extends State<DashboardPage>
                     )
                   : Row(
                       children: [
-                        Expanded(
-                          flex: 6,
-                          child: _buildHeroText(userName),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: _buildAnimatedBiology(),
-                        ),
+                        Expanded(flex: 6, child: _buildHeroText(userName)),
+                        Expanded(flex: 4, child: _buildAnimatedBiology()),
                       ],
                     ),
             ),
@@ -421,20 +391,16 @@ class _DashboardPageState extends State<DashboardPage>
       ),
     );
   }
+
   Widget _buildLearningStats() {
     final stats = LearningStatsController.stats;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 60,
-        vertical: 24,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 24),
 
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 1200,
-          ),
+          constraints: const BoxConstraints(maxWidth: 1200),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,7 +437,8 @@ class _DashboardPageState extends State<DashboardPage>
                     _LearningStatCard(
                       icon: Icons.workspace_premium_rounded,
                       title: 'Level ${stats.level}',
-                      value: '${stats.xpInCurrentLevel}/${stats.xpForNextLevel} XP',
+                      value:
+                          '${stats.xpInCurrentLevel}/${stats.xpForNextLevel} XP',
                       subtitle: '${stats.completedQuizzes} quizzes completed',
                       color: const Color(0xFF66BB6A),
                       progress: stats.levelProgress,
@@ -481,10 +448,12 @@ class _DashboardPageState extends State<DashboardPage>
                   if (isSmall) {
                     return Column(
                       children: cards
-                          .map((card) => Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: card,
-                              ))
+                          .map(
+                            (card) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: card,
+                            ),
+                          )
                           .toList(),
                     );
                   }
@@ -492,24 +461,28 @@ class _DashboardPageState extends State<DashboardPage>
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: cards
-                        .map((card) => Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 6),
-                                child: card,
+                        .map(
+                          (card) => Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
                               ),
-                            ))
+                              child: card,
+                            ),
+                          ),
+                        )
                         .toList(),
                   );
                 },
-              ), 
-            ]
-          )
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
- Widget _buildHeroText(String userName) {
+  Widget _buildHeroText(String userName) {
     final screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 900;
 
@@ -527,11 +500,7 @@ class _DashboardPageState extends State<DashboardPage>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.auto_awesome,
-                color: primaryColor,
-                size: 16,
-              ),
+              const Icon(Icons.auto_awesome, color: primaryColor, size: 16),
               const SizedBox(width: 8),
               Text(
                 'BIOLOGY LEARNING PLATFORM',
@@ -545,7 +514,7 @@ class _DashboardPageState extends State<DashboardPage>
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // JUDUL
         Text(
           'Hi, $userName',
@@ -556,7 +525,7 @@ class _DashboardPageState extends State<DashboardPage>
           ),
         ),
         const SizedBox(height: 12),
-        
+
         // DESKRIPSI
         Text(
           'Jelajahi dunia biologi yang memukau melalui pembelajaran interaktif, eksplorasi visual, dan experimen yang menarik.',
@@ -607,7 +576,10 @@ class _DashboardPageState extends State<DashboardPage>
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF12372A),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -620,7 +592,10 @@ class _DashboardPageState extends State<DashboardPage>
                     onPressed: () {},
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF12372A),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -659,9 +634,7 @@ class _DashboardPageState extends State<DashboardPage>
         child: AnimatedScale(
           scale: _virusHovered ? 1.08 : 1.0,
 
-          duration: const Duration(
-            milliseconds: 300,
-          ),
+          duration: const Duration(milliseconds: 300),
 
           curve: Curves.easeOut,
 
@@ -671,9 +644,7 @@ class _DashboardPageState extends State<DashboardPage>
             children: [
               // GLOW
               AnimatedContainer(
-                duration: const Duration(
-                  milliseconds: 300,
-                ),
+                duration: const Duration(milliseconds: 300),
 
                 width: _virusHovered ? 300 : 270,
                 height: _virusHovered ? 300 : 270,
@@ -681,20 +652,15 @@ class _DashboardPageState extends State<DashboardPage>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
 
-                  color: Colors.white.withValues(
-                    alpha: 0.9,
-                  ),
+                  color: Colors.white.withValues(alpha: 0.9),
 
                   boxShadow: [
                     BoxShadow(
                       color: primaryColor.withValues(
-                        alpha: _virusHovered
-                            ? 0.25
-                            : 0.12,
+                        alpha: _virusHovered ? 0.25 : 0.12,
                       ),
 
-                      blurRadius:
-                          _virusHovered ? 50 : 30,
+                      blurRadius: _virusHovered ? 50 : 30,
                     ),
                   ],
                 ),
@@ -765,18 +731,12 @@ class _DashboardPageState extends State<DashboardPage>
 
       builder: (context, child) {
         final movement =
-            math.sin(
-              (_floatingController.value * math.pi * 2) +
-                  delay,
-            ) *
-            10;
+            math.sin((_floatingController.value * math.pi * 2) + delay) * 10;
 
         return Positioned(
           top: top != null ? top + movement : null,
 
-          bottom: bottom != null
-              ? bottom - movement
-              : null,
+          bottom: bottom != null ? bottom - movement : null,
 
           left: left,
 
@@ -793,22 +753,16 @@ class _DashboardPageState extends State<DashboardPage>
         decoration: BoxDecoration(
           shape: BoxShape.circle,
 
-          color: Colors.white.withValues(
-            alpha: 0.9,
-          ),
+          color: Colors.white.withValues(alpha: 0.9),
 
           border: Border.all(
-            color: primaryColor.withValues(
-              alpha: 0.25,
-            ),
+            color: primaryColor.withValues(alpha: 0.25),
             width: 2,
           ),
 
           boxShadow: [
             BoxShadow(
-              color: primaryColor.withValues(
-                alpha: 0.15,
-              ),
+              color: primaryColor.withValues(alpha: 0.15),
 
               blurRadius: 12,
             ),
@@ -818,9 +772,7 @@ class _DashboardPageState extends State<DashboardPage>
         child: Icon(
           Icons.circle,
           size: size * 0.35,
-          color: primaryColor.withValues(
-            alpha: 0.65,
-          ),
+          color: primaryColor.withValues(alpha: 0.65),
         ),
       ),
     );
@@ -840,34 +792,31 @@ class _DashboardPageState extends State<DashboardPage>
         if (topicController.isLoading) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 100),
-            child: Center(child: CircularProgressIndicator(color: Colors.white)),
+            child: Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
           );
         }
 
         // Topik yang sudah memiliki progres tetapi skornya belum maksimal.
         final continueTopics = topics.where((topic) {
           final progress = ProgressController.getProgress(topic.title);
-          final isCompleted =
-              LearningStatsController.isTopicCompleted(topic.title);
+          final isCompleted = LearningStatsController.isTopicCompleted(
+            topic.title,
+          );
           return progress != null && !isCompleted;
         }).toList();
 
-        
         final completedTopics = topics.where((topic) {
           return LearningStatsController.isTopicCompleted(topic.title);
         }).toList();
 
         return Padding(
           key: _exploreKey,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 60,
-            vertical: 35,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 35),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 1200,
-              ),
+              constraints: const BoxConstraints(maxWidth: 1200),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -907,7 +856,6 @@ class _DashboardPageState extends State<DashboardPage>
                   // ========================================
                   // 2. RECOMMENDED TOPICS
                   // ========================================
-
                   const Text(
                     'Recommended Topics',
                     style: TextStyle(
@@ -928,45 +876,44 @@ class _DashboardPageState extends State<DashboardPage>
                   const SizedBox(height: 24),
 
                   FutureBuilder<List<BiologyTopic>>(
-                  future: _topicController.getTopics(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(32.0),
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            'Gagal memuat materi: ${snapshot.error}',
-                            style: const TextStyle(color: Colors.red),
+                    future: _topicController.getTopics(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32.0),
+                            child: CircularProgressIndicator(),
                           ),
-                        ),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'Gagal memuat materi: ${snapshot.error}',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        );
+                      }
+
+                      final liveTopics = snapshot.data ?? [];
+
+                      return _buildTopicGrid(
+                        topicList: liveTopics,
+                        emptyMessage: 'Belum ada topik materi biologi',
+                        emptyDescription: 'Materi biologi akan muncul di sini setelah dimuat dari server.',
                       );
-                    }
-
-                    final liveTopics = snapshot.data ?? [];
-
-                    return _buildTopicGrid(
-                      topicList: liveTopics,
-                      emptyMessage: 'Belum ada topik materi biologi',
-                      emptyDescription: 'Materi biologi akan muncul di sini setelah dimuat dari server.',
-                    );
-                  },
-                ),
+                    },
+                  ),
 
                   const SizedBox(height: 48),
 
                   // ========================================
                   // 3. COMPLETED LEARNING
                   // ========================================
-
                   const Text(
                     'Completed Learning',
                     style: TextStyle(
@@ -989,8 +936,7 @@ class _DashboardPageState extends State<DashboardPage>
                   _buildTopicGrid(
                     topicList: completedTopics,
                     emptyMessage: 'No completed topics yet',
-                    emptyDescription:
-                        'Complete a biology quiz to see your achievements here.',
+                    emptyDescription: 'Complete a biology quiz to see your achievements here.',
                   ),
                 ],
               ),
@@ -1001,99 +947,95 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-Widget _buildTopicGrid({
-  required List<BiologyTopic> topicList,
-  required String emptyMessage,
-  required String emptyDescription,
-}) {
-  if (topicList.isEmpty) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.95),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          const Icon(
-            Icons.menu_book_outlined,
-            size: 40,
-            color: Color(0xFF166534),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            emptyMessage,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF12372A),
+  Widget _buildTopicGrid({
+    required List<BiologyTopic> topicList,
+    required String emptyMessage,
+    required String emptyDescription,
+  }) {
+    if (topicList.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.95),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.menu_book_outlined,
+              size: 40,
+              color: Color(0xFF166534),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            emptyDescription,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.black54,
-              fontSize: 14,
+            const SizedBox(height: 12),
+            Text(
+              emptyMessage,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF12372A),
+              ),
             ),
+            const SizedBox(height: 6),
+            Text(
+              emptyDescription,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.black54, fontSize: 14),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+
+        int count = 3;
+
+        if (width < 700) {
+          count = 1;
+        } else if (width < 1000) {
+          count = 2;
+        }
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: count,
+            mainAxisExtent: 190,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
           ),
-        ],
-      ),
+          itemCount: topicList.length,
+          itemBuilder: (context, index) {
+            final topic = topicList[index];
+
+            return _TopicCard(
+              icon: _getTopicIcon(index),
+              title: topic.title,
+              description: topic.description,
+              topic: topic,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        TopicDetailPage(topic: topicList[index]),
+                  ),
+                ).then((_) {
+                  if (!mounted) return;
+                  setState(() {});
+                });
+              },
+            );
+          },
+        );
+      },
     );
   }
-
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      final width = constraints.maxWidth;
-
-      int count = 3;
-
-      if (width < 700) {
-        count = 1;
-      } else if (width < 1000) {
-        count = 2;
-      }
-
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: count,
-          mainAxisExtent: 190,
-          crossAxisSpacing: 14,
-          mainAxisSpacing: 14,
-        ),
-        itemCount: topicList.length,
-        itemBuilder: (context, index) {
-          final topic = topicList[index];
-
-          return _TopicCard(
-            icon: _getTopicIcon(index),
-            title: topic.title,
-            description: topic.description,
-            topic: topic,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TopicDetailPage(
-                    topic: topicList[index],
-                  ),
-                ),
-              ).then((_) {
-                if (!mounted) return;
-                setState(() {});
-              });
-            },
-          );
-        },
-      );
-    },
-  );
 }
-    }
 
 class _LearningStatCard extends StatelessWidget {
   final IconData icon;
@@ -1115,16 +1057,12 @@ class _LearningStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(
-        minHeight: 170,
-      ),
+      constraints: const BoxConstraints(minHeight: 170),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE1EFE4),
-        ),
+        border: Border.all(color: const Color(0xFFE1EFE4)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF12372A).withValues(alpha: 0.05),
@@ -1145,11 +1083,7 @@ class _LearningStatCard extends StatelessWidget {
                   color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(13),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 24,
-                ),
+                child: Icon(icon, color: color, size: 24),
               ),
               const Spacer(),
               Text(
@@ -1174,10 +1108,7 @@ class _LearningStatCard extends StatelessWidget {
           const SizedBox(height: 5),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: Color(0xFF64748B),
-              fontSize: 11,
-            ),
+            style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
           ),
           if (progress != null) ...[
             const SizedBox(height: 12),
@@ -1233,165 +1164,163 @@ class _TopicCardState extends State<_TopicCard> {
     final progress = ProgressController.getProgress(widget.topic.title);
 
     return ValueListenableBuilder<List<String>>(
-      valueListenable: bookmark_controller.BookmarkController.bookmarkedTopicTitles,
+      valueListenable:
+          bookmark_controller.BookmarkController.bookmarkedTopicTitles,
       builder: (context, bookmarkedList, _) {
         final isSaved = bookmarkedList.contains(widget.topic.title);
-      
 
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          hovered = true;
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          hovered = false;
-        });
-      },
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          transform: Matrix4.translationValues(
-            0,
-            hovered ? -4 : 0,
-            0,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 20,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: hovered
-                  ? primaryColor.withValues(alpha: 0.4)
-                  : const Color(0xFFE3ECE5),
+        return MouseRegion(
+          onEnter: (_) {
+            setState(() {
+              hovered = true;
+            });
+          },
+          onExit: (_) {
+            setState(() {
+              hovered = false;
+            });
+          },
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              transform: Matrix4.translationValues(0, hovered ? -4 : 0, 0),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: hovered
+                      ? primaryColor.withValues(alpha: 0.4)
+                      : const Color(0xFFE3ECE5),
                   width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: primaryColor.withValues(
-                  alpha: hovered ? 0.12 : 0.03,
                 ),
-                blurRadius: hovered ? 16 : 10,
-                offset: Offset(
-                  0,
-                  hovered ? 8 : 4,
-                ),
-              ),
-            ],
-          ),
-          child: Stack(
-              children: [
-                Positioned(
-                  top: -6,
-                  right: -6,
-                  child: IconButton(
-                    icon: Icon(
-                      isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                      color: isSaved ? primaryColor : Colors.grey,
-                      size: 20,
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor.withValues(
+                      alpha: hovered ? 0.12 : 0.03,
                     ),
-                    onPressed: () {
-                      bookmark_controller.BookmarkController.toggleBookmark(widget.topic.title);
-                    },
-                  ),
-                ),
-
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                widget.icon,
-                color: primaryColor,
-                size: 38,
-              ),
-              const SizedBox(width: 10),
-              Text(
-                widget.title,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: darkColor,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                widget.description,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 11.5,
-                  height: 1.35,
-                  color: Color(0xFF68766D),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5EC),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      widget.topic.category.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
-                        color: primaryColor,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      widget.topic.level,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E88E5),
-                      ),
-                    ),
+                    blurRadius: hovered ? 16 : 10,
+                    offset: Offset(0, hovered ? 8 : 4),
                   ),
                 ],
               ),
-              if (progress != null) ...[
-                const SizedBox(height: 10),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: LinearProgressIndicator(
-                    value: progress.percentage,
-                    minHeight: 5,
-                    backgroundColor: Colors.grey.shade200,
-                    valueColor: const AlwaysStoppedAnimation<Color>(primaryColor),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: -6,
+                    right: -6,
+                    child: IconButton(
+                      icon: Icon(
+                        isSaved
+                            ? Icons.bookmark_rounded
+                            : Icons.bookmark_border_rounded,
+                        color: isSaved ? primaryColor : Colors.grey,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        bookmark_controller.BookmarkController.toggleBookmark(
+                          widget.topic.title,
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ],
+
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(widget.icon, color: primaryColor, size: 38),
+                      const SizedBox(width: 10),
+                      Text(
+                        widget.title,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: darkColor,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.description,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          height: 1.35,
+                          color: Color(0xFF68766D),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F5EC),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              widget.topic.category.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.5,
+                                color: primaryColor,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              widget.topic.level,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1E88E5),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (progress != null) ...[
+                        const SizedBox(height: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: LinearProgressIndicator(
+                            value: progress.percentage,
+                            minHeight: 5,
+                            backgroundColor: Colors.grey.shade200,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
-          ],
-        ),
-      ),
-    )
-  );
+        );
       },
     );
   }
@@ -1420,11 +1349,7 @@ class _ProfileMenuState extends State<_ProfileMenu> {
   OverlayEntry? _overlayEntry;
 
   final List<Map<String, dynamic>> menuItems = [
-    {
-      'title': 'Edit Profile',
-      'icon': Icons.person_outline,
-      'route': 'profile',
-    },
+    {'title': 'Edit Profile', 'icon': Icons.person_outline, 'route': 'profile'},
     {
       'title': 'My Progress',
       'icon': Icons.insights_outlined,
@@ -1447,11 +1372,9 @@ class _ProfileMenuState extends State<_ProfileMenu> {
   // ==================================================
 
   void _showMenu() {
-    final renderBox =
-        context.findRenderObject() as RenderBox;
+    final renderBox = context.findRenderObject() as RenderBox;
 
-    final position =
-        renderBox.localToGlobal(Offset.zero);
+    final position = renderBox.localToGlobal(Offset.zero);
 
     _overlayEntry = OverlayEntry(
       builder: (context) {
@@ -1459,11 +1382,7 @@ class _ProfileMenuState extends State<_ProfileMenu> {
           top: position.dy + renderBox.size.height + 8,
           left: position.dx + renderBox.size.width - 270,
 
-          child: Material(
-            color: Colors.transparent,
-
-            child: _buildDropdown(),
-          ),
+          child: Material(color: Colors.transparent, child: _buildDropdown()),
         );
       },
     );
@@ -1498,26 +1417,18 @@ class _ProfileMenuState extends State<_ProfileMenu> {
     return Container(
       width: 500,
 
-      constraints: const BoxConstraints(
-        maxHeight: 430,
-      ),
+      constraints: const BoxConstraints(maxHeight: 430),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
         borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(
-          color: Colors.black.withValues(
-            alpha: 0.06,
-          ),
-        ),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.15,
-            ),
+            color: Colors.black.withValues(alpha: 0.15),
 
             blurRadius: 25,
 
@@ -1546,8 +1457,7 @@ class _ProfileMenuState extends State<_ProfileMenu> {
 
                   child: Text(
                     widget.userName.isNotEmpty
-                        ? widget.userName[0]
-                            .toUpperCase()
+                        ? widget.userName[0].toUpperCase()
                         : 'U',
 
                     style: const TextStyle(
@@ -1562,8 +1472,7 @@ class _ProfileMenuState extends State<_ProfileMenu> {
 
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
 
                     children: [
                       Text(
@@ -1581,10 +1490,7 @@ class _ProfileMenuState extends State<_ProfileMenu> {
                       const Text(
                         'Biology Explorer',
 
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
                       ),
                     ],
                   ),
@@ -1598,7 +1504,6 @@ class _ProfileMenuState extends State<_ProfileMenu> {
           // ==========================================
           // LISTVIEW BUILDER
           // ==========================================
-
           SizedBox(
             height: 220,
 
@@ -1633,16 +1538,12 @@ class _ProfileMenuState extends State<_ProfileMenu> {
                     } else if (route == 'progress') {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const ProgressPage(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const ProgressPage()),
                       );
                     } else if (route == 'bookmarks') {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const BookmarkPage(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const BookmarkPage()),
                       );
                     } else if (route == 'achievements') {
                       Navigator.push(
@@ -1663,7 +1564,6 @@ class _ProfileMenuState extends State<_ProfileMenu> {
           // ==========================================
           // LOGOUT
           // ==========================================
-
           _ProfileMenuItem(
             title: 'Logout',
             icon: Icons.logout,
@@ -1699,15 +1599,10 @@ class _ProfileMenuState extends State<_ProfileMenu> {
       },
 
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
 
         decoration: BoxDecoration(
-          color: primaryColor.withValues(
-            alpha: 0.08,
-          ),
+          color: primaryColor.withValues(alpha: 0.08),
 
           borderRadius: BorderRadius.circular(30),
         ),
@@ -1723,8 +1618,7 @@ class _ProfileMenuState extends State<_ProfileMenu> {
 
               child: Text(
                 widget.userName.isNotEmpty
-                    ? widget.userName[0]
-                        .toUpperCase()
+                    ? widget.userName[0].toUpperCase()
                     : 'U',
 
                 style: const TextStyle(
@@ -1750,14 +1644,9 @@ class _ProfileMenuState extends State<_ProfileMenu> {
             AnimatedRotation(
               turns: _isOpen ? 0.5 : 0,
 
-              duration: const Duration(
-                milliseconds: 200,
-              ),
+              duration: const Duration(milliseconds: 200),
 
-              child: const Icon(
-                Icons.keyboard_arrow_down,
-                size: 20,
-              ),
+              child: const Icon(Icons.keyboard_arrow_down, size: 20),
             ),
           ],
         ),
@@ -1792,16 +1681,13 @@ class _ProfileMenuItem extends StatefulWidget {
   });
 
   @override
-  State<_ProfileMenuItem> createState() =>
-      _ProfileMenuItemState();
+  State<_ProfileMenuItem> createState() => _ProfileMenuItemState();
 }
 
-class _ProfileMenuItemState
-    extends State<_ProfileMenuItem> {
+class _ProfileMenuItemState extends State<_ProfileMenuItem> {
   bool hovered = false;
 
-  static const Color primaryColor =
-      Color(0xFF166534);
+  static const Color primaryColor = Color(0xFF166534);
 
   @override
   Widget build(BuildContext context) {
@@ -1822,19 +1708,12 @@ class _ProfileMenuItemState
         onTap: widget.onTap,
 
         child: AnimatedContainer(
-          duration: const Duration(
-            milliseconds: 150,
-          ),
+          duration: const Duration(milliseconds: 150),
 
-          padding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 13,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
 
           color: hovered
-              ? primaryColor.withValues(
-                  alpha: 0.07,
-                )
+              ? primaryColor.withValues(alpha: 0.07)
               : Colors.transparent,
 
           child: Row(
@@ -1844,9 +1723,7 @@ class _ProfileMenuItemState
 
                 size: 20,
 
-                color: widget.danger
-                    ? Colors.red.shade600
-                    : primaryColor,
+                color: widget.danger ? Colors.red.shade600 : primaryColor,
               ),
 
               const SizedBox(width: 13),
@@ -1859,9 +1736,7 @@ class _ProfileMenuItemState
 
                   fontWeight: FontWeight.w500,
 
-                  color: widget.danger
-                      ? Colors.red.shade600
-                      : Colors.black87,
+                  color: widget.danger ? Colors.red.shade600 : Colors.black87,
                 ),
               ),
             ],
