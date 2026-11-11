@@ -1,46 +1,24 @@
-import 'package:flutter/foundation.dart';
-
-/// Konfigurasi alamat backend API, dipakai bersama oleh semua service
-/// yang bicara ke backend (ApiService, AITutorService).
-///
-/// Satu-satunya cara mengubah alamat production adalah lewat
-/// `--dart-define=API_BASE_URL=...` saat build (lihat
-/// .github/workflows/deploy.yml). Endpoint di bawah backend ini
-/// (/materi, /ai/tutor) TIDAK berubah, cuma base URL-nya yang pindah
-/// antara development dan production.
+/// Konfigurasi alamat backend BioVerse.
+/// Bisa dioverride saat build dengan --dart-define=API_BASE_URL=...
 class ApiConfig {
   const ApiConfig._();
 
-  /// Diisi lewat `--dart-define=API_BASE_URL=https://domain-backend/api/v1`.
-  /// String kosong kalau tidak diisi (misal: `flutter run` biasa).
   static const String _override = String.fromEnvironment('API_BASE_URL');
 
-  /// Base URL REST API, tanpa trailing slash.
-  ///
-  /// - Kalau `API_BASE_URL` diisi saat build (biasanya untuk production),
-  ///   nilai itu yang dipakai.
-  /// - Kalau tidak diisi, dipakai alamat development:
-  ///   - Web (`flutter run -d chrome`) -> `http://127.0.0.1:8000`
-  ///   - Android emulator -> `http://10.0.2.2:8000` (alias host
-  ///     komputer dari dalam emulator)
-  ///   - Platform lain (iOS simulator, desktop) -> `http://127.0.0.1:8000`
+  /// Backend FastAPI pada home server.
+  static const String _productionBaseUrl =
+      'https://api.ancode.my.id/api/v1';
+
   static String get baseUrl {
-    if (_override.isNotEmpty) {
-      // Buang trailing slash kalau ada, supaya aman digabung '/materi' dsb.
-      return _override.endsWith('/')
-          ? _override.substring(0, _override.length - 1)
-          : _override;
+    final configured = _override.trim();
+
+    if (configured.isEmpty) {
+      return _productionBaseUrl;
     }
 
-    if (kIsWeb) {
-      return 'http://192.168.1.207:8000/api/v1';
-    }
-
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://192.168.1.207:8000/api/v1';
-    }
-
-    return 'http://192.168.1.207:8000/api/v1';
+    return configured.endsWith('/')
+        ? configured.substring(0, configured.length - 1)
+        : configured;
   }
 
   static String get materiUrl => '$baseUrl/materi';
