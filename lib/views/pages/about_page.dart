@@ -55,8 +55,8 @@ class _AboutPageState extends State<AboutPage> {
       'university': 'Universitas Negeri Surabaya',
       'bio': 'Menjaga kualitas, menekan angka defect, dan memastikan standar terbaik setiap harinya',
       'imagePath': 'assets/image/Indasyifa Debian.jpeg',
-      'github': 'https://github.com/teman2',
-      'initial': 'T2',
+      'github': 'https://github.com/indasyifad',
+      'initial': 'ID',
     },
     {
       'name': 'Akhdan Farrel Bernadine',

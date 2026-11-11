@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_projek_1/controllers/bookmark_controller.dart'
@@ -10,6 +11,7 @@ import 'package:flutter_projek_1/models/biology_topic.dart';
 import 'package:flutter_projek_1/views/pages/user_profile_page.dart';
 import 'package:flutter_projek_1/services/auth_service.dart';
 import 'package:provider/provider.dart';
+import 'package:overlay_loader_with_app_icon/overlay_loader_with_app_icon.dart';
 
 import '../widgets/cell_background.dart';
 import 'about_page.dart';
@@ -24,6 +26,7 @@ import '../../screens/materi_screen.dart';
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
   @override
+  
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
@@ -94,6 +97,9 @@ class BioVerseAvatar extends StatelessWidget {
 
 class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
+      bool _isLoading = false;
+
+      
   int _avatarIndex = 0;
   final TopicController _topicController = TopicController();
   IconData _getTopicIcon(int index) {
@@ -194,31 +200,40 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   @override
-Widget build(BuildContext context) {
-  const userName = 'Explorer';
+  Widget build(BuildContext context) {
+    const userName = 'Explorer';
 
-  return Scaffold(
-    backgroundColor: Colors.lightGreen,
-    body: Stack(
-      children: [
-        const Positioned.fill(child: CellBackground()),
-        SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildNavbar(userName),
-                _buildHero(userName),
-                _buildLearningStats(),
-                _buildExploreSection(),
-              ],
+    return OverlayLoaderWithAppIcon(
+      isLoading: _isLoading,
+      appIcon: Image.asset(
+        'assets/BioVerse.png',
+        width: 60,
+        height: 60,
+      ),
+      circularProgressColor: const Color(0xFF166534),
+      child: Scaffold(
+        backgroundColor: Colors.lightGreen,
+        body: Stack(
+          children: [
+            const Positioned.fill(child: CellBackground()),
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildNavbar(userName),
+                    _buildHero(userName),
+                    _buildLearningStats(),
+                    _buildExploreSection(),
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
 
   // ==================================================
   // NAVBAR
@@ -1021,18 +1036,28 @@ Widget build(BuildContext context) {
               title: topic.title,
               description: topic.description,
               topic: topic,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        TopicDetailPage(topic: topicList[index]),
-                  ),
-                ).then((_) {
-                  if (!mounted) return;
-                  setState(() {});
-                });
-              },
+              onTap: () async {
+            final navigator = Navigator.of(context);
+
+            setState(() {
+              _isLoading = true;
+            });
+
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (!mounted) return;
+
+            setState(() {
+              _isLoading = false;
+            });
+
+            navigator.push(
+              MaterialPageRoute(
+                builder: (context) => TopicDetailPage(
+                  topic: topicList[index],
+                ),
+              ),
+            );
+          },
             );
           },
         );
