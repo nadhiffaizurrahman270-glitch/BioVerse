@@ -58,7 +58,7 @@ class AboutPage extends StatelessWidget {
       'role': 'Visual & Asset Creator',
       'university': 'Universitas Negeri Surabaya',
       'bio': 'Membuat ilustrasi dan aset visual interaktif seperti struktur sel, DNA, dan anatomi biologi.',
-      'imagePath': 'BioVerse/assets/image/zubair dulure gus iqdam.jpeg',
+      'imagePath': 'assets/image/zubair.jpeg',
       'github': 'https://github.com/zubairjo133-max',
       'initial': 'T5',
     },
