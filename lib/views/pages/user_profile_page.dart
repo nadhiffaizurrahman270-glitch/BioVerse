@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../pages/avatar_page.dart';
+import 'avatar_page.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -15,9 +13,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
   static const Color darkColor = Color(0xFF12372A);
   static const Color backgroundColor = Color(0xFFF0FDF4);
 
-  final User? user = FirebaseAuth.instance.currentUser;
-
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
   int _selectedAvatar = 0;
 
@@ -40,44 +37,22 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
-  // Memuat profil pengguna dari Firebase.
+  // 1. Memuat profil pengguna dari Backend API (FastAPI + PostgreSQL)
   Future<void> _loadProfile() async {
     try {
-      final currentUser = FirebaseAuth.instance.currentUser;
+      // TODO: Panggil ApiService kamu di sini
+      await Future.delayed(const Duration(milliseconds: 500));
 
-      if (currentUser == null) {
-        throw Exception('Pengguna belum login.');
-      }
-
-      _nameController.text = currentUser.displayName ?? '';
-
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .get();
-
-      if (doc.exists) {
-        final data = doc.data()!;
-
-        _nameController.text =
-            data['name'] as String? ??
-            currentUser.displayName ??
-            '';
-
-        final avatarIndex = data['avatarIndex'];
-
-        if (avatarIndex is num &&
-            avatarIndex.toInt() >= 0 &&
-            avatarIndex.toInt() < _avatarPaths.length) {
-          _selectedAvatar = avatarIndex.toInt();
-        }
-      }
+      _nameController.text = 'Siswa BioVerse';
+      _emailController.text = 'siswa@bioverse.com';
+      _selectedAvatar = 0;
     } catch (e) {
       _loadError = e.toString();
-      debugPrint('Gagal memuat profil: $e');
+      debugPrint('Gagal memuat profil dari API: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -107,23 +82,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   // Menyimpan nama dan avatar ke Firebase.
   Future<void> _saveProfile() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-
-    if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Silakan login kembali.'),
-        ),
-      );
-      return;
-    }
-
     final name = _nameController.text.trim();
 
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Nama tidak boleh kosong.'),
+          content: Text('Silakan login kembali.'),
         ),
       );
       return;
@@ -136,22 +100,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     String step = 'Memperbarui nama';
 
     try {
-      await currentUser
-          .updateDisplayName(name)
-          .timeout(const Duration(seconds: 15));
-
-      step = 'Menyimpan profil ke Firestore';
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .set({
-        'name': name,
-        'email': currentUser.email,
-        'avatarIndex': _selectedAvatar,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true))
-          .timeout(const Duration(seconds: 15));
+      await Future.delayed(const Duration(seconds: 1));
 
       if (!mounted) return;
 
@@ -376,7 +325,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
                     const SizedBox(height: 20),
 
-                    // Email pengguna.
+                    // Email Address
                     const Text(
                       'Email Address',
                       style: TextStyle(
@@ -384,17 +333,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         color: darkColor,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
-                    TextFormField(
-                      key: ValueKey(user?.email),
-                      initialValue: user?.email ?? '-',
+                    TextField(
+                      controller: _emailController,
                       readOnly: true,
                       decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.email_outlined,
-                        ),
+                        prefixIcon: const Icon(Icons.email_outlined),
                         filled: true,
                         fillColor: const Color(0xFFF5F7F5),
                         border: OutlineInputBorder(
@@ -417,8 +361,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       Padding(
                         padding: const EdgeInsets.only(top: 12),
                         child: Text(
-                          'Profil mungkin belum termuat sepenuhnya. '
-                          'Coba periksa koneksi Firebase.\n$_loadError',
+                          'Gagal memuat profil dari server API.\n$_loadError',
                           style: const TextStyle(
                             color: Colors.red,
                             fontSize: 12,
@@ -428,14 +371,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
                     const SizedBox(height: 28),
 
-                    // Tombol simpan.
+                    // Save Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed:
-                            (!_initialized || _loading)
-                                ? null
-                                : _saveProfile,
+                            (!_initialized || _loading) ? null : _saveProfile,
                         icon: _loading
                             ? const SizedBox(
                                 width: 18,
@@ -446,17 +387,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 ),
                               )
                             : const Icon(Icons.save_outlined),
-                        label: Text(
-                          _loading
-                              ? 'Saving...'
-                              : 'Save Changes',
-                        ),
+                        label: Text(_loading ? 'Saving...' : 'Save Changes'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -468,6 +403,24 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// Dummy Class agar tidak error jika Halaman Avatar belum di-import
+class ChooseAvatarDummyPage extends StatelessWidget {
+  const ChooseAvatarDummyPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Choose Avatar')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => Navigator.pop(context, 0),
+          child: const Text('Pilih Avatar 1'),
         ),
       ),
     );

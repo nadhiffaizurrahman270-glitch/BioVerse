@@ -44,11 +44,28 @@ class _BookmarkPageState extends State<BookmarkPage> {
   static const Color green = Color(0xFF16804A);
 
   String _searchQuery = '';
+  String _username = 'Explorer';
+
+  Future<void> _loadUserName() async {
+    try {
+      // TODO: Ganti dengan pengambilan profil sungguhan dari API
+      // final profile = await ApiService.getUserProfile();
+      // final name = profile.name;
+      
+      // Simulasi delay
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (mounted) {
+        setState(() {
+          _username = "Siswa BioVerse"; // Ganti 'name' dari API di sini
+        });
+      }
+    } catch (e) {
+      debugPrint("Gagal mengambil nama pengguna: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final user = AuthService.currentUser;
-    final userName = user?.displayName ?? 'Explorer';
     final allTopics = Provider.of<TopicController>(context).topics;
 
     return Scaffold(
@@ -56,7 +73,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
       body: Column(
         children: [
           // 1. NAVBAR KONSISTEN
-          _buildNavbar(context, userName),
+          _buildNavbar(context, _username),
 
           // 2. KONTEN UTAMA
           Expanded(
