@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/biology_topic.dart';
 import '../services/ai_tutor_service.dart'; // 1. Import Service AI Tutor
+import 'package:shimmer/shimmer.dart';
 
 class MateriScreen extends StatefulWidget {
   const MateriScreen({Key? key}) : super(key: key);
@@ -118,13 +119,26 @@ class _MateriScreenState extends State<MateriScreen> {
         future: _materiFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Belum ada materi.'));
-          }
-
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: ListView.builder(
+              itemCount: 6,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }
           final listMateri = snapshot.data!;
           return ListView.builder(
             itemCount: listMateri.length,

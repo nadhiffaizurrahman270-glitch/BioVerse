@@ -6,8 +6,10 @@ import '../models/biology_topic.dart';
 class ApiService {
 
   Future<List<BiologyTopic>> fetchMateri() async {
-    try {
-      final response = await get(Uri.parse(ApiConfig.materiUrl));
+  await Future.delayed(const Duration(milliseconds: 1500));
+  
+  try {
+    final response = await get(Uri.parse(ApiConfig.materiUrl));
 
       if (response.statusCode == 200) {
         final decodedData = jsonDecode(response.body);

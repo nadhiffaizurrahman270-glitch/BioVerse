@@ -19,6 +19,7 @@ import 'explore_page.dart';
 import 'login_page.dart';
 import 'progress_page.dart';
 import 'topic_detail_page.dart';
+import '../../screens/materi_screen.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -543,21 +544,22 @@ Widget build(BuildContext context) {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ElevatedButton.icon(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF12372A),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: const Icon(Icons.play_arrow, size: 18),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MateriScreen()),
+                      );
+                    },
+                    icon: const Icon(Icons.play_arrow),
                     label: const Text('Continue Learning'),
                   ),
-                  const SizedBox(height: 10),
                   OutlinedButton(
-                    onPressed: () {},
+                      onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MateriScreen()),
+                      );
+                    },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF12372A),
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -589,13 +591,15 @@ Widget build(BuildContext context) {
                   ),
                   const SizedBox(width: 12),
                   OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MateriScreen()),
+                      );
+                    },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF12372A),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
