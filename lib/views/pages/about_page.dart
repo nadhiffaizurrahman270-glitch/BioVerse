@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class AboutPage extends StatelessWidget {
+
+class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
+
+  @override
+  State<AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
+  }
 
   static const Color primaryColor = Color(0xFF166534);
   static const Color darkColor = Color(0xFF12372A);
@@ -75,6 +98,17 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: Center(
+        child: LoadingAnimationWidget.staggeredDotsWave(
+          color: primaryColor,
+          size: 60,
+        ),
+      ),
+    );
+  }
     return Scaffold(
       backgroundColor: backgroundColor,
 
