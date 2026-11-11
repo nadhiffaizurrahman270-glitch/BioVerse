@@ -195,50 +195,38 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   @override
-  Widget build(BuildContext context) {
-    final user = AuthService.currentUser;
+Widget build(BuildContext context) {
+  final user = AuthService.currentUser;
+  final userName = user?.displayName ?? 'Explorer';
 
-    final userName = user?.displayName ?? 'Explorer';
-
-    return Scaffold(
-      backgroundColor: lightGreen,
-
-      body: Stack(
-        children: [
-          // ==========================================
-          // BACKGROUND SEL
-          // ==========================================
-
-          const Positioned.fill(
-            child: CellBackground(),
-          ),
-
-          // ==========================================
-          // MAIN CONTENT
-          // ==========================================
-
-          Positioned.fill(
+  return Scaffold(
+    backgroundColor: lightGreen,
+    body: Stack(
+      children: [
+        // 1. Background Sel (Menutupi seluruh layar)
+        const Positioned.fill(
+          child: CellBackground(),
+        ),
+        
+        // 2. Konten Utama ber-scroll aman
+        SafeArea(
+          child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildNavbar(userName),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        _buildHero(userName),
-                        _buildLearningStats(),
-                        _buildExploreSection(),
-                      ],
-                    ),
-                  ),
-                ),
+                _buildHero(userName),
+                _buildLearningStats(),
+                _buildExploreSection(),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   // ==================================================
   // NAVBAR
@@ -334,7 +322,7 @@ class _DashboardPageState extends State<DashboardPage>
             const SizedBox(width: 10),
           ],
 
-          // USER
+          // USER PROFILE
           _ProfileMenu(
             userName: userName,
             onLogout: _logout,
@@ -366,88 +354,73 @@ class _DashboardPageState extends State<DashboardPage>
   // HERO
   // ==================================================
 
-  Widget _buildHero(String userName) {
-    return Padding(
-      key: _dashboardKey,
-      padding: const EdgeInsets.fromLTRB(
-        60,
-        55,
-        60,
-        20,
-      ),
+ Widget _buildHero(String userName) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    bool isMobile = screenWidth < 900;
 
+    return Padding(
+      padding: EdgeInsets.fromLTRB(isMobile ? 16 : 60, 55, isMobile ? 16 : 60, 20),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(
             maxWidth: 1200,
           ),
-
           child: Container(
-            constraints: const BoxConstraints(
-              minHeight: 440,
-            ),
-
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-
                 colors: [
                   Colors.white.withValues(alpha: 0.95),
                   const Color(0xFFE5F6E9),
                 ],
               ),
-
               borderRadius: BorderRadius.circular(30),
-
               border: Border.all(
-                color: Colors.white,
-                width: 2,
+                color: const Color(0xFFE5F6E9),
               ),
-
               boxShadow: [
                 BoxShadow(
-                  color: primaryColor.withValues(alpha: 0.12),
-                  blurRadius: 35,
-                  offset: const Offset(0, 15),
+                  color: const Color(0xFF12372A).withValues(alpha: 0.05),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
-
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final isSmall = constraints.maxWidth < 800;
-
-                if (isSmall) {
-                  return Column(
-                    children: [
-                      _buildHeroText(userName),
-                      _buildAnimatedBiology(),
-                    ],
-                  );
-                }
-
-                return Row(
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: _buildHeroText(userName),
+            child: Padding(
+              padding: EdgeInsets.all(isMobile ? 20 : 30),
+              child: isMobile
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeroText(userName),
+                        const SizedBox(height: 24),
+                        Center(
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: _buildAnimatedBiology(),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: _buildHeroText(userName),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: _buildAnimatedBiology(),
+                        ),
+                      ],
                     ),
-
-                    Expanded(
-                      flex: 4,
-                      child: _buildAnimatedBiology(),
-                    ),
-                  ],
-                );
-              },
             ),
           ),
         ),
       ),
     );
   }
-
   Widget _buildLearningStats() {
     final stats = LearningStatsController.stats;
 
@@ -536,141 +509,127 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  Widget _buildHeroText(String userName) {
-    return Padding(
-      padding: const EdgeInsets.all(55),
+ Widget _buildHeroText(String userName) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    bool isMobile = screenWidth < 900;
 
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-
-        mainAxisAlignment: MainAxisAlignment.center,
-
-        children: [
-          // BADGE
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 8,
-            ),
-
-            decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(30),
-            ),
-
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.auto_awesome,
-                  color: primaryColor,
-                  size: 16,
-                ),
-
-                SizedBox(width: 8),
-
-                Text(
-                  'BIOLOGY LEARNING PLATFORM',
-                  style: TextStyle(
-                    color: primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ],
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // BADGE
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: primaryColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(30),
           ),
-
-          const SizedBox(height: 25),
-
-          Text(
-            'Hi, $userName',
-            style: const TextStyle(
-              fontSize: 42,
-              height: 1.1,
-              fontWeight: FontWeight.w800,
-              color: darkColor,
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          const Text(
-            'Jelajahi dunia biologi yang memukau  '
-            'melalui pembelajaran interaktif, eksplorasi visual,  '
-            'dan experimen yang menarik.',
-            style: TextStyle(
-              fontSize: 16,
-              height: 1.7,
-              color: Colors.black54,
-            ),
-          ),
-
-          const SizedBox(height: 30),
-
-          Row(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              ElevatedButton.icon(
-                onPressed: () => _scrollTo(_learnKey),
-
-                icon: const Icon(
-                  Icons.play_arrow,
-                ),
-
-                label: const Text(
-                  'Continue Learning',
-                ),
-
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 16,
-                  ),
-
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-
-                  elevation: 0,
-                ),
+              const Icon(
+                Icons.auto_awesome,
+                color: primaryColor,
+                size: 16,
               ),
-
-              const SizedBox(width: 12),
-
-              OutlinedButton(
-                onPressed: () => _scrollTo(_exploreKey),
-
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: primaryColor,
-
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 16,
-                  ),
-
-                  side: BorderSide(
-                    color: primaryColor.withValues(
-                      alpha: 0.3,
-                    ),
-                  ),
-
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-
-                child: const Text(
-                  'Explore Biology',
+              const SizedBox(width: 8),
+              Text(
+                'BIOLOGY LEARNING PLATFORM',
+                style: TextStyle(
+                  color: primaryColor,
+                  fontSize: isMobile ? 10 : 12,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 16),
+        
+        // JUDUL
+        Text(
+          'Hi, $userName',
+          style: TextStyle(
+            fontSize: isMobile ? 26 : 38,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF12372A),
+          ),
+        ),
+        const SizedBox(height: 12),
+        
+        // DESKRIPSI
+        Text(
+          'Jelajahi dunia biologi yang memukau melalui pembelajaran interaktif, eksplorasi visual, dan experimen yang menarik.',
+          style: TextStyle(
+            fontSize: isMobile ? 13 : 16,
+            color: Colors.black87,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // TOMBOL AKSI (Otomatis Column di HP, Row di Laptop)
+        isMobile
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF12372A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.play_arrow, size: 18),
+                    label: const Text('Continue Learning'),
+                  ),
+                  const SizedBox(height: 10),
+                  OutlinedButton(
+                    onPressed: () {},
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF12372A),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Explore Biology'),
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF12372A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Text('Continue Learning'),
+                  ),
+                  const SizedBox(width: 12),
+                  OutlinedButton(
+                    onPressed: () {},
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF12372A),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Explore Biology'),
+                  ),
+                ],
+              ),
+      ],
     );
   }
 
