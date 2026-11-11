@@ -201,49 +201,17 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   @override
-<<<<<<< HEAD
-Widget build(BuildContext context) {
-  final user = AuthService.currentUser;
-  final userName = user?.displayName ?? 'Explorer';
-
-  return Scaffold(
-    backgroundColor: lightGreen,
-    body: Stack(
-      children: [
-        // 1. Background Sel (Menutupi seluruh layar)
-        const Positioned.fill(
-          child: CellBackground(),
-        ),
-        
-        // 2. Konten Utama ber-scroll aman
-        SafeArea(
-          child: SingleChildScrollView(
-=======
   Widget build(BuildContext context) {
-    // TODO: Ambil nama dari state lokal atau SharedPreferences
-    // Misalnya: final userName = _localUserName ?? 'Explorer';
-
-    final userName = 'Explorer';
+    const userName = 'Explorer';
 
     return Scaffold(
       backgroundColor: lightGreen,
-
       body: Stack(
         children: [
-          // ==========================================
-          // BACKGROUND SEL
-          // ==========================================
-
           const Positioned.fill(
             child: CellBackground(),
           ),
-
-          // ==========================================
-          // MAIN CONTENT
-          // ==========================================
-
           Positioned.fill(
->>>>>>> 09c1ba23cf0c10c9a757d45a13e0546a39ef98c1
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -254,11 +222,10 @@ Widget build(BuildContext context) {
               ],
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
 
   // ==================================================
