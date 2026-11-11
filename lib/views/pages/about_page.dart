@@ -18,13 +18,13 @@ class AboutPage extends StatelessWidget {
       'initial': 'NF',
     },
     {
-      'name': 'Nama Teman 1',
+      'name': 'Dwi Ajeng Fadhillah Devianti',
       'role': 'UI/UX Designer',
       'university': 'Universitas Negeri Surabaya',
       'bio': 'Fokus pada riset pengguna, desain antarmuka, dan memastikan aplikasi nyaman digunakan.',
-      'imagePath': 'assets/image/kucing.jpg',
-      'github': 'https://github.com/teman1',
-      'initial': 'T1',
+      'imagePath': 'assets/image/dwi ajeng.jpeg',
+      'github': 'https://github.com/devianti094-a11y',
+      'initial': 'DA',
     },
     {
       'name': 'Indasyifa Debian Wirajati',
