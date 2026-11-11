@@ -4,6 +4,7 @@ import '../config/api_config.dart';
 import '../models/biology_topic.dart';
 
 class ApiService {
+
   Future<List<BiologyTopic>> fetchMateri() async {
     try {
       final response = await get(Uri.parse(ApiConfig.materiUrl));
