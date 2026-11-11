@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart';
+import '../config/api_config.dart';
 import '../models/biology_topic.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.110.241:8000/api/v1';
-
   Future<List<BiologyTopic>> fetchMateri() async {
     try {
-      final response = await get(Uri.parse('$baseUrl/materi'));
+      final response = await get(Uri.parse(ApiConfig.materiUrl));
 
       if (response.statusCode == 200) {
         final decodedData = jsonDecode(response.body);
