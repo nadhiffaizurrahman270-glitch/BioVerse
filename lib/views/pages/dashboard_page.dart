@@ -611,7 +611,7 @@ class _DashboardPageState extends State<DashboardPage>
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MateriScreen()),
+                        MaterialPageRoute(builder: (context) => const ExplorePage()),
                       );
                     },
                     style: OutlinedButton.styleFrom(

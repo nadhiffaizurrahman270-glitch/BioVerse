@@ -34,10 +34,75 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
   bool answered = false;
   bool quizFinished = false;
 
-  List<QuizQuestion> get questions {
-    return quizData[widget.topic.title] ?? [];
+List<QuizQuestion> get questions {
+  // 1. Cek data dari quizData bawaan jika ada
+  final listSoal = quizData[widget.topic.title] ?? [];
+  if (listSoal.isNotEmpty) {
+    return listSoal;
+  }
+  
+  // 2. 10 Soal Spesifik untuk Topik: Hukum Mendel dan Pewarisan Sifat
+  if (widget.topic.title.contains("Mendel")) {
+    return [
+      QuizQuestion(question: "Hukum Mendel I dikenal juga dengan prinsip apa?", answers: ["Segregasi bebas", "Asortasi bebas", "Dominansi penuh", "Interaksi alel"], correctAnswer: 0),
+      QuizQuestion(question: "Persilangan antara dua individu dengan satu sifat beda disebut...", answers: ["Monohibrid", "Dihibrid", "Test cross", "Back cross"], correctAnswer: 0),
+      QuizQuestion(question: "Hukum Mendel II menyatakan tentang...", answers: ["Pengelompokan gen secara bebas", "Pemisahan alel saat meiosis", "Pewarisan sifat maternal", "Pautan gen kromosom"], correctAnswer: 0),
+      QuizQuestion(question: "Genotipe heterozigot sempurna ditunjukkan oleh...", answers: ["Aa", "AA", "aa", "AABB"], correctAnswer: 0),
+      QuizQuestion(question: "Sifat yang menutupi sifat resesif disebut...", answers: ["Dominan", "Intermediet", "Mutasi", "Kriptomeri"], correctAnswer: 0),
+      QuizQuestion(question: "Perbandingan fenotipe F2 pada persilangan monohibrid dominansi penuh adalah...", answers: ["3 : 1", "1 : 2 : 1", "9 : 3 : 3 : 1", "1 : 1"], correctAnswer: 0),
+      QuizQuestion(question: "Alat yang biasa digunakan untuk memprediksi hasil persilangan adalah...", answers: ["Papan Punnett", "Mikroskop", "Klorofil meter", "Kertas lakmus"], correctAnswer: 0),
+      QuizQuestion(question: "Pewarisan sifat dari induk kepada keturunannya disebut...", answers: ["Hereditas", "Evolusi", "Adaptasi", "Metabolisme"], correctAnswer: 0),
+      QuizQuestion(question: "Individu dengan genotipe homozigot resesif memiliki simbol...", answers: ["aa", "AA", "Aa", "AX"], correctAnswer: 0),
+      QuizQuestion(question: "Ilmuwan penemu hukum pewarisan sifat makhluk hidup adalah...", answers: ["Gregor Mendel", "Charles Darwin", "Louis Pasteur", "Robert Hooke"], correctAnswer: 0),
+    ];
+  } 
+  
+  // 3. 10 Soal Spesifik untuk Topik: Struktur Sel Tumbuhan dan Fungsinya
+  else if (widget.topic.title.contains("Sel Tumbuhan")) {
+    return [
+      QuizQuestion(question: "Organel sel tumbuhan yang berfungsi sebagai tempat fotosintesis adalah...", answers: ["Kloroplas", "Mitokondria", "Ribosom", "Vakuola"], correctAnswer: 0),
+      QuizQuestion(question: "Bagian terluar dari sel tumbuhan yang memberikan bentuk kaku adalah...", answers: ["Dinding sel", "Membran plasma", "Sitoplasma", "Inti sel"], correctAnswer: 0),
+      QuizQuestion(question: "Vakuola pada sel tumbuhan dewasa berfungsi untuk...", answers: ["Menyimpan cadangan air dan zat", "Pemberi warna daun", "Pusat respirasi sel", "Sintesis protein"], correctAnswer: 0),
+      QuizQuestion(question: "Organel yang menghasilkan energi (ATP) melalui respirasi sel adalah...", answers: ["Mitokondria", "Retikulum endoplasma", "Badan Golgi", "Lisosom"], correctAnswer: 0),
+      QuizQuestion(question: "Pusat pengendali seluruh aktivitas sel berada di dalam...", answers: ["Nukleus", "Ribosom", "Kloroplas", "Plastida"], correctAnswer: 0),
+      QuizQuestion(question: "Jalur transportasi zat di dalam sel yang dikelilingi membran disebut...", answers: ["Retikulum Endoplasma", "Vakuola", "Sentriol", "Dinding sel"], correctAnswer: 0),
+      QuizQuestion(question: "Pigmen hijau yang terdapat pada kloroplas tumbuhan dinamakan...", answers: ["Klorofil", "Karoten", "Antosianin", "Xantofil"], correctAnswer: 0),
+      QuizQuestion(question: "Badan Golgi pada sel tumbuhan sering juga disebut dengan istilah...", answers: ["Diktiosom", "Kromoplas", "Leukoplas", "Tonoplas"], correctAnswer: 0),
+      QuizQuestion(question: "Cairan sel tempat organel-organel sel berada disebut...", answers: ["Sitoplasma", "Nukleoplasma", "Matriks", "Serum"], correctAnswer: 0),
+      QuizQuestion(question: "Bagian sel yang bersifat selektif permeabel adalah...", answers: ["Membran sel", "Dinding sel", "Kapsul", "Pori sel"], correctAnswer: 0),
+    ];
   }
 
+  // 4. 10 Soal Spesifik untuk Topik: Interaksi Komponen Ekosistem
+  else if (widget.topic.title.contains("Ekosistem")) {
+    return [
+      QuizQuestion(question: "Komponen biotik dalam ekosistem meliputi...", answers: ["Produsen, konsumen, dan pengurai", "Suhu, tanah, dan air", "Cahaya, kelembapan, dan udara", "Batu, mineral, dan gas"], correctAnswer: 0),
+      QuizQuestion(question: "Hubungan makan dan dimakan antar makhluk hidup membentuk...", answers: ["Rantai makanan", "Jaring laba-laba", "Siklus biogeokimia", "Habitat alami"], correctAnswer: 0),
+      QuizQuestion(question: "Organisme yang mampu membuat makanannya sendiri melalui fotosintesis disebut...", answers: ["Produsen", "Konsumen tingkat I", "Karnivora", "Pengurai"], correctAnswer: 0),
+      QuizQuestion(question: "Bakteri dan jamur di dalam ekosistem berperan sebagai...", answers: ["Pengurai (Dekomposer)", "Produsen utama", "Konsumen puncak", "Parasit"], correctAnswer: 0),
+      QuizQuestion(question: "Simbiosis antara lebah dan bunga mawar termasuk dalam...", answers: ["Simbiosis mutualisme", "Simbiosis komensalisme", "Simbiosis parasitisme", "Predasi"], correctAnswer: 0),
+      QuizQuestion(question: "Kumpulan dari berbagai populasi yang hidup dalam suatu daerah disebut...", answers: ["Komunitas", "Individu", "Biosfer", "Ekosistem"], correctAnswer: 0),
+      QuizQuestion(question: "Interaksi antar makhluk hidup di mana satu pihak untung dan pihak lain dirugikan disebut...", answers: ["Parasitisme", "Mutualisme", "Komensalisme", "Netralisme"], correctAnswer: 0),
+      QuizQuestion(question: "Peran tumbuhan hijau dalam rantai makanan adalah sebagai...", answers: ["Produsen", "Konsumen II", "Dekomposer", "Karnivora"], correctAnswer: 0),
+      QuizQuestion(question: "Aliran energi dalam ekosistem diawali dari...", answers: ["Matahari", "Tanah", "Air", "Udara"], correctAnswer: 0),
+      QuizQuestion(question: "Ilmu yang mempelajari hubungan timbal balik antara makhluk hidup dan lingkungannya adalah...", answers: ["Ekologi", "Anatomi", "Genetika", "Fisiologi"], correctAnswer: 0),
+    ];
+  }
+
+  // 5. Soal Cadangan Umum (Jika ada topik lain)
+  return [
+    QuizQuestion(question: "Apa inti pembahasan utama dari topik ini?", answers: ["Konsep dan karakteristik dasar", "Hanya hafalan rumus", "Eksperimen kimia", "Sistem komputer"], correctAnswer: 0),
+    QuizQuestion(question: "Manakah komponen penting yang dipelajari?", answers: ["Struktur dan fungsi", "Sejarah kuno", "Jaringan LAN", "Bahasa pemograman"], correctAnswer: 0),
+    QuizQuestion(question: "Bagaimana proses dasar dari sistem tersebut?", answers: ["Berjalan secara terstruktur", "Terjadi secara acak", "Manual sepenuhnya", "Tidak ada alur"], correctAnswer: 0),
+    QuizQuestion(question: "Apa fungsi dari elemen pendukung materi ini?", answers: ["Menunjang efisiensi sistem", "Memperlambat proses", "Menghilangkan fungsi", "Hiasan visual"], correctAnswer: 0),
+    QuizQuestion(question: "Istilah manakah yang paling sering digunakan?", answers: ["Sistem dan Struktur", "Gravitasi", "Kompilasi", "Protokol"], correctAnswer: 0),
+    QuizQuestion(question: "Mengapa pemahaman materi ini penting?", answers: ["Sebagai fondasi biologi", "Hanya syarat ujian", "Tidak berpengaruh", "Analisis angka"], correctAnswer: 0),
+    QuizQuestion(question: "Karakteristik apa yang paling mencolok?", answers: ["Memiliki pola spesifik", "Berubah-ubah terus", "Tidak dapat diamati", "Statis pasif"], correctAnswer: 0),
+    QuizQuestion(question: "Proses ini berhubungan langsung dengan...", answers: ["Kelangsungan fungsi biologis", "Sistem operasi", "Kabel jaringan", "Mata uang"], correctAnswer: 0),
+    QuizQuestion(question: "Apa kesimpulan umum dari materi ini?", answers: ["Komponen bekerja sinergis", "Bagian berjalan sendiri", "Tidak ada hubungan", "Dibatasi waktu"], correctAnswer: 0),
+    QuizQuestion(question: "Evaluasi akhir apa yang biasanya diuji?", answers: ["Analisis struktur dan fungsi", "Kecepatan mengetik", "Perhitungan IP", "Desain UI"], correctAnswer: 0),
+  ];
+}
   void selectAnswer(int index) {
     if (answered) return;
 
