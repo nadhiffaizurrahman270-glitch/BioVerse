@@ -16,10 +16,10 @@ class TopicController extends ChangeNotifier {
 
     try {
       topics = await _topicService.getAllTopics();
-      print('Topik berhasil dimuat: ${topics.length}');
+      debugPrint('Topik berhasil dimuat: ${topics.length}');
     } catch (e) {
       errorMessage = e.toString();
-      print("Gagal mengambil topik: $e");
+      debugPrint("Gagal mengambil topik: $e");
     } finally {
       isLoading = false;
       notifyListeners();

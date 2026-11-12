@@ -5,7 +5,7 @@ import '../services/ai_tutor_service.dart'; // 1. Import Service AI Tutor
 import 'package:shimmer/shimmer.dart';
 
 class MateriScreen extends StatefulWidget {
-  const MateriScreen({Key? key}) : super(key: key);
+  const MateriScreen({super.key});
 
   @override
   State<MateriScreen> createState() => _MateriScreenState();
@@ -23,9 +23,9 @@ class _MateriScreenState extends State<MateriScreen> {
 
   // 2. Fungsi untuk menampilkan Dialog Pop-up BioBot AI Tutor
   void _showAITutorBottomSheet(BuildContext context) {
-    final TextEditingController _tanyaController = TextEditingController();
-    String _jawabanAI = '';
-    bool _isLoading = false;
+    final TextEditingController tanyaController = TextEditingController();
+    String jawabanAI = '';
+    bool isLoading = false;
 
     showModalBottomSheet(
       context: context,
@@ -59,35 +59,35 @@ class _MateriScreenState extends State<MateriScreen> {
                   ),
                   const SizedBox(height: 12),
                   TextField(
-                    controller: _tanyaController,
+                    controller: tanyaController,
                     decoration: InputDecoration(
                       hintText: 'Misal: Apa perbedaan sel hewan dan tumbuhan?',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.send, color: Colors.teal),
                         onPressed: () async {
-                          if (_tanyaController.text.isEmpty) return;
+                          if (tanyaController.text.isEmpty) return;
 
                           setModalState(() {
-                            _isLoading = true;
-                            _jawabanAI = '';
+                            isLoading = true;
+                            jawabanAI = '';
                           });
 
                           // Panggil endpoint FastAPI Gemini
-                          String hasil = await AITutorService.askBioBot(_tanyaController.text);
+                          String hasil = await AITutorService.askBioBot(tanyaController.text);
 
                           setModalState(() {
-                            _jawabanAI = hasil;
-                            _isLoading = false;
+                            jawabanAI = hasil;
+                            isLoading = false;
                           });
                         },
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (_isLoading)
+                  if (isLoading)
                     const Center(child: CircularProgressIndicator())
-                  else if (_jawabanAI.isNotEmpty)
+                  else if (jawabanAI.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -95,7 +95,7 @@ class _MateriScreenState extends State<MateriScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        _jawabanAI,
+                        jawabanAI,
                         style: const TextStyle(fontSize: 14, color: Colors.black87),
                       ),
                     ),

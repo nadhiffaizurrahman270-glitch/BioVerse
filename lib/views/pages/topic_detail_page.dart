@@ -8,7 +8,6 @@ import '../../controllers/progress_controller.dart';
 import '../../controllers/learning_stats_controller.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'login_page.dart';
-import '../../services/auth_service.dart';
 
 class TopicDetailPage extends StatefulWidget {
   final BiologyTopic topic;
@@ -169,7 +168,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
   @override
   void initState() {
     super.initState();
-    // Inisialisasi video jika videoId tersedia dari Firebase
+    // Inisialisasi video jika videoId tersedia
     if (widget.topic.videoId != null && widget.topic.videoId!.isNotEmpty) {
       _youtubeController = YoutubePlayerController.fromVideoId(
         videoId: widget.topic.videoId!,
@@ -901,7 +900,7 @@ class _TopicDetailPageState extends State<TopicDetailPage> {
 
               const SizedBox(height: 20),
 
-              // MATERI DARI FIREBASE
+              // MATERI
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),

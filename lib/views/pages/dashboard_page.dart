@@ -1,6 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_projek_1/controllers/bookmark_controller.dart'
     as bookmark_controller;
@@ -9,10 +7,10 @@ import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:flutter_projek_1/controllers/topic_controller.dart';
 import 'package:flutter_projek_1/models/biology_topic.dart';
 import 'package:flutter_projek_1/views/pages/user_profile_page.dart';
+import 'package:flutter_projek_1/services/api_service.dart';
 import 'package:flutter_projek_1/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import 'package:overlay_loader_with_app_icon/overlay_loader_with_app_icon.dart';
-
 import '../widgets/cell_background.dart';
 import 'about_page.dart';
 import 'achievement_page.dart';
@@ -166,17 +164,15 @@ class _DashboardPageState extends State<DashboardPage>
 
   Future<void> _loadUserAvatar() async {
     try {
-      // TODO: Panggil fungsi API milikmu untuk mengambil profil user
-      // Contoh: final profile = await ApiService.getUserProfile();
-      // final value = profile.avatarIndex;
-
-      // Untuk sementara, kita set default avatarIndex ke 0
-      int value = 0;
+      final profile = await ApiService.getUserProfile();
+      final value = profile['avatarIndex'];
 
       if (!mounted) return;
 
       setState(() {
-        if (value >= 0 && value < BioVerseAvatar.avatars.length) {
+        if (value is num &&
+          value >= 0 &&
+          value < BioVerseAvatar.avatars.length) {
           _avatarIndex = value.toInt();
         } else {
           _avatarIndex = 0;
@@ -184,6 +180,12 @@ class _DashboardPageState extends State<DashboardPage>
       });
     } catch (e) {
       debugPrint('Gagal memuat avatar dari server: $e');
+
+      if (mounted) {
+        setState(() {
+          _avatarIndex = 0;
+        });
+      }
     }
   }
 
@@ -804,7 +806,7 @@ class _DashboardPageState extends State<DashboardPage>
   Widget _buildExploreSection() {
     return Consumer<TopicController>(
       builder: (context, topicController, child) {
-        // Ambil data dinamis dari Firebase
+
         final topics = topicController.topics;
 
         // Tampilkan loading jika data masih diunduh

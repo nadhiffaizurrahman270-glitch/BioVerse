@@ -41,18 +41,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
     super.dispose();
   }
 
-  // 1. Memuat profil pengguna dari Backend API (FastAPI + PostgreSQL)
+  // 1. Memuat profil pengguna. Saat backend belum tersedia, gunakan data default.
   Future<void> _loadProfile() async {
     try {
-      // TODO: Panggil ApiService kamu di sini
-      await Future.delayed(const Duration(milliseconds: 500));
+      final profile = <String, dynamic>{
+        'name': 'Siswa BioVerse',
+        'email': 'siswa@bioverse.com',
+        'avatar_index': 0,
+      };
 
-      _nameController.text = 'Siswa BioVerse';
-      _emailController.text = 'siswa@bioverse.com';
-      _selectedAvatar = 0;
+      _nameController.text = profile['name'] ?? profile['username'] ?? 'Siswa BioVerse';
+      _emailController.text = profile['email'] ?? 'siswa@bioverse.com';
+      _selectedAvatar = profile['avatar_index'] ?? profile['avatarIndex'] ?? 0;
     } catch (e) {
       _loadError = e.toString();
-      debugPrint('Gagal memuat profil dari API: $e');
+      debugPrint('Gagal memuat profil: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -80,7 +83,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     });
   }
 
-  // Menyimpan nama dan avatar ke Firebase.
   Future<void> _saveProfile() async {
     final name = _nameController.text.trim();
 
@@ -122,7 +124,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '$step gagal. Periksa koneksi dan konfigurasi Firebase.',
+            '$step gagal. Periksa koneksi dan konfigurasi.',
           ),
           duration: const Duration(seconds: 5),
         ),

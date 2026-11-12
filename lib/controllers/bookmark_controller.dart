@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_projek_1/services/api_service.dart';
 import 'package:flutter_projek_1/controllers/topic_controller.dart';
 import 'package:flutter_projek_1/views/pages/topic_detail_page.dart';
 import 'package:flutter_projek_1/views/pages/dashboard_page.dart';
-import 'package:flutter_projek_1/services/auth_service.dart';
 
 class BookmarkController {
   static final ValueNotifier<List<String>> bookmarkedTopicTitles =
@@ -46,21 +46,35 @@ class _BookmarkPageState extends State<BookmarkPage> {
   String _searchQuery = '';
   String _username = 'Explorer';
 
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
   Future<void> _loadUserName() async {
     try {
-      // TODO: Ganti dengan pengambilan profil sungguhan dari API
-      // final profile = await ApiService.getUserProfile();
-      // final name = profile.name;
-      
+      final profile = await ApiService.getUserProfile();
+      final rawName = profile['name'];
+      final name = (rawName is String && rawName.isNotEmpty)
+          ? rawName
+          : "Pengguna Tanpa Nama";
+
       // Simulasi delay
       await Future.delayed(const Duration(milliseconds: 200));
       if (mounted) {
         setState(() {
-          _username = "Siswa BioVerse"; // Ganti 'name' dari API di sini
+          _username = name;
         });
       }
     } catch (e) {
       debugPrint("Gagal mengambil nama pengguna: $e");
+
+      if (mounted) {
+        setState(() {
+          _username = "User Bioverse";
+        });
+      }
     }
   }
 
