@@ -33,4 +33,18 @@ class ApiService {
       throw Exception('Terjadi kesalahan koneksi: $e');
     }
   }
+
+  Future<Map<String, dynamic>> getUserProfile() async {
+    try {
+      final response = await get(Uri.parse('${ApiConfig.baseUrl}/users/me'));
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        throw Exception('Gagal memuat profil: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Terjadi kesalahan koneksi: $e');
+    }
+  }
 }
