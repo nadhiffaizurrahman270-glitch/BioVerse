@@ -164,7 +164,7 @@ class _DashboardPageState extends State<DashboardPage>
 
   Future<void> _loadUserAvatar() async {
     try {
-      final profile = await ApiService.getUserProfile();
+      final profile = await ApiService().getUserProfile();
       final value = profile['avatarIndex'];
 
       if (!mounted) return;

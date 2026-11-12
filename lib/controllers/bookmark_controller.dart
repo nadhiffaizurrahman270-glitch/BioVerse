@@ -54,7 +54,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
 
   Future<void> _loadUserName() async {
     try {
-      final profile = await ApiService.getUserProfile();
+      final profile = await ApiService().getUserProfile();
       final rawName = profile['name'];
       final name = (rawName is String && rawName.isNotEmpty)
           ? rawName
