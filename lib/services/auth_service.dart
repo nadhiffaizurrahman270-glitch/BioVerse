@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/api_config.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   static final Dio _dio = Dio(
-    BaseOptions(baseUrl: 'http://127.0.0.1:8000/api/v1'),
+    BaseOptions(baseUrl: ApiConfig.baseUrl),
   );
   static const String _tokenKey = 'jwt_token';
 
@@ -39,7 +41,35 @@ class AuthService {
   // ==========================================
 
   static Future<String?> signInWithGoogle() async {
-    return 'Fitur Login Google sedang dialihkan ke server utama. Silakan gunakan email.';
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn.instance;
+      await googleSignIn.initialize();
+
+      final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
+
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        return 'Gagal mendapatkan token Google. Pastikan Client ID sudah diatur di web/index.html.';
+      }
+
+      final response = await _dio.post('/auth/google', data: {
+        'id_token': idToken,
+      });
+
+      final token = response.data['access_token'];
+      if (token != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_tokenKey, token);
+        return null;
+      }
+      return 'Token tidak ditemukan dari server.';
+    } on DioException catch (e) {
+      return 'Login Google gagal: ${e.response?.data['detail'] ?? e.message}';
+    } catch (e) {
+      return 'Terjadi kesalahan saat login dengan Google: $e';
+    }
   }
 
   // ==========================================
