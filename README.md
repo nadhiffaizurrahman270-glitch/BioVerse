@@ -1,8 +1,46 @@
-# 🧬 BIOVERSE
+## 🧬 BIOVERSE
 
 BioVerse adalah platform pembelajaran biologi interaktif berbasis web yang dirancang untuk membantu siswa memahami konsep-konsep biologi secara visual, terstruktur, dan menyenangkan. Dilengkapi dengan materi kurikulum interaktif, sistem kuis dan papan peringkat (leaderboard), serta asisten belajar cerdas berbasis AI (BioBot).
 
 ---
+
+## 🏗️ System Architecture Overview
+```text
+BioVerse Ecosystem
+├── Presentation Layer (Frontend — Flutter Web & Mobile)
+│   ├── UI & Views (lib/views/)
+│   │   ├── Landing & Catalog (HomePage, TopicDetailPage)
+│   │   ├── Authentication (LoginPage, SignUpPage + Google OAuth Web)
+│   │   └── Student Workspace (DashboardPage, MateriScreen, Leaderboard)
+│   ├── State Management (Provider / Controllers)
+│   │   ├── TopicController (Manajemen state daftar & detail materi)
+│   │   └── BookmarkController (Manajemen state materi tersimpan)
+│   └── Network & Storage Services (lib/services/)
+│       ├── ApiService & AuthService (Dio / HTTP Client + Bearer JWT Header)
+│       └── Local Storage (SharedPreferences untuk persistensi sesi token)
+│
+├── etwork Tunnel Layer (Private Mesh VPN)
+│   └── Tailscale VPN (Menghubungkan klien ke host server backend via IP privat port 8000)
+│
+└── Application & Data Layer (Backend — FastAPI Python)
+    ├── API Gateway & Middleware (main.py)
+    │   ├── CORSMiddleware (Cross-Origin Resource Sharing untuk Web & GitHub Pages)
+    │   └── Security & Auth Guard (OAuth2PasswordBearer, JWT HS256, Passlib Bcrypt/PBKDF2)
+    ├── REST API Endpoints (/api/v1)
+    │   ├── /auth/*        ──► Register, Login (OAuth2 Form), & Google ID Token Verification
+    │   ├── /users/me      ──► Profil pengguna aktif & kalkulasi total XP
+    │   ├── /materi/*      ──► CRUD & pengambilan katalog materi pembelajaran
+    │   ├── /scores & /leaderboard ──► Pencatatan skor kuis & agregasi peringkat SQL
+    │   └── /ai/tutor      ──► Pemrosesan prompt siswa ke layanan AI
+    └── External Integrations & Persistence
+        ├── PostgreSQL (bioverse_db via SQLAlchemy ORM)
+        │   ├── Tabel `users` (Data akun, kredensial terenkripsi, & role)
+        │   ├── Tabel `materi` (Konten biologi, kategori, level, & ID video edukasi)
+        │   └── Tabel `user_scores` (Relasi one-to-many riwayat skor & XP pengguna)
+        └── Google Cloud & AI Services
+            ├── Google Gemini API (Generative AI engine untuk BioBot Tutor)
+            └── Google Identity Services (Verifikasi token OAuth 2.0)
+```
 
 ## ✨ Fitur
 
