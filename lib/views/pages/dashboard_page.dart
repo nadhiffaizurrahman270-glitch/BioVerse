@@ -20,6 +20,7 @@ import 'login_page.dart';
 import 'progress_page.dart';
 import 'topic_detail_page.dart';
 import '../../screens/materi_screen.dart';
+import '../../screens/ai_tutor_screen.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -189,6 +190,13 @@ class _DashboardPageState extends State<DashboardPage>
     }
   }
 
+  void _openAiTutor() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AiTutorScreen()),
+    );
+  }
+
   Future<void> _scrollTo(GlobalKey key) async {
     final targetContext = key.currentContext;
     if (targetContext == null) return;
@@ -232,6 +240,13 @@ class _DashboardPageState extends State<DashboardPage>
               ),
             ),
           ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _openAiTutor,
+          backgroundColor: const Color(0xFF166534),
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.smart_toy),
+          label: const Text('Tanya AI'),
         ),
       ),
     );
@@ -295,6 +310,8 @@ class _DashboardPageState extends State<DashboardPage>
             _navButton('Dashboard', onTap: () => _scrollTo(_dashboardKey)),
             const SizedBox(width: 10),
             _navButton('Learn', onTap: () => _scrollTo(_learnKey)),
+            const SizedBox(width: 10),
+            _navButton('AI Tutor', onTap: _openAiTutor),
             const SizedBox(width: 10),
             _navButton(
               'Explore',

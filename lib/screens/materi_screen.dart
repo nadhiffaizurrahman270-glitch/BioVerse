@@ -21,6 +21,13 @@ class _MateriScreenState extends State<MateriScreen> {
     _materiFuture = _apiService.fetchMateri();
   }
 
+  // Memuat ulang daftar materi (mis. setelah backend sempat 503).
+  void _reload() {
+    setState(() {
+      _materiFuture = _apiService.fetchMateri();
+    });
+  }
+
   // 2. Fungsi untuk menampilkan Dialog Pop-up BioBot AI Tutor
   void _showAITutorBottomSheet(BuildContext context) {
     final TextEditingController tanyaController = TextEditingController();
@@ -74,7 +81,14 @@ class _MateriScreenState extends State<MateriScreen> {
                           });
 
                           // Panggil endpoint FastAPI Gemini
-                          String hasil = await AITutorService.askBioBot(tanyaController.text);
+                          String hasil;
+                          try {
+                            hasil = await AITutorService.askBioBot(
+                              tanyaController.text,
+                            );
+                          } catch (error) {
+                            hasil = 'Gagal menghubungi BioBot: $error';
+                          }
 
                           setModalState(() {
                             jawabanAI = hasil;
@@ -139,7 +153,40 @@ class _MateriScreenState extends State<MateriScreen> {
             ),
           );
         }
-          final listMateri = snapshot.data!;
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.cloud_off, size: 56, color: Colors.teal),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Materi belum bisa dimuat',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Pastikan backend BioVerse sedang berjalan, lalu coba lagi.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: _reload,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Coba lagi'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          final listMateri = snapshot.data ?? const <BiologyTopic>[];
           return ListView.builder(
             itemCount: listMateri.length,
             itemBuilder: (context, index) {

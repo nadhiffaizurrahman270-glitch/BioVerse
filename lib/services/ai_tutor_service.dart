@@ -5,11 +5,13 @@ import '../config/api_config.dart';
 class AITutorService {
   static Future<String> askBioBot(String pertanyaan) async {
     try {
-      final response = await http.post(
-        Uri.parse(ApiConfig.aiTutorUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'pertanyaan': pertanyaan}),
-      );
+      final response = await http
+          .post(
+            Uri.parse(ApiConfig.aiTutorUrl),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'pertanyaan': pertanyaan}),
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

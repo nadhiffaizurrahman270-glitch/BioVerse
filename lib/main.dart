@@ -6,10 +6,14 @@ import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:provider/provider.dart';
 import 'controllers/topic_controller.dart';
 import 'views/pages/dashboard_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'screens/gemini_chat_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await dotenv.load(fileName: ".env");
   await LearningStatsController.init();
 
   runApp(
@@ -32,11 +36,11 @@ class BioVerseApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'BioVerse',
       theme: ThemeData(
-        fontFamily: 'Poppins',
-        scaffoldBackgroundColor: Colors.white,
-        useMaterial3: true,
-        primarySwatch: Colors.blue,
-      ),
+  textTheme: GoogleFonts.poppinsTextTheme(),
+  scaffoldBackgroundColor: Colors.white,
+  useMaterial3: true,
+  primarySwatch: Colors.blue,
+),
       home: const DashboardPage(),
     );
   }

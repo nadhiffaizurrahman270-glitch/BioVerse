@@ -46,3 +46,14 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Environment & secrets
+# Root .env sengaja TIDAK diabaikan karena dipakai sebagai asset Flutter.
+# File .env backend berisi password database + API key, jangan pernah di-commit.
+backend/.env
+
+# Python backend
+backend/.venv/
+__pycache__/
+*.pyo
+
