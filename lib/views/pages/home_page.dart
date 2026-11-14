@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
+import '../../screens/ai_tutor_screen.dart';
 import '../../models/biology_topic.dart';
 import 'topic_detail_page.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,11 @@ class _HomePageState extends State<HomePage> {
   void _login(BuildContext context) => Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+
+  void _openAiTutor() => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AiTutorScreen()),
       );
 
   void _scroll(BuildContext context, GlobalKey key) {
@@ -449,6 +455,24 @@ IconData _getIconForCategory(String category) {
                   ),
                 ],
 
+                if (wide)
+                  TextButton.icon(
+                    onPressed: _openAiTutor,
+                    icon: const Icon(Icons.smart_toy_outlined, size: 18),
+                    label: const Text('Tanya AI'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: HomePage.green,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  )
+                else
+                  IconButton(
+                    onPressed: _openAiTutor,
+                    tooltip: 'Tanya AI',
+                    icon: const Icon(Icons.smart_toy_outlined),
+                    color: HomePage.green,
+                  ),
                 TextButton(
                   onPressed: () => _login(context),
                   style: TextButton.styleFrom(
