@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'login_page.dart';
 import '../../models/biology_topic.dart';
 import 'topic_detail_page.dart';
+import 'package:provider/provider.dart';
+import '../../controllers/topic_controller.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -23,58 +25,6 @@ class _HomePageState extends State<HomePage> {
 
   String _searchQuery = '';
 
-  final List<Map<String, dynamic>> _allTopics = [
-    {
-      'icon': Icons.biotech_rounded,
-      'title': 'DNA & Genetics',
-      'desc': 'Explore genetic information, DNA structures, and the traits that make organisms unique.',
-      'tag': 'GENETICS',
-      'level': 'Beginner',
-    },
-    {
-      'icon': Icons.bubble_chart_rounded,
-      'title': 'Cell Biology',
-      'desc': 'Discover cells, their organelles, and how these tiny building blocks keep life running.',
-      'tag': 'MICRO WORLD',
-      'level': 'Beginner',
-    },
-    {
-      'icon': Icons.coronavirus_outlined,
-      'title': 'Viruses',
-      'desc': 'Understand virus structures, how they spread, and their relationship with living organisms.',
-      'tag': 'VIROLOGY',
-      'level': 'Intermediate',
-    },
-    {
-      'icon': Icons.eco_rounded,
-      'title': 'Life & Ecosystems',
-      'desc': 'Learn how organisms interact with each other and the environments they call home.',
-      'tag': 'ECOLOGY',
-      'level': 'Intermediate',
-    },
-    {
-      'icon': Icons.wb_sunny_rounded,
-      'title': 'Photosynthesis',
-      'desc': 'The amazing process by which plants convert sunlight into food.',
-      'tag': 'PLANT BIOLOGY',
-      'level': 'Intermediate',
-    },
-    {
-      'icon': Icons.public_rounded,
-      'title': 'Biodiversity',
-      'desc': 'Learn about the various levels of diversity among living organisms on Earth.',
-      'tag': 'ECOLOGY',
-      'level': 'Beginner',
-    },
-    {
-      'icon': Icons.accessibility_new_rounded,
-      'title': 'Human Body Anatomy',
-      'desc': 'Get to know the organ systems that work together in our body.',
-      'tag': 'ANATOMY',
-      'level': 'Intermediate',
-    },
-  ];
-
   void _login(BuildContext context) => Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -89,108 +39,94 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-Widget _topic(
-  IconData icon,
-  String number,
-  String title,
-  String description,
-  String tag,
-) =>
-    InkWell(
+IconData _getIconForCategory(String category) {
+    final cat = category.toUpperCase();
+    if (cat.contains('GENETICS')) return Icons.biotech_rounded;
+    if (cat.contains('MICRO') || cat.contains('CELL')) return Icons.bubble_chart_rounded;
+    if (cat.contains('VIRUS') || cat.contains('VIROLOGY')) return Icons.coronavirus_outlined;
+    if (cat.contains('PLANT')) return Icons.wb_sunny_rounded;
+    if (cat.contains('ANATOMY')) return Icons.accessibility_new_rounded;
+    return Icons.eco_rounded; // Default icon
+  }
+
+  Widget _topicWidget(BiologyTopic topic) => InkWell(
       onTap: () {
-        final topic = BiologyTopic(
-          id: number,
-          title: title,
-          description: description,
-          category: tag,
-          level: 'Beginner',
-          content: 'Materi belum tersedia.',
-        );
-
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TopicDetailPage(topic: topic),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 24,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFE3ECE5),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: HomePage.darkGreen.withValues(alpha: .04),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
+            context,
+            MaterialPageRoute(
+              builder: (context) => TopicDetailPage(topic: topic),
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: HomePage.green, size: 48),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: HomePage.darkGreen,
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE3ECE5), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: HomePage.darkGreen.withValues(alpha: .04),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              description,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Color(0xFF68766D),
-                fontSize: 12,
-                height: 1.4,
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(_getIconForCategory(topic.category), color: HomePage.green, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                topic.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: HomePage.darkGreen,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: HomePage.paleGreen,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    tag.toUpperCase(),
-                    style: const TextStyle(
-                      color: HomePage.green,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: .5,
+              const SizedBox(height: 8),
+              Text(
+                topic.description,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0xFF68766D),
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: HomePage.paleGreen,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      (topic.category.isEmpty ? 'BIOLOGY' : topic.category).toUpperCase(),
+                      style: const TextStyle(
+                        color: HomePage.green,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: .5,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
 
   Widget _buildBenefitsSection(bool wide, double width) {
     final isMobile = width < 600;
@@ -410,11 +346,11 @@ Widget _topic(
     final padding = width >= 1100 ? 76.0 : width >= 650 ? 38.0 : 22.0;
     
 
-    final filteredTopics = _allTopics.where((topic) {
-      final titleMatch =
-          topic['title'].toLowerCase().contains(_searchQuery.toLowerCase());
-      final descMatch =
-          topic['desc'].toLowerCase().contains(_searchQuery.toLowerCase());
+    final topics = context.watch<TopicController>().topics;
+    final query = _searchQuery.trim().toLowerCase();
+    final filteredTopics = topics.where((topic) {
+      final titleMatch = topic.title.toLowerCase().contains(query);
+      final descMatch = topic.description.toLowerCase().contains(query);
       return titleMatch || descMatch;
     }).toList();
     
@@ -666,28 +602,63 @@ Widget _topic(
                 const SizedBox(height: 24),
               ],
 
-              GridView.count(
-                crossAxisCount: width >= 1100 ? 4 : width >= 700 ? 3 : width >= 480 ? 2 : 1,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: width >= 1100
-                    ? 1.05
-                    : width >= 700
-                        ? 0.90
-                        : 1.35,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: filteredTopics.map((topic) {
-                  return _topic(
-                    topic['icon'],
-                    topic['title'],
-                    topic['desc'],
-                    topic['tag'],
-                    topic['level'],
+              Consumer<TopicController>(
+                builder: (context, topicController, child) {
+                  // 1. Tampilkan loading jika sedang mengambil data
+                  if (topicController.isLoading) {
+                    return const Padding(
+                      padding: EdgeInsets.all(40.0),
+                      child: Center(
+                        child: CircularProgressIndicator(color: HomePage.green),
+                      ),
+                    );
+                  }
+
+                  // 2. Tampilkan pesan error jika gagal mengambil data
+                  if (topicController.errorMessage != null) {
+                    return Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Center(
+                        child: Text(
+                          'Gagal memuat materi: ${topicController.errorMessage}',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    );
+                  }
+
+                  // 3. Tampilkan pesan jika database kosong
+                  if (topicController.topics.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(40.0),
+                      child: Center(child: Text('Belum ada materi biologi yang tersedia.')),
+                    );
+                  }
+
+                  // 4. filter pencarian pada data asli
+                  final filteredTopics = topicController.topics.where((topic) {
+                    final title = (topic.title).toLowerCase();
+                    final desc = (topic.description).toLowerCase();
+                    final search = _searchQuery.toLowerCase();
+                    return title.contains(search) || desc.contains(search);
+                  }).toList();
+
+                  // 5. Render GridView dengan data dari database
+                  return GridView.count(
+                    crossAxisCount: width >= 1100 ? 4 : width >= 700 ? 3 : width >= 480 ? 2 : 1,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: width >= 1100 ? 1.05 : width >= 700 ? 0.90 : 1.35,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: filteredTopics.map((topic) {
+                      return _topicWidget(topic); 
+                    }).toList(),
                   );
-                }).toList(),
+                },
               ),
-            ]),
+              ],
+            ),
           ),
 
           const SizedBox(height: 60),
@@ -801,17 +772,20 @@ Widget _topic(
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 25,
               runSpacing: 15,
-              children: const [
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.eco_rounded, color: Color(0xFF78D998), size: 25),
-                  SizedBox(width: 10),
-                  Text('BioVerse',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 19,
-                          fontWeight: FontWeight.w900)),
-                ]),
-                Text('Explore life. Understand science. Grow your curiosity.',
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.eco_rounded, color: Color(0xFF78D998), size: 25),
+                    SizedBox(width: 10),
+                    Text('BioVerse',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 19,
+                            fontWeight: FontWeight.w900)),
+                  ],
+                ),
+                const Text('Explore life. Understand science. Grow your curiosity.',
                     style: TextStyle(color: Color(0xFFB8CEC0), fontSize: 13)),
               ],
             ),
@@ -991,6 +965,9 @@ class _HeroCarouselState extends State<_HeroCarousel> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TopicController>().fetchTopics();
+    }); 
     Future.delayed(const Duration(seconds: 5), _autoAdvance);
   }
 
