@@ -1,34 +1,20 @@
 """
-Data materi biologi.
-
-Ini TIDAK menyentuh Firestore (yang dipakai TopicService / TopicController
-di sisi Flutter) ataupun database kasir lain mana pun. Ini sumber data
-terpisah, khusus untuk endpoint /api/v1/materi yang dipanggil ApiService
-di lib/services/api_service.dart.
-
-Judul (`judul`) sengaja dibuat SAMA PERSIS dengan key di
-lib/models/quiz_data.dart, supaya kuis di TopicDetailPage
-(`quizData[widget.topic.title]`) tetap ketemu datanya:
-
+Auto-seeder data awal materi biologi ke PostgreSQL.
+Judul materi sengaja dibuat SAMA PERSIS dengan key di lib/models/quiz_data.dart
+agar kuis di TopicDetailPage (quizData[widget.topic.title]) tetap cocok:
     'DNA & Genetics', 'Cell Biology', 'Viruses', 'Life & Ecosystems'
-
-Kalau mau menambah topik baru, tambahkan dict baru di MATERI dengan id unik,
-atau tambahkan quiz baru dengan judul yang sama di quiz_data.dart kalau mau
-topik itu juga punya kuis.
 """
 
-from __future__ import annotations
+from sqlalchemy.orm import Session
+import models
 
-from .schemas import MateriOut
-
-MATERI: list[MateriOut] = [
-    MateriOut(
-        id=1,
-        judul="DNA & Genetics",
-        deskripsi="Struktur DNA, basa nitrogen, dan dasar-dasar genetika.",
-        kategori="Genetics",
-        level="Beginner",
-        konten=(
+INITIAL_MATERI = [
+    {
+        "judul": "DNA & Genetics",
+        "deskripsi": "Struktur DNA, basa nitrogen, dan dasar-dasar genetika.",
+        "kategori": "Genetics",
+        "level": "Beginner",
+        "konten": (
             "# DNA & Genetics\n\n"
             "DNA (*Deoxyribonucleic Acid*) adalah molekul pembawa informasi "
             "genetik pada hampir semua makhluk hidup. DNA berbentuk **double "
@@ -44,15 +30,14 @@ MATERI: list[MateriOut] = [
             "urutannya menyimpan instruksi genetik yang diwariskan dari "
             "orang tua ke keturunannya."
         ),
-        video_id=None,
-    ),
-    MateriOut(
-        id=2,
-        judul="Cell Biology",
-        deskripsi="Struktur sel sebagai unit dasar kehidupan.",
-        kategori="Cell Biology",
-        level="Beginner",
-        konten=(
+        "video_id": None,
+    },
+    {
+        "judul": "Cell Biology",
+        "deskripsi": "Struktur sel sebagai unit dasar kehidupan.",
+        "kategori": "Cell Biology",
+        "level": "Beginner",
+        "konten": (
             "# Cell Biology\n\n"
             "Sel adalah unit struktural dan fungsional terkecil dari semua "
             "makhluk hidup. Ada dua jenis sel utama: **sel prokariotik** "
@@ -67,15 +52,14 @@ MATERI: list[MateriOut] = [
             "Memahami struktur sel adalah dasar untuk memahami bagaimana "
             "seluruh tubuh makhluk hidup bekerja."
         ),
-        video_id=None,
-    ),
-    MateriOut(
-        id=3,
-        judul="Viruses",
-        deskripsi="Struktur virus dan cara virus menginfeksi sel inang.",
-        kategori="Microbiology",
-        level="Intermediate",
-        konten=(
+        "video_id": None,
+    },
+    {
+        "judul": "Viruses",
+        "deskripsi": "Struktur virus dan cara virus menginfeksi sel inang.",
+        "kategori": "Microbiology",
+        "level": "Intermediate",
+        "konten": (
             "# Viruses\n\n"
             "Virus adalah partikel mikroskopis yang hanya bisa bereplikasi "
             "di dalam sel inang. Virus tidak dianggap sepenuhnya hidup "
@@ -93,15 +77,14 @@ MATERI: list[MateriOut] = [
             "4. Perakitan partikel virus baru\n"
             "5. Pelepasan (lisis sel inang)"
         ),
-        video_id=None,
-    ),
-    MateriOut(
-        id=4,
-        judul="Life & Ecosystems",
-        deskripsi="Interaksi makhluk hidup dengan lingkungannya dalam ekosistem.",
-        kategori="Ecology",
-        level="Beginner",
-        konten=(
+        "video_id": None,
+    },
+    {
+        "judul": "Life & Ecosystems",
+        "deskripsi": "Interaksi makhluk hidup dengan lingkungannya dalam ekosistem.",
+        "kategori": "Ecology",
+        "level": "Beginner",
+        "konten": (
             "# Life & Ecosystems\n\n"
             "Ekosistem adalah satuan interaksi antara makhluk hidup "
             "(komponen biotik) dengan lingkungan fisiknya (komponen "
@@ -117,14 +100,14 @@ MATERI: list[MateriOut] = [
             "membentuk jaring-jaring makanan yang menjaga keseimbangan "
             "ekosistem."
         ),
-        video_id=None,
-    ),
+        "video_id": None,
+    },
 ]
 
 
-def get_all_materi() -> list[MateriOut]:
-    return MATERI
-
-
-def get_materi_by_id(materi_id: int) -> MateriOut | None:
-    return next((m for m in MATERI if m.id == materi_id), None)
+def seed_initial_materi(db: Session) -> None:
+    """Mengisi 4 materi default ke PostgreSQL jika tabel materi masih kosong."""
+    if db.query(models.Materi).count() == 0:
+        for item in INITIAL_MATERI:
+            db.add(models.Materi(**item))
+        db.commit()
