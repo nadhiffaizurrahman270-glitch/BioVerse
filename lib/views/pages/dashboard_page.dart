@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_projek_1/controllers/bookmark_controller.dart'
     as bookmark_controller;
@@ -9,6 +10,7 @@ import 'package:flutter_projek_1/models/biology_topic.dart';
 import 'package:flutter_projek_1/views/pages/user_profile_page.dart';
 import 'package:flutter_projek_1/services/api_service.dart';
 import 'package:flutter_projek_1/services/auth_service.dart';
+import 'package:flutter_projek_1/services/avatar_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:overlay_loader_with_app_icon/overlay_loader_with_app_icon.dart';
 import '../widgets/cell_background.dart';
@@ -33,12 +35,14 @@ class BioVerseAvatar extends StatelessWidget {
   final int avatarIndex;
   final double radius;
   final String? photoUrl;
+  final Uint8List? photoBytes;
 
   const BioVerseAvatar({
     super.key,
     required this.avatarIndex,
     this.radius = 28,
     this.photoUrl,
+    this.photoBytes,
   });
 
   static const Color primaryColor = Color(0xFF166534);
@@ -67,7 +71,9 @@ class BioVerseAvatar extends StatelessWidget {
         child: SizedBox(
           width: radius * 2,
           height: radius * 2,
-          child: photoUrl != null && photoUrl!.isNotEmpty
+          child: photoBytes != null
+              ? Image.memory(photoBytes!, fit: BoxFit.cover)
+              : photoUrl != null && photoUrl!.isNotEmpty
               ? Image.network(
                   photoUrl!,
                   fit: BoxFit.cover,
@@ -100,6 +106,7 @@ class _DashboardPageState extends State<DashboardPage>
 
       
   int _avatarIndex = 0;
+  Uint8List? _avatarPhoto;
   final TopicController _topicController = TopicController();
   IconData _getTopicIcon(int index) {
     const icons = [
@@ -164,6 +171,10 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Future<void> _loadUserAvatar() async {
+    // Foto custom disimpan lokal, jadi tetap muncul walau API gagal.
+    final photo = await AvatarStorage.load();
+    if (mounted) setState(() => _avatarPhoto = photo);
+
     try {
       final profile = await ApiService().getUserProfile();
       final value = profile['avatarIndex'];
@@ -706,6 +717,7 @@ class _DashboardPageState extends State<DashboardPage>
 
               BioVerseAvatar(
                 avatarIndex: _avatarIndex,
+                photoBytes: _avatarPhoto,
                 radius: _virusHovered ? 88 : 78,
                 photoUrl: null,
               ),

@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>BioVerse membutuhkan akses galeri untuk memilih foto profil.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>BioVerse membutuhkan kamera untuk mengambil foto profil.</string>
 </dict>
 </plist>

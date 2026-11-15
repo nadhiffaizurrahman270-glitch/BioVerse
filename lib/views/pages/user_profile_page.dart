@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import '../../services/avatar_storage.dart';
 import 'avatar_page.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -17,6 +20,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   final TextEditingController _emailController = TextEditingController();
 
   int _selectedAvatar = 0;
+  Uint8List? _customPhoto;
 
   bool _loading = false;
   bool _initialized = false;
@@ -25,7 +29,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   final List<String> _avatarPaths = List.generate(
     7,
-    (index) => 'assets/avatars/avatar_${index + 1}.png',
+    (index) => 'assets/image/avatars/avatar_${index + 1}.png',
   );
 
   @override
@@ -53,6 +57,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       _nameController.text = profile['name'] ?? profile['username'] ?? 'Siswa BioVerse';
       _emailController.text = profile['email'] ?? 'siswa@bioverse.com';
       _selectedAvatar = profile['avatar_index'] ?? profile['avatarIndex'] ?? 0;
+      _customPhoto = await AvatarStorage.load();
     } catch (e) {
       _loadError = e.toString();
       debugPrint('Gagal memuat profil: $e');
@@ -78,8 +83,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
     if (!mounted || result == null) return;
 
+    // Foto custom (kalau ada) sudah disimpan oleh halaman avatar.
+    final photo = await AvatarStorage.load();
+    if (!mounted) return;
+
     setState(() {
       _selectedAvatar = result;
+      _customPhoto = photo;
     });
   }
 
@@ -151,7 +161,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
-      child: Image.asset(
+      child: _customPhoto != null
+          ? Image.memory(
+              _customPhoto!,
+              fit: BoxFit.cover,
+            )
+          : Image.asset(
         _avatarPaths[index],
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {

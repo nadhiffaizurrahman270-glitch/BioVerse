@@ -1,4 +1,11 @@
+import 'dart:typed_data';
+
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../services/avatar_storage.dart';
+import 'crop_avatar_page.dart';
 
 class ChooseAvatarPage extends StatefulWidget {
   final int initialAvatarIndex;
@@ -19,6 +26,11 @@ class _ChooseAvatarPageState extends State<ChooseAvatarPage> {
 
   late int selectedAvatarIndex;
 
+  // Foto custom hasil crop (null = pakai avatar bawaan).
+  Uint8List? _customPhoto;
+  bool _saving = false;
+  final ImagePicker _picker = ImagePicker();
+
   final List<String> avatarPaths = List.generate(
     7,
     (index) => 'assets/image/avatars/avatar_${index + 1}.png',
@@ -30,6 +42,103 @@ class _ChooseAvatarPageState extends State<ChooseAvatarPage> {
 
     selectedAvatarIndex = widget.initialAvatarIndex
         .clamp(0, avatarPaths.length - 1);
+
+    _loadCustomPhoto();
+  }
+
+  Future<void> _loadCustomPhoto() async {
+    final bytes = await AvatarStorage.load();
+    if (!mounted || bytes == null) return;
+    setState(() => _customPhoto = bytes);
+  }
+
+  // Pilih foto dari galeri/kamera -> crop 1:1 -> jadikan avatar.
+  Future<void> _pickAndCropPhoto(ImageSource source) async {
+    try {
+      final picked = await _picker.pickImage(
+        source: source,
+        maxWidth: 2048,
+        maxHeight: 2048,
+      );
+      if (picked == null) return;
+
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+
+      final cropped = await Navigator.push<Uint8List>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CropAvatarPage(imageBytes: bytes),
+        ),
+      );
+
+      if (!mounted || cropped == null) return;
+      setState(() => _customPhoto = cropped);
+    } catch (e) {
+      debugPrint('Gagal memilih foto: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak bisa membuka foto.')),
+      );
+    }
+  }
+
+  void _showPhotoSourceSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Pilih dari galeri'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _pickAndCropPhoto(ImageSource.gallery);
+              },
+            ),
+            if (!kIsWeb)
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Ambil foto'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickAndCropPhoto(ImageSource.camera);
+                },
+              ),
+            if (_customPhoto != null)
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text('Hapus foto'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  setState(() => _customPhoto = null);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirm() async {
+    setState(() => _saving = true);
+    try {
+      if (_customPhoto != null) {
+        await AvatarStorage.save(_customPhoto!);
+      } else {
+        await AvatarStorage.clear();
+      }
+      if (!mounted) return;
+      Navigator.pop(context, selectedAvatarIndex);
+    } catch (e) {
+      debugPrint('Gagal menyimpan avatar: $e');
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal menyimpan avatar.')),
+      );
+    }
   }
 
   Widget buildAvatarImage(int index) {
@@ -72,7 +181,14 @@ class _ChooseAvatarPageState extends State<ChooseAvatarPage> {
             ],
           ),
           child: ClipOval(
-            child: buildAvatarImage(selectedAvatarIndex),
+            child: _customPhoto != null
+                ? Image.memory(
+                    _customPhoto!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  )
+                : buildAvatarImage(selectedAvatarIndex),
           ),
         ),
         const SizedBox(height: 20),
@@ -86,7 +202,9 @@ class _ChooseAvatarPageState extends State<ChooseAvatarPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Avatar ${selectedAvatarIndex + 1}',
+          _customPhoto != null
+              ? 'Foto kamu'
+              : 'Avatar ${selectedAvatarIndex + 1}',
           style: const TextStyle(
             fontSize: 15,
             color: Colors.black54,
@@ -127,7 +245,25 @@ class _ChooseAvatarPageState extends State<ChooseAvatarPage> {
           ),
         ),
         
-        const SizedBox(height: 20),
+        const SizedBox(height: 14),
+
+        OutlinedButton.icon(
+          onPressed: _saving ? null : _showPhotoSourceSheet,
+          icon: const Icon(Icons.add_a_photo_outlined),
+          label: Text(
+            _customPhoto != null ? 'Ganti Foto' : 'Upload Foto Sendiri',
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: primaryGreen,
+            side: const BorderSide(color: primaryGreen),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 16),
 
         Expanded(
           child: GridView.builder(
@@ -144,13 +280,15 @@ class _ChooseAvatarPageState extends State<ChooseAvatarPage> {
               childAspectRatio: 0.95,
             ),
             itemBuilder: (context, index) {
-              final isSelected = selectedAvatarIndex == index;
+              final isSelected =
+                  _customPhoto == null && selectedAvatarIndex == index;
 
               return InkWell(
                 borderRadius: BorderRadius.circular(20),
                 onTap: () {
                   setState(() {
                     selectedAvatarIndex = index;
+                    _customPhoto = null; // pilih bawaan = lepas foto custom
                   });
                 },
                 child: AnimatedContainer(
@@ -301,12 +439,7 @@ class _ChooseAvatarPageState extends State<ChooseAvatarPage> {
                         width: double.infinity,
                         height: 54,
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(
-                              context,
-                              selectedAvatarIndex,
-                            );
-                          },
+                          onPressed: _saving ? null : _confirm,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryGreen,
                             foregroundColor: Colors.white,
