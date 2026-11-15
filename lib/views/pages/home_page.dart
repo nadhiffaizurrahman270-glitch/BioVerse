@@ -5,6 +5,7 @@ import '../../models/biology_topic.dart';
 import 'topic_detail_page.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/topic_controller.dart';
+import 'package:share_plus/share_plus.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -127,6 +128,30 @@ IconData _getIconForCategory(String category) {
                       ),
                     ),
                   ),
+                InkWell(
+            onTap: () {
+              SharePlus.instance.share(
+                ShareParams(
+                  text:
+                      'Yuk pelajari materi "${topic.title}" di aplikasi BioVerse!\n\n${topic.description}',
+                  subject: topic.title,
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: HomePage.paleGreen,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.share_rounded,
+                size: 14,
+                color: HomePage.green,
+              ),
+            ),
+          ),
                 ],
               ),
             ],
