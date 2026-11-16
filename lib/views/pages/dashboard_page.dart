@@ -23,6 +23,7 @@ import 'progress_page.dart';
 import 'topic_detail_page.dart';
 import '../../screens/materi_screen.dart';
 import '../../screens/ai_tutor_screen.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -1267,6 +1268,27 @@ class _TopicCardState extends State<_TopicCard> {
               ),
               child: Stack(
                 children: [
+                  Positioned(
+              top: -6,
+              right: 30,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.share_outlined,
+                  color: Colors.grey,
+                  size: 19,
+                ),
+                tooltip: 'Bagikan Materi',
+                onPressed: () {
+                  SharePlus.instance.share(
+                    ShareParams(
+                      text:
+                          'Yuk pelajari materi "${widget.topic.title}" di aplikasi BioVerse!\n\n${widget.topic.description}',
+                      subject: widget.topic.title,
+                    ),
+                  );
+                },
+              ),
+            ),
                   Positioned(
                     top: -6,
                     right: -6,
