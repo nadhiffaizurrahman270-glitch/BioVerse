@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,16 +46,24 @@ class AuthService {
 
   static Future<void>? _googleInit;
 
-  /// initialize() hanya boleh sekali.
-  static Future<void> initGoogle() {
+  /// Inisialisasi Google Sign-In satu kali saja.
+  /// Di web, Client ID dibaca dari <meta name="google-signin-client_id">
+  /// di web/index.html.
+  static Future<void> ensureGoogleInitialized() {
     return _googleInit ??= GoogleSignIn.instance.initialize();
   }
 
-  /// Tukar id_token Google dengan JWT backend lalu simpan.
-  static Future<String?> _exchangeGoogleToken(String? idToken) async {
-    if (idToken == null) {
-      return 'Gagal mendapatkan token Google. Pastikan Client ID sudah diatur di web/index.html.';
-    }
+  /// Stream hasil login Google. Di Flutter Web, hasil login dari tombol
+  /// resmi Google masuk lewat stream ini (authenticate() tidak didukung web).
+  static Future<Stream<GoogleSignInAuthenticationEvent>>
+      googleAuthEvents() async {
+    await ensureGoogleInitialized();
+    return GoogleSignIn.instance.authenticationEvents;
+  }
+
+  /// Tukar id_token Google dengan JWT BioVerse dari backend.
+  /// Mengembalikan null jika sukses, atau pesan error.
+  static Future<String?> loginWithGoogleIdToken(String idToken) async {
     try {
       final response = await _dio.post('/auth/google', data: {
         'id_token': idToken,
@@ -79,32 +85,32 @@ class AuthService {
     }
   }
 
-  /// WEB: dengarkan event login dari tombol resmi Google (renderButton).
-  /// [onResult] dipanggil dengan null jika sukses, atau pesan error.
-  static Future<StreamSubscription<GoogleSignInAuthenticationEvent>>
-      listenGoogleWebSignIn(void Function(String? error) onResult) async {
-    await initGoogle();
-    return GoogleSignIn.instance.authenticationEvents.listen(
-      (event) async {
-        if (event is GoogleSignInAuthenticationEventSignIn) {
-          onResult(
-            await _exchangeGoogleToken(event.user.authentication.idToken),
-          );
-        }
-      },
-      onError: (Object e) => onResult('Login Google gagal: $e'),
-    );
-  }
-
-  /// MOBILE/DESKTOP: login Google lewat dialog native.
+  /// Login Google untuk Android/iOS/desktop (tombol kustom).
+  /// Di web gunakan tombol resmi + googleAuthEvents().
   static Future<String?> signInWithGoogle() async {
     if (kIsWeb) {
-      return 'Gunakan tombol Google resmi di halaman login.';
+      return 'Di web, gunakan tombol resmi Google.';
     }
     try {
-      await initGoogle();
-      final googleUser = await GoogleSignIn.instance.authenticate();
-      return _exchangeGoogleToken(googleUser.authentication.idToken);
+      await ensureGoogleInitialized();
+
+      if (!GoogleSignIn.instance.supportsAuthenticate()) {
+        return 'Platform ini belum mendukung login Google.';
+      }
+
+      final GoogleSignInAccount googleUser =
+          await GoogleSignIn.instance.authenticate();
+      final String? idToken = googleUser.authentication.idToken;
+
+      if (idToken == null) {
+        return 'Gagal mendapatkan token Google.';
+      }
+      return loginWithGoogleIdToken(idToken);
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        return 'Login Google dibatalkan.';
+      }
+      return 'Login Google gagal: ${e.description ?? e.code.name}';
     } catch (e) {
       return 'Terjadi kesalahan saat login dengan Google: $e';
     }

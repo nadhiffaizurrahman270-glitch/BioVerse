@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import '../../widgets/google_web_button_stub.dart'
-    if (dart.library.js_interop) '../../widgets/google_web_button_web.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../widgets/cell_background.dart';
 import 'dashboard_page.dart';
 import 'signup_page.dart';
 import '../../services/auth_service.dart';
+import '../../services/google_button_stub.dart'
+    if (dart.library.js_interop) '../../services/google_button_web.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,28 +28,52 @@ class _LoginPageState extends State<LoginPage> {
 
   static const Color primaryColor = Color(0xFF166534);
   static const Color darkColor = Color(0xFF12372A);
-  
-  StreamSubscription<dynamic>? _googleSub;
+
+  StreamSubscription<GoogleSignInAuthenticationEvent>? _googleSub;
 
   @override
   void initState() {
     super.initState();
-    if (kIsWeb) {
-      AuthService.listenGoogleWebSignIn((error) {
-        if (!mounted) return;
-        if (error != null) {
-          _showError(error);
-        } else {
-          _goToDashboard();
-        }
-      }).then((sub) {
-        if (mounted) {
-          _googleSub = sub;
-        } else {
-          sub.cancel();
-        }
-      });
+    if (kIsWeb) _listenGoogleWebLogin();
+  }
+
+  /// Flutter Web: hasil klik tombol resmi Google masuk lewat stream ini.
+  Future<void> _listenGoogleWebLogin() async {
+    try {
+      final stream = await AuthService.googleAuthEvents();
+      if (!mounted) return;
+      _googleSub = stream.listen(
+        _onGoogleEvent,
+        onError: (Object e) {
+          if (!mounted) return;
+          setState(() => _isGoogleLoading = false);
+          _showError('Login Google gagal: $e');
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      _showError('Google Sign-In gagal diinisialisasi: $e');
     }
+  }
+
+  Future<void> _onGoogleEvent(GoogleSignInAuthenticationEvent event) async {
+    if (event is! GoogleSignInAuthenticationEventSignIn) return;
+    final idToken = event.user.authentication.idToken;
+    if (idToken == null) {
+      if (mounted) _showError('Gagal mendapatkan token Google.');
+      return;
+    }
+
+    if (mounted) setState(() => _isGoogleLoading = true);
+    final error = await AuthService.loginWithGoogleIdToken(idToken);
+    if (!mounted) return;
+    setState(() => _isGoogleLoading = false);
+
+    if (error != null) {
+      _showError(error);
+      return;
+    }
+    _goToDashboard();
   }
 
   @override
@@ -490,52 +515,63 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       width: double.infinity,
                       height: 52,
-                      child: Center(child: buildGoogleWebButton()),
-                    )
-                  else
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: OutlinedButton(
-                      onPressed: (_isLoading || _isGoogleLoading)
-                          ? null
-                          : _handleGoogleLogin,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: darkColor,
-                        side: BorderSide(color: Colors.grey.shade300),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
                       child: _isGoogleLoading
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                color: primaryColor,
+                          ? const Center(
+                              child: SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: primaryColor,
+                                ),
                               ),
                             )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/image/LOGO GOOGLE.png',
+                          : Center(child: buildGoogleWebButton()),
+                    )
+                  else
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: OutlinedButton(
+                          onPressed: (_isLoading || _isGoogleLoading)
+                              ? null
+                              : _handleGoogleLogin,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: darkColor,
+                            side: BorderSide(color: Colors.grey.shade300),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: _isGoogleLoading
+                              ? const SizedBox(
                                   width: 22,
                                   height: 22,
-                                ),
-                                const SizedBox(width: 12),
-                                const Text(
-                                  'Continue with Google',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: primaryColor,
                                   ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/image/LOGO GOOGLE.png',
+                                      width: 22,
+                                      height: 22,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Continue with Google',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                    ),
-                  ),
+                        ),
+                      ),
                   const SizedBox(height: 18),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

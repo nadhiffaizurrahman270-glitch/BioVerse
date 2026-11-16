@@ -252,40 +252,57 @@ class GoogleLoginRequest(BaseModel):
     id_token: str
 
 
+def _google_client_ids() -> list[str]:
+    """Client ID OAuth Google yang sah untuk BioVerse (boleh lebih dari satu, pisah koma)."""
+    raw = os.getenv("GOOGLE_CLIENT_ID") or os.getenv("GOOGLE_OAUTH_CLIENT_ID") or ""
+    return [c.strip() for c in raw.split(",") if c.strip()]
+
+
 @app.post("/api/v1/auth/google", response_model=schemas.Token, tags=["auth"])
 def google_login(req: GoogleLoginRequest, db: Session = Depends(get_db)):
+    client_ids = _google_client_ids()
+    if not client_ids:
+        logger.error("GOOGLE_CLIENT_ID belum diisi di .env backend")
+        raise HTTPException(
+            status_code=503,
+            detail="Login Google belum dikonfigurasi di server.",
+        )
+
     try:
+        # audience diverifikasi terhadap Client ID BioVerse, sehingga token
+        # Google milik aplikasi lain ditolak.
         idinfo = id_token.verify_oauth2_token(
-            req.id_token, google_requests.Request(), None
+            req.id_token, google_requests.Request(), audience=client_ids
         )
-
-        email = idinfo.get("email")
-        nama = idinfo.get("name") or email.split("@")[0]
-
-        if not email:
-            raise HTTPException(status_code=400, detail="Email tidak ditemukan dari akun Google")
-
-        user = db.query(models.User).filter(models.User.email == email).first()
-
-        if not user:
-            random_pwd = get_password_hash(os.urandom(16).hex())
-            user = models.User(
-                nama=nama,
-                email=email,
-                hashed_password=random_pwd,
-            )
-            db.add(user)
-            db.commit()
-            db.refresh(user)
-
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": user.email}, expires_delta=access_token_expires
-        )
-        return {"access_token": access_token, "token_type": "bearer"}
-
     except ValueError:
         raise HTTPException(status_code=401, detail="Token Google tidak valid atau kadaluwarsa")
+
+    email = idinfo.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email tidak ditemukan dari akun Google")
+    if not idinfo.get("email_verified", False):
+        raise HTTPException(status_code=401, detail="Email Google belum terverifikasi")
+
+    nama = idinfo.get("name") or email.split("@")[0]
+
+    user = db.query(models.User).filter(models.User.email == email).first()
+
+    if not user:
+        random_pwd = get_password_hash(os.urandom(16).hex())
+        user = models.User(
+            nama=nama,
+            email=email,
+            hashed_password=random_pwd,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 # ==========================================

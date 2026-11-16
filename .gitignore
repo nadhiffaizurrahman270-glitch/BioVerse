@@ -61,3 +61,4 @@ backend/Include/
 backend/pyvenv.cfg
 __pycache__/
 *.pyo
+.env
