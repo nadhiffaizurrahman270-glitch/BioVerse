@@ -1614,6 +1614,7 @@ class _ProfileMenuState extends State<_ProfileMenu> {
                         ),
                       );
                       if (!mounted) return;
+                      setState(() {});
                       if (result == true) {
                         await widget.onProfileUpdated();
                       }

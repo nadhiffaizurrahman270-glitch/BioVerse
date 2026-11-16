@@ -6,6 +6,7 @@ import 'package:flutter_projek_1/controllers/progress_controller.dart';
 import 'package:flutter_projek_1/views/pages/home_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controllers/topic_controller.dart';
 
@@ -20,7 +21,12 @@ Future<void> main() async {
     debugPrint("File .env tidak tersedia: $e");
   }
 
+  await ProgressController.init();
   await LearningStatsController.init();
+
+  final prefs = await SharedPreferences.getInstance();
+  final String? token = prefs.getString('access_token');
+  final bool isLoggedIn = token != null && token.isNotEmpty;
 
   runApp(
     MultiProvider(
