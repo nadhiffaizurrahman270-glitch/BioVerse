@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -20,7 +23,7 @@ class AuthService {
   }) async {
     try {
       await _dio.post('/auth/register', data: {
-        'username': name.trim(),
+        'nama': name.trim(), // backend (schemas.UserCreate) memakai field 'nama'
         'email': email.trim(),
         'password': password,
       });
@@ -29,6 +32,9 @@ class AuthService {
     } on DioException catch (e) {
       if (e.response?.statusCode == 400) {
         return 'Email sudah terdaftar atau format tidak valid.';
+      }
+      if (e.response?.statusCode == 422) {
+        return 'Data tidak valid. Periksa nama, email, dan password.';
       }
       return 'Registrasi gagal: ${e.message}';
     } catch (e) {
@@ -40,20 +46,19 @@ class AuthService {
   // GOOGLE
   // ==========================================
 
-  static Future<String?> signInWithGoogle() async {
+  static Future<void>? _googleInit;
+
+  /// initialize() hanya boleh sekali.
+  static Future<void> initGoogle() {
+    return _googleInit ??= GoogleSignIn.instance.initialize();
+  }
+
+  /// Tukar id_token Google dengan JWT backend lalu simpan.
+  static Future<String?> _exchangeGoogleToken(String? idToken) async {
+    if (idToken == null) {
+      return 'Gagal mendapatkan token Google. Pastikan Client ID sudah diatur di web/index.html.';
+    }
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn.instance;
-      await googleSignIn.initialize();
-
-      final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
-
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-      final String? idToken = googleAuth.idToken;
-
-      if (idToken == null) {
-        return 'Gagal mendapatkan token Google. Pastikan Client ID sudah diatur di web/index.html.';
-      }
-
       final response = await _dio.post('/auth/google', data: {
         'id_token': idToken,
       });
@@ -66,7 +71,40 @@ class AuthService {
       }
       return 'Token tidak ditemukan dari server.';
     } on DioException catch (e) {
-      return 'Login Google gagal: ${e.response?.data['detail'] ?? e.message}';
+      final data = e.response?.data;
+      final detail = data is Map ? data['detail'] : null;
+      return 'Login Google gagal: ${detail ?? e.message}';
+    } catch (e) {
+      return 'Terjadi kesalahan saat login dengan Google: $e';
+    }
+  }
+
+  /// WEB: dengarkan event login dari tombol resmi Google (renderButton).
+  /// [onResult] dipanggil dengan null jika sukses, atau pesan error.
+  static Future<StreamSubscription<GoogleSignInAuthenticationEvent>>
+      listenGoogleWebSignIn(void Function(String? error) onResult) async {
+    await initGoogle();
+    return GoogleSignIn.instance.authenticationEvents.listen(
+      (event) async {
+        if (event is GoogleSignInAuthenticationEventSignIn) {
+          onResult(
+            await _exchangeGoogleToken(event.user.authentication.idToken),
+          );
+        }
+      },
+      onError: (Object e) => onResult('Login Google gagal: $e'),
+    );
+  }
+
+  /// MOBILE/DESKTOP: login Google lewat dialog native.
+  static Future<String?> signInWithGoogle() async {
+    if (kIsWeb) {
+      return 'Gunakan tombol Google resmi di halaman login.';
+    }
+    try {
+      await initGoogle();
+      final googleUser = await GoogleSignIn.instance.authenticate();
+      return _exchangeGoogleToken(googleUser.authentication.idToken);
     } catch (e) {
       return 'Terjadi kesalahan saat login dengan Google: $e';
     }
@@ -81,10 +119,16 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final response = await _dio.post('/auth/login', data: {
-        'email': email.trim(),
-        'password': password,
-      });
+      // Backend memakai OAuth2PasswordRequestForm: form-urlencoded,
+      // dan email dikirim lewat field 'username'.
+      final response = await _dio.post(
+        '/auth/login',
+        data: {
+          'username': email.trim(),
+          'password': password,
+        },
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
 
       final token = response.data['access_token'];
 

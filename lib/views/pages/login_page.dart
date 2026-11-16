@@ -1,4 +1,9 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../../widgets/google_web_button_stub.dart'
+    if (dart.library.js_interop) '../../widgets/google_web_button_web.dart';
 import '../widgets/cell_background.dart';
 import 'dashboard_page.dart';
 import 'signup_page.dart';
@@ -23,8 +28,32 @@ class _LoginPageState extends State<LoginPage> {
   static const Color primaryColor = Color(0xFF166534);
   static const Color darkColor = Color(0xFF12372A);
   
-  @override 
+  StreamSubscription<dynamic>? _googleSub;
+
+  @override
+  void initState() {
+    super.initState();
+    if (kIsWeb) {
+      AuthService.listenGoogleWebSignIn((error) {
+        if (!mounted) return;
+        if (error != null) {
+          _showError(error);
+        } else {
+          _goToDashboard();
+        }
+      }).then((sub) {
+        if (mounted) {
+          _googleSub = sub;
+        } else {
+          sub.cancel();
+        }
+      });
+    }
+  }
+
+  @override
   void dispose() {
+    _googleSub?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -457,6 +486,13 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                   const SizedBox(height: 18),
+                  if (kIsWeb)
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: Center(child: buildGoogleWebButton()),
+                    )
+                  else
                   SizedBox(
                     width: double.infinity,
                     height: 52,
