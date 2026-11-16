@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_projek_1/controllers/learning_stats_controller.dart';
@@ -11,14 +12,25 @@ import 'controllers/topic_controller.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: ".env");
+  // File .env opsional agar GitHub Pages tidak menyebabkan
+  // aplikasi gagal dijalankan ketika file tidak tersedia.
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("File .env tidak tersedia: $e");
+  }
+
   await LearningStatsController.init();
 
   runApp(
     MultiProvider(
       providers: [
-        Provider<ProgressController>(create: (_) => ProgressController()),
-        ChangeNotifierProvider(create: (_) => TopicController()),
+        Provider<ProgressController>(
+          create: (_) => ProgressController(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TopicController(),
+        ),
       ],
       child: const BioVerseApp(),
     ),
